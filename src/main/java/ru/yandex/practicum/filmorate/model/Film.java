@@ -1,19 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.time.DurationMin;
-import org.springframework.validation.annotation.Validated;
-
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 
 /**
  * Film.
@@ -22,12 +17,15 @@ import java.time.LocalDate;
 public class Film {
     private static final LocalDate MIN = LocalDate.of(1895, 12, 28);
 
-    long id;
+    @Null(groups = OnCreate.class)
+    @NotNull(groups = OnUpdate.class)
+    Long id;
 
-    @NotBlank(message = "name must not be empty")
+    @NotEmpty(message = "name must not be empty")
+    @NotBlank(message = "name must not consist of spaces")
     String name;
 
-    @Length(max = 200, message = "description has a maximum length of 200 characters")
+    @Size(max = 200, message = "description has a maximum length of 200 characters")
     String description;
 
     @NotNull(message = "releaseDate must not be empty")
@@ -38,8 +36,17 @@ public class Film {
     Duration duration;
 
 
-    @AssertTrue(message = "releaseDate not earlier than 28.12.189")
+    @AssertTrue(message = "releaseDate not earlier than 28.12.1895")
     public boolean isReleaseDateValid() {
-        return releaseDate == null || !releaseDate.isBefore(Instant.from(MIN));
+        if (releaseDate == null) return true;
+        var minInstant = MIN.atStartOfDay(ZoneOffset.UTC).toInstant();
+        return !releaseDate.isBefore(minInstant);
+    }
+
+
+    public interface OnCreate {
+    }
+
+    public interface OnUpdate {
     }
 }
