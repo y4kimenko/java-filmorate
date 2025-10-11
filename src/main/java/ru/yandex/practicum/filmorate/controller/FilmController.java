@@ -19,7 +19,7 @@ public class FilmController {
     private final HashMap<Long, Film> films = new HashMap<>();
 
     @PostMapping
-    public Film createFilm(@Validated({Film.OnCreate.class, Default.class}) @NotNull @RequestBody Film film) {
+    public Film createFilm(@Validated({/*Film.OnCreate.class,*/ Default.class}) @NotNull @RequestBody Film film) {
         long t0 = System.nanoTime();
 
         log.debug("createFilm() – request name={}, releaseDate={}", film.getName(), film.getReleaseDate());
@@ -42,7 +42,7 @@ public class FilmController {
     }
 
     @PatchMapping
-    public Film updateFilm(@Validated({Film.OnUpdate.class, Default.class}) @NotNull @RequestBody Film film) {
+    public Film updateFilm(@Validated({/*Film.OnUpdate.class,*/ Default.class}) @NotNull @RequestBody Film film) {
         long t0 = System.nanoTime();
         log.debug("updateFilm() – request id={}, name={}, releaseDate={}",
                 film.getId(), film.getName(), film.getReleaseDate());

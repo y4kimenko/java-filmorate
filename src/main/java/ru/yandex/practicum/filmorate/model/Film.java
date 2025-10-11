@@ -17,8 +17,8 @@ import java.time.ZoneOffset;
 public class Film {
     private static final LocalDate MIN = LocalDate.of(1895, 12, 28);
 
-    @Null(groups = OnCreate.class)
-    @NotNull(groups = OnUpdate.class)
+    // @Null(groups = OnCreate.class)
+    // @NotNull(groups = OnUpdate.class)
     Long id;
 
     @NotEmpty(message = "name must not be empty")

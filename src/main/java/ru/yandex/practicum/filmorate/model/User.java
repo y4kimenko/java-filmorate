@@ -7,8 +7,8 @@ import java.time.ZonedDateTime;
 
 @Data
 public class User {
-    @Null(groups = User.OnCreate.class)
-    @NotNull(groups = User.OnUpdate.class)
+    // @Null(groups = User.OnCreate.class)
+    // @NotNull(groups = User.OnUpdate.class)
     Long id;
 
     @NotEmpty(message = "email must not be empty")
