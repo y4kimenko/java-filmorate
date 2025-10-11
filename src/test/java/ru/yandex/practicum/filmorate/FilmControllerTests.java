@@ -64,8 +64,8 @@ class FilmControllerTests {
         Map<String, Object> create = Map.of(
                 "name", "Dune",
                 "description", "Part One",
-                "releaseDate", "2021-10-22T00:00:00Z",
-                "duration", "PT155M"
+                "releaseDate", "2021-10-22",
+                "duration", "155"
         );
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,19 +78,19 @@ class FilmControllerTests {
                 "id", 1,
                 "name", "Dune – Updated",
                 "description", "Part One – Extended",
-                "releaseDate", "2021-10-23T00:00:00Z",
-                "duration", "PT160M"
+                "releaseDate", "2021-10-23",
+                "duration", "160"
         );
 
-        mockMvc.perform(patch("/films")
+        mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(patchBody)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("Dune – Updated")))
                 .andExpect(jsonPath("$.description", is("Part One – Extended")))
-                .andExpect(jsonPath("$.releaseDate", is("2021-10-23T00:00:00Z")))
-                .andExpect(jsonPath("$.duration", is("PT2H40M")));
+                .andExpect(jsonPath("$.releaseDate", is("2021-10-23")))
+                .andExpect(jsonPath("$.duration").value(160));
     }
 
     @Test
@@ -99,12 +99,12 @@ class FilmControllerTests {
                 "id", 999,
                 "name", "Ghost",
                 "description", "N/A",
-                "releaseDate", "2000-01-01T00:00:00Z",
-                "duration", "PT90M"
+                "releaseDate", "2000-01-01",
+                "duration", "90"
         );
 
         ServletException thrown = assertThrows(ServletException.class, () ->
-                mockMvc.perform(patch("/films")
+                mockMvc.perform(put("/films")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(patchBody)))
                         .andReturn() // важно вызвать, чтобы реально выполнить запрос
@@ -121,14 +121,14 @@ class FilmControllerTests {
         Map<String, Object> f1 = Map.of(
                 "name", "Film A",
                 "description", "A",
-                "releaseDate", "2001-01-01T00:00:00Z",
-                "duration", "PT100M"
+                "releaseDate", "2001-01-01",
+                "duration", "100"
         );
         Map<String, Object> f2 = Map.of(
                 "name", "Film B",
                 "description", "B",
-                "releaseDate", "2002-02-02T00:00:00Z",
-                "duration", "PT110M"
+                "releaseDate", "2002-02-02",
+                "duration", "110"
         );
 
         mockMvc.perform(post("/films")
@@ -158,7 +158,7 @@ class FilmControllerTests {
         Map<String, Object> body = Map.of(
                 "name", "   ",
                 "description", "desc",
-                "releaseDate", "2014-11-07T00:00:00Z",
+                "releaseDate", "2014-11-07",
                 "duration", "PT10M"
         );
 
@@ -173,7 +173,7 @@ class FilmControllerTests {
         Map<String, Object> body = Map.of(
                 "name", "Short",
                 "description", "desc",
-                "releaseDate", "2020-01-01T00:00:00Z",
+                "releaseDate", "2020-01-01",
                 "duration", "PT0S"
         );
 
@@ -189,7 +189,7 @@ class FilmControllerTests {
         Map<String, Object> body = Map.of(
                 "name", "Ancient",
                 "description", "desc",
-                "releaseDate", "1895-12-27T00:00:00Z",
+                "releaseDate", "1895-12-27",
                 "duration", "PT60M"
         );
 

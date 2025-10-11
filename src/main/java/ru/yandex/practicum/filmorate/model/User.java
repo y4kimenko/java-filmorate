@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
+
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 
 @Data
 public class User {
@@ -21,11 +22,39 @@ public class User {
     @Pattern(regexp = "\\S+", message = "login не должен содержать пробелы")
     String login;
 
+
     String name;
 
     @NotNull(message = "birthday must not be empty")
     @Past(message = "birthday must be earlier than the current time point")
-    ZonedDateTime birthday;
+    LocalDate birthday;
+
+
+    public void setLogin(String email) {
+        this.login = trimToNull(email);
+        // Если name пуст – подставляем свежий email
+        if (isBlank(this.name)) {
+            this.name = this.login;
+        }
+    }
+
+    public void setName(String name) {
+        String n = trimToNull(name);
+        // Если прислали пустое name – берём текущий email
+        this.name = (n == null) ? this.login : n;
+    }
+
+    // ==== УТИЛИТЫ ====
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String trimToNull(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
+    }
 
 
     public interface OnCreate {

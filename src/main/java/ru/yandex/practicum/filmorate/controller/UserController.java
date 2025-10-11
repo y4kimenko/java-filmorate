@@ -43,7 +43,7 @@ public class UserController {
         return newUser;
     }
 
-    @PatchMapping
+    @PutMapping
     public User updateUser(@Validated({/*User.OnUpdate.class,*/ Default.class}) @NotNull @RequestBody User user) {
 
         long t0 = System.nanoTime();

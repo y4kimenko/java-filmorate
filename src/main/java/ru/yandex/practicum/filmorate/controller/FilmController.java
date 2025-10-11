@@ -41,7 +41,7 @@ public class FilmController {
         return newFilm;
     }
 
-    @PatchMapping
+    @PutMapping
     public Film updateFilm(@Validated({/*Film.OnUpdate.class,*/ Default.class}) @NotNull @RequestBody Film film) {
         long t0 = System.nanoTime();
         log.debug("updateFilm() – request id={}, name={}, releaseDate={}",
