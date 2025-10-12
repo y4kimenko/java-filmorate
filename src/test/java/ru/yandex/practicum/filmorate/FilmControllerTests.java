@@ -44,19 +44,6 @@ class FilmControllerTests {
                 .build();
     }
 
-//    @Test
-//    void createFilm_ShouldReturn400_WhenIdIsNotBlank() throws Exception {
-//        Map<String, Object> body = new HashMap<>();
-//        body.put("name", " k ");
-//        body.put("description", "Space epic");
-//        body.put("releaseDate", "2014-11-07T00:00:00Z");
-//        body.put("duration", "PT169M");
-//
-//        mockMvc.perform(post("/films")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(mapper.writeValueAsString(body)))
-//                .andExpect(status().isBadRequest());
-//    }
 
     @Test
     void updateFilm_WhenExists_ShouldApplyChanges() throws Exception {

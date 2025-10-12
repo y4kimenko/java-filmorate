@@ -10,24 +10,24 @@ import java.time.LocalDate;
 public class User {
     // @Null(groups = User.OnCreate.class)
     // @NotNull(groups = User.OnUpdate.class)
-    Long id;
+    private Long id;
 
     @NotEmpty(message = "email must not be empty")
     @NotBlank(message = "email must not consist of spaces")
     @Email(message = "E-mail  is incorrect")
-    String email;
+    private String email;
 
     @NotEmpty(message = "login must not be empty")
     @NotBlank(message = "login must not consist of spaces")
     @Pattern(regexp = "\\S+", message = "login не должен содержать пробелы")
-    String login;
+    private String login;
 
 
-    String name;
+    private String name;
 
     @NotNull(message = "birthday must not be empty")
     @Past(message = "birthday must be earlier than the current time point")
-    LocalDate birthday;
+    private LocalDate birthday;
 
 
     public void setLogin(String email) {

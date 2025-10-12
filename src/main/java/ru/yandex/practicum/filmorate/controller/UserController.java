@@ -21,7 +21,7 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
     @PostMapping
-    public User createUser(@Validated({/*User.OnCreate.class,*/ Default.class}) @NotNull @RequestBody User user) {
+    public User createUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
         long t0 = System.nanoTime();
 
         log.debug("createUser() – request login={}, email={}", user.getLogin(), user.getEmail());
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@Validated({/*User.OnUpdate.class,*/ Default.class}) @NotNull @RequestBody User user) {
+    public User updateUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
 
         long t0 = System.nanoTime();
         log.debug("updateUser() – request id={}, login={}, email={}",

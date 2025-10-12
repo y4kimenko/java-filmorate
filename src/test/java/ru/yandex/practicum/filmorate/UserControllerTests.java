@@ -87,9 +87,7 @@ class UserControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
-    // Если у тебя в модели User.id == long и контроллер валидирует @Validated(User.OnCreate.class),
-    // то даже корректный POST может дать 400 из-за @Null на id. Этот тест оставлен как «успешный»,
-    // но при примитиве long поменяй ожидание на isBadRequest() или переведи id на Long.
+
     @Test
     void createUser_ShouldReturnSavedUserWithId() throws Exception {
         Map<String, Object> body = new HashMap<>();

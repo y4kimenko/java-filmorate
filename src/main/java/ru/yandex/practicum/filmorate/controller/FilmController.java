@@ -6,6 +6,7 @@ import jakarta.validation.groups.Default;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -19,48 +20,36 @@ public class FilmController {
     private final HashMap<Long, Film> films = new HashMap<>();
 
     @PostMapping
-    public Film createFilm(@Validated({/*Film.OnCreate.class,*/ Default.class}) @NotNull @RequestBody Film film) {
+    public Film createFilm(@Validated({Default.class}) @NotNull @RequestBody Film film) {
         long t0 = System.nanoTime();
 
         log.debug("createFilm() – request name={}, releaseDate={}", film.getName(), film.getReleaseDate());
+        film.setId(getNextId());
 
-        Film newFilm = new Film();
-
-        newFilm.setId(getNextId());
-
-        newFilm.setName(film.getName());
-        newFilm.setDescription(film.getDescription());
-        newFilm.setReleaseDate(film.getReleaseDate());
-        newFilm.setDuration(film.getDuration());
-
-        films.put(newFilm.getId(), newFilm);
+        films.put(film.getId(), film);
 
         long ms = (System.nanoTime() - t0) / 1_000_000;
-        log.info("createFilm() – created id={} in {} ms", newFilm.getId(), ms);
+        log.info("createFilm() – created id={} in {} ms", film.getId(), ms);
 
-        return newFilm;
+        return film;
     }
 
     @PutMapping
-    public Film updateFilm(@Validated({/*Film.OnUpdate.class,*/ Default.class}) @NotNull @RequestBody Film film) {
+    public Film updateFilm(@Validated({Default.class}) @NotNull @RequestBody Film film) {
         long t0 = System.nanoTime();
         log.debug("updateFilm() – request id={}, name={}, releaseDate={}",
                 film.getId(), film.getName(), film.getReleaseDate());
 
-        if (films.containsKey(film.getId())) {
-            Film oldFilm = films.get(film.getId());
 
-            oldFilm.setName(film.getName());
-            oldFilm.setDescription(film.getDescription());
-            oldFilm.setReleaseDate(film.getReleaseDate());
-            oldFilm.setDuration(film.getDuration());
+        if (films.containsKey(film.getId())) {
+            films.put(film.getId(), film);
 
             long ms = (System.nanoTime() - t0) / 1_000_000;
-            log.info("updateUser() – updated id={} in {} ms, updateUser={}", film.getId(), ms, oldFilm);
+            log.info("updateUser() – updated id={} in {} ms, updateUser={}", film.getId(), ms, film);
 
-            return oldFilm;
+            return film;
         }
-        throw new IllegalArgumentException("Film not found");
+        throw new NotFoundException("Film not found");
     }
 
     @GetMapping

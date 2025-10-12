@@ -15,21 +15,21 @@ public class Film {
 
     // @Null(groups = OnCreate.class)
     // @NotNull(groups = OnUpdate.class)
-    Long id;
+    private Long id;
 
     @NotEmpty(message = "name must not be empty")
     @NotBlank(message = "name must not consist of spaces")
-    String name;
+    private String name;
 
     @Size(max = 201, message = "description has a maximum length of 200 characters")
-    String description;
+    private String description;
 
     @NotNull(message = "releaseDate must not be empty")
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
 
     @NotNull(message = "duration must not be empty")
     @Min(value = 1, message = "duration must be at least 1 minutes")
-    Integer duration;
+    private Integer duration;
 
 
     @AssertTrue(message = "releaseDate not earlier than 28.12.1895")
