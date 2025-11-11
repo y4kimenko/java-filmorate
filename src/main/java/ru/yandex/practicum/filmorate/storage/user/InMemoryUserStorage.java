@@ -1,27 +1,19 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage.user;
 
-
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.groups.Default;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-@RestController
-@RequestMapping("/users")
+@Component
 @Log4j2
-public class UserController {
+public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
 
-    @PostMapping
-    public User createUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
+    @Override
+    public User createUser(User user) {
         long t0 = System.nanoTime();
 
         log.debug("createUser() – request login={}, email={}", user.getLogin(), user.getEmail());
@@ -43,9 +35,8 @@ public class UserController {
         return newUser;
     }
 
-    @PutMapping
-    public User updateUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
-
+    @Override
+    public User updateUser(User user) {
         long t0 = System.nanoTime();
         log.debug("updateUser() – request id={}, login={}, email={}",
                 user.getId(), user.getLogin(), user.getEmail());
@@ -67,7 +58,7 @@ public class UserController {
         throw new NotFoundException("User with id=" + user.getId() + " not found");
     }
 
-    @GetMapping
+    @Override
     public Collection<User> getAllUsers() {
         int size = users.size();
         log.debug("getAllUsers() – total={}", size);
@@ -75,6 +66,10 @@ public class UserController {
         return new ArrayList<>(users.values());
     }
 
+    @Override
+    public Optional<User> getUserById(Long id) {
+        return Optional.ofNullable(users.get(id));
+    }
 
     // Генерация нового Id
     private long getNextId() {
