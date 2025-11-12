@@ -4,7 +4,6 @@ package ru.yandex.practicum.filmorate.controller.user;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +19,6 @@ import java.util.Collection;
 
 @Validated
 @RequiredArgsConstructor
-@Log4j2
 @RestController
 @RequestMapping("/users")
 public class UserController {

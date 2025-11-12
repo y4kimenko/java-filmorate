@@ -24,10 +24,10 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        if (filmStorage.getFilmById(film.getId()).isPresent()) {
-            return filmStorage.updateFilm(film);
-        }
-        throw new FilmNotFoundException("Фильм с id " + film.getId() + " не найден");
+        requireFilm(film.getId());
+
+        return filmStorage.updateFilm(film);
+
     }
 
     public Collection<Film> getAllFilms() {
@@ -35,21 +35,15 @@ public class FilmService {
     }
 
     public void addUserLike(long filmId, long userId) {
-        userStorage.getUserById(userId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + userId + " не найден"));
+        requireUser(userId);
 
-        filmStorage.getFilmById(filmId).orElseThrow(() ->
-                        new FilmNotFoundException("Фильм с id " + filmId + " не найден"))
-                .getLikedUser().add(userId);
+        requireFilm(filmId).getLikedUser().add(userId);
     }
 
     public void removeUserLike(long filmId, long userId) {
-        userStorage.getUserById(userId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + userId + " не найден"));
+        requireUser(userId);
 
-        filmStorage.getFilmById(filmId).orElseThrow(() ->
-                        new FilmNotFoundException("Фильм с id " + filmId + " не найден"))
-                .getLikedUser().remove(userId);
+        requireFilm(filmId).getLikedUser().remove(userId);
     }
 
     public List<Film> getPopularFilms(int count) {
@@ -59,6 +53,20 @@ public class FilmService {
                 ).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    private Film requireFilm(long filmId) {
+        return filmStorage.getFilmById(filmId)
+                .orElseThrow(() ->
+                        new FilmNotFoundException("Фильм с id " + filmId + " не найден")
+                );
+    }
+
+    private void requireUser(long userId) {
+        userStorage.getUserById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Пользователь с id " + userId + " не найден")
+                );
     }
 
 }

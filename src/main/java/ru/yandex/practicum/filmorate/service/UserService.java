@@ -23,10 +23,8 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        if (storage.getUserById(user.getId()).isPresent()) {
-            return storage.updateUser(user);
-        }
-        throw new UserNotFoundException("Пользователь с id " + user.getId() + " не найден");
+        requireUser(user.getId());
+        return storage.updateUser(user);
     }
 
     public Collection<User> getAllUsers() {
@@ -34,10 +32,7 @@ public class UserService {
     }
 
     public Set<User> getFriends(long userId) {
-        return storage.getUserById(userId)
-                .orElseThrow(() ->
-                        new UserNotFoundException("Пользователь с id " + userId + " не найден")
-                )
+        return requireUser(userId)
                 .getFriends().stream()
                 .map(storage::getUserById)
                 .flatMap(Optional::stream)
@@ -45,41 +40,19 @@ public class UserService {
     }
 
     public void addFriend(long userId, long friendId) {
-        User user = storage.getUserById(userId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + userId + " не найден")
-        );
-
-        User friend = storage.getUserById(friendId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + friendId + " не найден")
-        );
-
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        requireUser(userId).getFriends().add(friendId);
+        requireUser(friendId).getFriends().add(userId);
     }
 
     public void removeFriend(long userId, long friendId) {
-        User user = storage.getUserById(userId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + userId + " не найден")
-        );
-
-        User friend = storage.getUserById(friendId).orElseThrow(() ->
-                new UserNotFoundException("Пользователь с id " + friendId + " не найден")
-        );
-
-        user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        requireUser(userId).getFriends().remove(friendId);
+        requireUser(friendId).getFriends().remove(userId);
     }
 
     public Set<User> getMutualFriends(long userId, long friendId) {
-        Set<Long> friendsUser = storage.getUserById(userId)
-                .orElseThrow(() ->
-                        new UserNotFoundException("Пользователь с id " + userId + " не найден")
-                )
-                .getFriends();
+        Set<Long> friendsUser = requireUser(userId).getFriends();
 
-        return storage.getUserById(friendId).orElseThrow(() ->
-                        new UserNotFoundException("Пользователь с id " + friendId + " не найден")
-                )
+        return requireUser(friendId)
                 .getFriends().stream()
                 .filter(x -> !friendsUser.add(x))
                 .map(storage::getUserById)
@@ -87,5 +60,11 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
+    private User requireUser(long userId) {
+        return storage.getUserById(userId)
+                .orElseThrow(() ->
+                        new UserNotFoundException("Пользователь с id " + userId + " не найден")
+                );
+    }
 
 }
