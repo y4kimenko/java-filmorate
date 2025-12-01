@@ -1,26 +1,22 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.storage.film;
 
-
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.groups.Default;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Optional;
 
-@RestController
-@RequestMapping("/films")
+@Component
 @Slf4j
-public class FilmController {
+public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
 
-    @PostMapping
-    public Film createFilm(@Validated({Default.class}) @NotNull @RequestBody Film film) {
+    @Override
+    public Film createFilm(Film film) {
         long t0 = System.nanoTime();
 
         log.debug("createFilm() – request name={}, releaseDate={}", film.getName(), film.getReleaseDate());
@@ -34,8 +30,8 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping
-    public Film updateFilm(@Validated({Default.class}) @NotNull @RequestBody Film film) {
+    @Override
+    public Film updateFilm(Film film) {
         long t0 = System.nanoTime();
         log.debug("updateFilm() – request id={}, name={}, releaseDate={}",
                 film.getId(), film.getName(), film.getReleaseDate());
@@ -52,12 +48,17 @@ public class FilmController {
         throw new NotFoundException("Film not found");
     }
 
-    @GetMapping
-    public List<Film> getAllFilms() {
+    @Override
+    public Collection<Film> getAllFilms() {
         int size = films.size();
         log.debug("getAllUsers() – total={}", size);
 
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Optional<Film> getFilmById(Long id) {
+        return Optional.ofNullable(films.get(id));
     }
 
 
@@ -70,6 +71,4 @@ public class FilmController {
                 .orElse(0);
         return ++currentMaxId;
     }
-
-
 }
