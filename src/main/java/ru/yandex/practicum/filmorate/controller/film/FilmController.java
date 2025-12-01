@@ -1,20 +1,13 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.controller.film;
 
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -28,6 +21,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film createFilm(@Validated({Default.class}) @NotNull @RequestBody Film film) {
         return filmService.createFilm(film);
     }
