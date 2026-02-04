@@ -7,12 +7,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.user.StatusFriendship;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -86,7 +84,8 @@ class UserServiceTests {
     void getFriendsResolvesFriendEntitiesFromIds() {
         User user = new User();
         user.setId(1L);
-        user.getFriends().addAll(Set.of(2L, 3L));
+        user.getFriends().put(2L, StatusFriendship.CONFIRMED);
+        user.getFriends().put(3L,StatusFriendship.CONFIRMED);
 
         User friendOne = new User();
         friendOne.setId(2L);
@@ -110,7 +109,9 @@ class UserServiceTests {
     void getFriendsSkipsMissingFriendEntries() {
         User user = new User();
         user.setId(4L);
-        user.getFriends().addAll(Set.of(5L, 6L));
+        user.getFriends().put(5L, StatusFriendship.CONFIRMED);
+        user.getFriends().put(6L,StatusFriendship.CONFIRMED);
+
 
         User existingFriend = new User();
         existingFriend.setId(5L);
@@ -184,7 +185,8 @@ class UserServiceTests {
     void removeFriendWhenUserAndFriendExists() {
         User user = new User();
         user.setId(1L);
-        user.setFriends(new HashSet<>(Set.of(2L, 3L)));
+        user.getFriends().put(2L, StatusFriendship.CONFIRMED);
+        user.getFriends().put(3L,StatusFriendship.CONFIRMED);
 
         User friend = new User();
         friend.setId(2L);
@@ -231,17 +233,27 @@ class UserServiceTests {
     void getMutualFriendsWhenUserAndFriendExists() {
         User user = new User();
         user.setId(1L);
-        user.setFriends(new HashSet<>(Set.of(2L, 3L, 4L)));
+        user.getFriends().put(2L, StatusFriendship.UNCONFIRMED);
+        user.getFriends().put(3L,StatusFriendship.CONFIRMED);
+        user.getFriends().put(4L, StatusFriendship.CONFIRMED);
+
 
         User friend = new User();
         friend.setId(2L);
-        friend.setFriends(new HashSet<>(Set.of(3L, 4L)));
+        friend.getFriends().put(1L,StatusFriendship.CONFIRMED);
+        friend.getFriends().put(3L,StatusFriendship.CONFIRMED);
+        friend.getFriends().put(4L, StatusFriendship.CONFIRMED);
 
         User mutualFriend1 = new User();
         mutualFriend1.setId(3L);
 
+        mutualFriend1.getFriends().put(1L, StatusFriendship.UNCONFIRMED);
+        mutualFriend1.getFriends().put(2L, StatusFriendship.UNCONFIRMED);
+
         User mutualFriend2 = new User();
         mutualFriend2.setId(4L);
+        mutualFriend2.getFriends().put(1L, StatusFriendship.UNCONFIRMED);
+        mutualFriend2.getFriends().put(2L, StatusFriendship.UNCONFIRMED);
 
         when(userStorage.getUserById(1L)).thenReturn(Optional.of(user));
         when(userStorage.getUserById(2L)).thenReturn(Optional.of(friend));

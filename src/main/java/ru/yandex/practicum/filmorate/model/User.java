@@ -8,10 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.enums.user.StatusFriendship;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 
 @Data
 public class User {
@@ -34,8 +34,7 @@ public class User {
     @Past(message = "birthday должен быть раньше текущего момента времени")
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
-
+    private HashMap<Long, StatusFriendship> friends = new HashMap<>();
 
     public void setLogin(String email) {
         this.login = trimToNull(email);

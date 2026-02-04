@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.enums.user.StatusFriendship;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
@@ -33,15 +34,16 @@ public class UserService {
 
     public Set<User> getFriends(long userId) {
         return requireUser(userId)
-                .getFriends().stream()
-                .map(storage::getUserById)
+                .getFriends()
+                .entrySet().stream()
+                .map(entry -> storage.getUserById(entry.getKey()))
                 .flatMap(Optional::stream)
                 .collect(Collectors.toSet());
     }
 
     public void addFriend(long userId, long friendId) {
-        requireUser(userId).getFriends().add(friendId);
-        requireUser(friendId).getFriends().add(userId);
+        requireUser(userId).getFriends().put(friendId, StatusFriendship.UNCONFIRMED);
+        requireUser(friendId).getFriends().put(userId, StatusFriendship.UNCONFIRMED);
     }
 
     public void removeFriend(long userId, long friendId) {

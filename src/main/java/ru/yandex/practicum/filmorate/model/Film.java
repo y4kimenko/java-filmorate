@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.enums.film.GenreFilm;
+import ru.yandex.practicum.filmorate.model.enums.film.RatingFilm;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -21,6 +23,13 @@ public class Film {
 
     @NotBlank(message = "name не должно состоять из пробелов")
     private String name;
+
+    @NotNull(message = "genre не должно быть пустым")
+    @Size(min = 1)
+    private Set<GenreFilm> genre;
+
+    @NotNull(message = "rating не должно быть пустым")
+    private RatingFilm rating;
 
     @Size(max = 200, message = "у description максимальная длина 200 символов")
     private String description;
