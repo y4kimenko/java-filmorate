@@ -23,7 +23,7 @@ erDiagram
 
     FILMS {
         int id PK
-        varchar name
+        varchar title
         int genre FK
         int rating FK
         text description

@@ -5,10 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.enums.user.StatusFriendship;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.model.user.enums.StatusFriendship;
+import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 
 import java.util.*;
 
@@ -275,7 +275,7 @@ class UserServiceTests {
     void getMutualFriendsWhenUserExistButNotFriend() {
         User user = new User();
         user.setId(1L);
-        user.setFriends(new HashSet<>(Set.of(2L, 3L, 4L)));
+        user.setFriends(new HashMap<>(Map.of(2L, StatusFriendship.CONFIRMED, 3L,StatusFriendship.CONFIRMED ,4L, StatusFriendship.CONFIRMED)));
 
         when(userStorage.getUserById(1L)).thenReturn(Optional.of(user));
         when(userStorage.getUserById(2L)).thenReturn(Optional.empty());

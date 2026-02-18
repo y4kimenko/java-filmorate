@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.notFound.NotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +81,15 @@ public class ErrorHandler {
     // 4. Обработка своих бизнес–исключений – NotFoundException на 404
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(NotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                ex.getMessage(),                    // "Пользователь/фильм не найден"
+                ex.getClass().getSimpleName()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalException(IllegalStateException ex) {
         ErrorResponse response = new ErrorResponse(
                 ex.getMessage(),                    // "Пользователь/фильм не найден"
                 ex.getClass().getSimpleName()
