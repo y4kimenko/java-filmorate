@@ -1,16 +1,15 @@
 package ru.yandex.practicum.filmorate.dal.genres;
 
-import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
+import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public interface GenresStorage {
-    Map<Long, GenreResponseDto> getAll();
+    Map<Long, Genre> getAll();
 
-    Optional<GenreResponseDto> getById(long id);
+    Optional<Genre> getById(long id);
 
-    LinkedHashSet<GenreResponseDto> getByIds(Set<Long> ids);
+    Map<Long, Genre> getByIds(Set<Long> ids);
 }

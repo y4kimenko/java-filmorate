@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
-import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
                 .addValue("duration", film.getDuration());
 
         if (film.getMpa() != null) {
-            params.addValue("mpa_id", film.getMpa());
+            params.addValue("mpa_id", film.getMpa().id());
 
             jdbcTemplate.update(INSERT_FILM_WITH_MPA,
                     params,
@@ -122,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
         if (film.getMpa() != null) {
-            params.addValue("mpa_id", film.getMpa());
+            params.addValue("mpa_id", film.getMpa().id());
 
             jdbcTemplate.update(UPDATE_FILM_WITH_MPA, params);
             log.info("Updated a value in a table 'film' by ID={} with fields: title, mpa_id, description, release_date, duration",

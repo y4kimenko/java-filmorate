@@ -9,10 +9,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.mpa.MpaDbStorage;
-import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,27 +45,27 @@ class MpaDbStorageTest {
     @Test
     @DisplayName("getAll –– возвращает все рейтинги")
     void getAll_returnsAll() {
-        Set<MpaResponseDto> result = mpaStorage.getAll();
+        Map<Long, Mpa> result = mpaStorage.getAll();
 
         assertEquals(3, result.size());
-        assertTrue(result.contains(new MpaResponseDto(1, "G")));
-        assertTrue(result.contains(new MpaResponseDto(2, "PG")));
-        assertTrue(result.contains(new MpaResponseDto(3, "PG-13")));
+        assertTrue(result.containsValue(new Mpa(1L, "G")));
+        assertTrue(result.containsValue(new Mpa(2L, "PG")));
+        assertTrue(result.containsValue(new Mpa(3L, "PG-13")));
     }
 
     @Test
     @DisplayName("getById –– возвращает рейтинг если найден")
     void getById_returnsWhenFound() {
-        Optional<MpaResponseDto> res = mpaStorage.getById(2L);
+        Optional<Mpa> res = mpaStorage.getById(2L);
 
         assertTrue(res.isPresent());
-        assertEquals(new MpaResponseDto(2, "PG"), res.get());
+        assertEquals(new Mpa(2L, "PG"), res.get());
     }
 
     @Test
     @DisplayName("getById –– возвращает empty если не найден")
     void getById_returnsEmptyWhenMissing() {
-        Optional<MpaResponseDto> res = mpaStorage.getById(999L);
+        Optional<Mpa> res = mpaStorage.getById(999L);
 
         assertTrue(res.isEmpty());
     }

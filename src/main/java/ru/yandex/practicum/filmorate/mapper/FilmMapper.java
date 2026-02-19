@@ -1,40 +1,37 @@
 package ru.yandex.practicum.filmorate.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestData;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
-import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
-import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
-import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
-import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class FilmMapper {
-
-    public FilmResponseDto toResponseDto(
-            Film film,
-            Set<GenreResponseDto> genres,
-            MpaResponseDto rating
-    ) {
-
+    public FilmResponseDto toResponseDto(Film film) {
         return new FilmResponseDto(
                 film.getId(),
                 film.getName(),
-                genres,
-                rating,
+                film.getGenres().entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(entry -> GenreMapper.toResponseDto(entry.getValue()))
+                        .toList(),
+                MpaMapper.toResponseDto(film.getMpa()),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration()
         );
     }
-
 
     public Film toEntity(FilmRequestUpdateDto dto) {
         if (dto == null) return null;
@@ -56,24 +53,30 @@ public class FilmMapper {
     }
 
 
-    public void applyToEntity(FilmRequestData dto, Film target) {
-        if (dto == null || target == null) return;
+    public void applyToEntity(FilmRequestData dto, Film film) {
+        film.setName(dto.name());
+        film.setDescription(dto.description());
+        film.setReleaseDate(dto.releaseDate());
+        film.setDuration(dto.duration());
 
-        target.setName(dto.name());
-        target.setDescription(dto.description());
-        target.setReleaseDate(dto.releaseDate());
-        target.setDuration(dto.duration());
+        // mpa приходит как MpaRequestDto(long id)
         if (dto.mpa() != null) {
-            target.setMpa(dto.mpa().id());
-        }
-
-        if (dto.genres() != null) {
-            target.setGenres(dto.genres().stream()
-                    .map(GenreRequestDto::id)
-                    .collect(Collectors.toSet()));
+            film.setMpa(new Mpa(dto.mpa().id(), null));
         } else {
-            target.setGenres(new LinkedHashSet<>());
+            film.setMpa(null);
         }
 
+        // genres чаще всего приходят как Set<Long> или Set<Integer> id
+        if (dto.genres() != null) {
+            Map<Long, Genre> genres = dto.genres().stream()
+                    .map(req -> new Genre(req.id(), null))
+                    .collect(Collectors.toMap(
+                            Genre::id,
+                            Function.identity())
+                    );
+            film.setGenres(genres);
+        } else {
+            film.setGenres(new HashMap<>());
+        }
     }
 }

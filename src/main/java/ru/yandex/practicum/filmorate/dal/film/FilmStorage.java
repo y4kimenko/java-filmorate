@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.film;
 
-import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.LinkedHashMap;
 import java.util.List;

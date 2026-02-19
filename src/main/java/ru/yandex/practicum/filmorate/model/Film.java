@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.model.film;
+package ru.yandex.practicum.filmorate.model;
 
 
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Data
@@ -15,9 +15,9 @@ public class Film {
 
     private String name;
 
-    private Set<Long> genres = new HashSet<>();
+    private Map<Long, Genre> genres = new HashMap<>();
 
-    private Long mpa = null;
+    private Mpa mpa = null;
 
     private String description;
 

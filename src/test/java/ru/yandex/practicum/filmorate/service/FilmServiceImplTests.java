@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,15 +23,32 @@ import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FilmServiceImplTests {
@@ -51,7 +67,6 @@ class FilmServiceImplTests {
     @InjectMocks
     private FilmServiceImpl filmService;
 
-
     @Test
     @DisplayName("createFilm – успех: валидные mpa и жанры, жанры сохраняются в связующую таблицу")
     void createFilm_success_withGenresAndMpa() {
@@ -69,8 +84,17 @@ class FilmServiceImplTests {
         req.setDescription("Description");
         req.setReleaseDate(LocalDate.of(2000, 1, 1));
         req.setDuration(120);
-        req.setMpa(1L);
-        req.setGenres(Set.of(1L, 2L));
+        req.setMpa(new Mpa(1L, null));
+        req.setGenres(new HashMap<>(Map.of(
+                1L, new Genre(1L, null),
+                2L, new Genre(2L, null)
+        )));
+
+        Mpa mpaFromDb = new Mpa(1L, "R");
+        Map<Long, Genre> genresFromDb = new HashMap<>(Map.of(
+                1L, new Genre(1L, "Комедия"),
+                2L, new Genre(2L, "Драма")
+        ));
 
         Film saved = new Film();
         saved.setId(42L);
@@ -78,35 +102,41 @@ class FilmServiceImplTests {
         saved.setDescription(req.getDescription());
         saved.setReleaseDate(req.getReleaseDate());
         saved.setDuration(req.getDuration());
-        saved.setMpa(req.getMpa());
-        saved.setGenres(req.getGenres());
-
-        MpaResponseDto mpaDto = new MpaResponseDto(1, "R");
-        LinkedHashSet<GenreResponseDto> genreDtos = new LinkedHashSet<>(Set.of(
-                new GenreResponseDto(1, "Комедия"),
-                new GenreResponseDto(2, "Драма")
-        ));
+        // важно: сервис сам поставит сюда mpa и genres после save
 
         FilmResponseDto expected = new FilmResponseDto(
                 42L,
                 "Test Film",
-                genreDtos,
-                mpaDto,
+                List.of(new GenreResponseDto(1, "Комедия"), new GenreResponseDto(2, "Драма")),
+                new MpaResponseDto(1, "R"),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
         );
 
         when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaDto));
-        when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(genreDtos);
+        when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaFromDb));
+        when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(genresFromDb);
         when(filmStorage.save(any(Film.class))).thenReturn(saved);
-        when(filmMapper.toResponseDto(saved, genreDtos, mpaDto)).thenReturn(expected);
+        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.createFilm(dto);
 
         assertEquals(expected, actual);
-        verify(filmStorage).save(any(Film.class));
+
+        ArgumentCaptor<Film> saveCaptor = ArgumentCaptor.forClass(Film.class);
+        verify(filmStorage).save(saveCaptor.capture());
+        Film toSave = saveCaptor.getValue();
+
+        assertNotNull(toSave.getMpa());
+        assertEquals(1L, toSave.getMpa().id());
+        assertEquals("R", toSave.getMpa().name());
+
+        assertNotNull(toSave.getGenres());
+        assertEquals(2, toSave.getGenres().size());
+        assertEquals("Комедия", toSave.getGenres().get(1L).name());
+        assertEquals("Драма", toSave.getGenres().get(2L).name());
+
         verify(genresByFilmsDbStorage).save(42L, Set.of(1L, 2L));
         verify(genresByFilmsDbStorage, never()).update(anyLong(), anySet());
     }
@@ -128,34 +158,28 @@ class FilmServiceImplTests {
         req.setDescription("Description");
         req.setReleaseDate(LocalDate.of(2000, 1, 1));
         req.setDuration(120);
-        req.setMpa(1L);
-        req.setGenres(Set.of());
+        req.setMpa(new Mpa(1L, null));
+        req.setGenres(new HashMap<>());
+
+        Mpa mpaFromDb = new Mpa(1L, "R");
 
         Film saved = new Film();
         saved.setId(42L);
-        saved.setName(req.getName());
-        saved.setDescription(req.getDescription());
-        saved.setReleaseDate(req.getReleaseDate());
-        saved.setDuration(req.getDuration());
-        saved.setMpa(req.getMpa());
-        saved.setGenres(req.getGenres());
-
-        MpaResponseDto mpaDto = new MpaResponseDto(1, "R");
 
         FilmResponseDto expected = new FilmResponseDto(
                 42L,
                 "Test Film",
-                null,
-                mpaDto,
+                List.of(),
+                new MpaResponseDto(1, "R"),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
         );
 
         when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaDto));
+        when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaFromDb));
         when(filmStorage.save(any(Film.class))).thenReturn(saved);
-        when(filmMapper.toResponseDto(saved, null, mpaDto)).thenReturn(expected);
+        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.createFilm(dto);
 
@@ -177,8 +201,8 @@ class FilmServiceImplTests {
         );
 
         Film req = new Film();
-        req.setMpa(999L);
-        req.setGenres(Set.of());
+        req.setMpa(new Mpa(999L, null));
+        req.setGenres(new HashMap<>());
 
         when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
         when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
@@ -190,7 +214,7 @@ class FilmServiceImplTests {
     }
 
     @Test
-    @DisplayName("createFilm – ошибка: не все жанры найдены")
+    @DisplayName("createFilm – ошибка: не все жанры найдены (GenreNotFoundException)")
     void createFilm_throws_whenGenresNotFound() {
         FilmRequestCreateDto dto = new FilmRequestCreateDto(
                 "Test Film",
@@ -202,10 +226,16 @@ class FilmServiceImplTests {
         );
 
         Film req = new Film();
-        req.setGenres(Set.of(1L, 2L));
+        req.setGenres(new HashMap<>(Map.of(
+                1L, new Genre(1L, null),
+                2L, new Genre(2L, null)
+        )));
+        req.setMpa(null);
 
         when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
-        when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(new LinkedHashSet<>(Set.of(new GenreResponseDto(1, "Комедия")))); // меньше
+
+        when(genresStorage.getByIds(Set.of(1L, 2L)))
+                .thenReturn(new HashMap<>(Map.of(1L, new Genre(1L, "Комедия")))); // меньше, чем dto.genres().size()
 
         assertThrows(GenreNotFoundException.class, () -> filmService.createFilm(dto));
 
@@ -214,8 +244,8 @@ class FilmServiceImplTests {
     }
 
     @Test
-    @DisplayName("updateFilm – успех: фильм существует, поля обновляются, жанры обновляются, mpa валиден")
-    void updateFilm_success() {
+    @DisplayName("updateFilm – успех: фильм существует, поля обновляются, mpa и жанры валидны")
+    void updateFilm_success_withGenresAndMpa() {
         FilmRequestUpdateDto dto = new FilmRequestUpdateDto(
                 10L,
                 "New Name",
@@ -232,8 +262,8 @@ class FilmServiceImplTests {
         req.setDescription("New Desc");
         req.setReleaseDate(LocalDate.of(2001, 2, 3));
         req.setDuration(90);
-        req.setMpa(2L);
-        req.setGenres(Set.of(1L));
+        req.setMpa(new Mpa(2L, null));
+        req.setGenres(new HashMap<>(Map.of(1L, new Genre(1L, null))));
 
         Film existing = new Film();
         existing.setId(10L);
@@ -241,17 +271,19 @@ class FilmServiceImplTests {
         existing.setDescription("Old Desc");
         existing.setReleaseDate(LocalDate.of(1999, 1, 1));
         existing.setDuration(120);
-        existing.setMpa(1L);
-        existing.setGenres(Set.of(2L));
+        existing.setMpa(new Mpa(1L, "G"));
+        existing.setGenres(new HashMap<>());
 
-        MpaResponseDto mpaDto = new MpaResponseDto(2, "PG-13");
-        LinkedHashSet<GenreResponseDto> genreDtos = new LinkedHashSet<>(Set.of(new GenreResponseDto(1, "Комедия")));
+        Mpa mpaFromDb = new Mpa(2L, "PG-13");
+        Map<Long, Genre> genresFromDb = new HashMap<>(Map.of(
+                1L, new Genre(1L, "Комедия")
+        ));
 
         FilmResponseDto expected = new FilmResponseDto(
                 10L,
                 "New Name",
-                genreDtos,
-                mpaDto,
+                List.of(new GenreResponseDto(1, "Комедия")),
+                new MpaResponseDto(2, "PG-13"),
                 "New Desc",
                 LocalDate.of(2001, 2, 3),
                 90
@@ -259,24 +291,30 @@ class FilmServiceImplTests {
 
         when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
-        when(mpaStorage.getById(2L)).thenReturn(Optional.of(mpaDto));
-        when(genresStorage.getByIds(Set.of(1L))).thenReturn(genreDtos);
-        when(filmMapper.toResponseDto(existing, genreDtos, mpaDto)).thenReturn(expected);
+        when(mpaStorage.getById(2L)).thenReturn(Optional.of(mpaFromDb));
+        when(genresStorage.getByIds(Set.of(1L))).thenReturn(genresFromDb);
+        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.updateFilm(dto);
 
         assertEquals(expected, actual);
 
-        ArgumentCaptor<Film> captor = ArgumentCaptor.forClass(Film.class);
-        verify(filmStorage).update(captor.capture());
-        Film updated = captor.getValue();
+        ArgumentCaptor<Film> updateCaptor = ArgumentCaptor.forClass(Film.class);
+        verify(filmStorage).update(updateCaptor.capture());
+        Film updated = updateCaptor.getValue();
 
         assertEquals(10L, updated.getId());
         assertEquals("New Name", updated.getName());
         assertEquals("New Desc", updated.getDescription());
         assertEquals(LocalDate.of(2001, 2, 3), updated.getReleaseDate());
         assertEquals(90, updated.getDuration());
-        assertEquals(2L, updated.getMpa());
+
+        assertNotNull(updated.getMpa());
+        assertEquals(2L, updated.getMpa().id());
+        assertEquals("PG-13", updated.getMpa().name());
+
+        assertEquals(1, updated.getGenres().size());
+        assertEquals("Комедия", updated.getGenres().get(1L).name());
 
         verify(genresByFilmsDbStorage).update(10L, Set.of(1L));
     }
@@ -285,13 +323,13 @@ class FilmServiceImplTests {
     @DisplayName("updateFilm – ошибка: фильм не найден")
     void updateFilm_throws_whenFilmNotFound() {
         FilmRequestUpdateDto dto = new FilmRequestUpdateDto(
-                10L, "New Name", Set.of(), null, "New Desc",
-                LocalDate.of(2001, 2, 3), 90
+                10L, "New Name", Set.of(), null,
+                "New Desc", LocalDate.of(2001, 2, 3), 90
         );
 
         Film req = new Film();
         req.setId(10L);
-        req.setGenres(Set.of());
+        req.setGenres(new HashMap<>());
 
         when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.empty());
@@ -312,11 +350,12 @@ class FilmServiceImplTests {
 
         Film req = new Film();
         req.setId(10L);
-        req.setGenres(Set.of());
-        req.setMpa(999L);
+        req.setMpa(new Mpa(999L, null));
+        req.setGenres(new HashMap<>());
 
         Film existing = new Film();
         existing.setId(10L);
+        existing.setGenres(new HashMap<>());
 
         when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
@@ -332,20 +371,28 @@ class FilmServiceImplTests {
     @DisplayName("updateFilm – ошибка: не все жанры найдены (ValidationException)")
     void updateFilm_throws_whenGenresNotFound() {
         FilmRequestUpdateDto dto = new FilmRequestUpdateDto(
-                10L, "New Name", Set.of(new GenreRequestDto(1L), new GenreRequestDto(2L)),
-                null, "New Desc", LocalDate.of(2001, 2, 3), 90
+                10L, "New Name",
+                Set.of(new GenreRequestDto(1L), new GenreRequestDto(2L)),
+                null,
+                "New Desc", LocalDate.of(2001, 2, 3), 90
         );
 
         Film req = new Film();
         req.setId(10L);
-        req.setGenres(Set.of(1L, 2L));
+        req.setGenres(new HashMap<>(Map.of(
+                1L, new Genre(1L, null),
+                2L, new Genre(2L, null)
+        )));
 
         Film existing = new Film();
         existing.setId(10L);
+        existing.setGenres(new HashMap<>());
 
         when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
-        when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(new LinkedHashSet<>(Set.of(new GenreResponseDto(1, "Комедия")))); // меньше
+
+        when(genresStorage.getByIds(Set.of(1L, 2L)))
+                .thenReturn(new HashMap<>(Map.of(1L, new Genre(1L, "Комедия")))); // меньше, чем req.getGenres().size()
 
         assertThrows(ValidationException.class, () -> filmService.updateFilm(dto));
 
@@ -354,15 +401,16 @@ class FilmServiceImplTests {
     }
 
     @Test
-    @DisplayName("getAllFilms – успех: собирает жанры по фильмам и mpa по id")
-    void getAllFilms_success() {
+    @DisplayName("getAllFilms – успех: обогащает жанры и mpa, фильтрует null из mapper")
+    void getAllFilms_success_enrichesAndFiltersNull() {
         Film f1 = new Film();
         f1.setId(1L);
         f1.setName("A");
         f1.setDescription("DA");
         f1.setReleaseDate(LocalDate.of(2000, 1, 1));
         f1.setDuration(100);
-        f1.setMpa(1L);
+        f1.setMpa(new Mpa(1L, null));
+        f1.setGenres(new HashMap<>());
 
         Film f2 = new Film();
         f2.setId(2L);
@@ -370,140 +418,135 @@ class FilmServiceImplTests {
         f2.setDescription("DB");
         f2.setReleaseDate(LocalDate.of(2001, 1, 1));
         f2.setDuration(110);
-        f2.setMpa(2L);
+        f2.setMpa(new Mpa(2L, null));
+        f2.setGenres(new HashMap<>());
 
         LinkedHashMap<Long, Film> films = new LinkedHashMap<>();
         films.put(1L, f1);
         films.put(2L, f2);
 
-        Map<Long, GenreResponseDto> allGenres = new HashMap<>();
-        GenreResponseDto g1 = new GenreResponseDto(1, "Комедия");
-        GenreResponseDto g2 = new GenreResponseDto(2, "Драма");
-        allGenres.put(1L, g1);
-        allGenres.put(2L, g2);
+        Map<Long, Genre> genres = new HashMap<>(Map.of(
+                1L, new Genre(1L, "Комедия"),
+                2L, new Genre(2L, "Драма")
+        ));
 
-        Set<MpaResponseDto> allMpas = Set.of(
-                new MpaResponseDto(1, "G"),
-                new MpaResponseDto(2, "PG")
-        );
+        Map<Long, Mpa> mpas = new HashMap<>(Map.of(
+                1L, new Mpa(1L, "G"),
+                2L, new Mpa(2L, "PG")
+        ));
 
-        Map<Long, Set<Long>> filmGenresMap = new HashMap<>();
-        filmGenresMap.put(1L, Set.of(1L, 2L));
-        filmGenresMap.put(2L, Set.of(2L));
+        Map<Long, Set<Long>> filmGenresMap = new HashMap<>(Map.of(
+                1L, Set.of(1L, 2L),
+                2L, Set.of(2L)
+        ));
 
         when(filmStorage.getAll()).thenReturn(films);
-        when(genresStorage.getAll()).thenReturn(allGenres);
-        when(mpaStorage.getAll()).thenReturn(allMpas);
+        when(genresStorage.getAll()).thenReturn(genres);
+        when(mpaStorage.getAll()).thenReturn(mpas);
         when(genresByFilmsDbStorage.getAll()).thenReturn(filmGenresMap);
 
-        when(filmMapper.toResponseDto(any(Film.class), anySet(), any(MpaResponseDto.class)))
-                .thenAnswer(inv -> {
-                    Film film = inv.getArgument(0);
-                    Set<GenreResponseDto> gs = inv.getArgument(1);
-                    MpaResponseDto mpa = inv.getArgument(2);
-                    return new FilmResponseDto(
-                            film.getId(),
-                            film.getName(),
-                            gs,
-                            mpa,
-                            film.getDescription(),
-                            film.getReleaseDate(),
-                            film.getDuration()
-                    );
-                });
+        FilmResponseDto r1 = new FilmResponseDto(
+                1L, "A",
+                List.of(new GenreResponseDto(1, "Комедия"), new GenreResponseDto(2, "Драма")),
+                new MpaResponseDto(1, "G"),
+                "DA", LocalDate.of(2000, 1, 1), 100
+        );
 
-        List<FilmResponseDto> result = filmService.getAllFilms();
-
-        assertEquals(2, result.size());
-
-        FilmResponseDto r1 = result.get(0);
-        assertEquals(1L, r1.id());
-        assertEquals(Set.of(g1, g2), r1.genres());
-        assertEquals(1, r1.mpa().id());
-
-        FilmResponseDto r2 = result.get(1);
-        assertEquals(2L, r2.id());
-        assertEquals(Set.of(g2), r2.genres());
-        assertEquals(2, r2.mpa().id());
-    }
-
-    @Test
-    @DisplayName("getAllFilms – ветка: genres или filmGenresMap null, жанры в ответе null")
-    void getAllFilms_branch_whenGenresNull() {
-        Film f1 = new Film();
-        f1.setId(1L);
-        f1.setName("A");
-        f1.setDescription("DA");
-        f1.setReleaseDate(LocalDate.of(2000, 1, 1));
-        f1.setDuration(100);
-        f1.setMpa(1L);
-
-        when(filmStorage.getAll()).thenReturn(new LinkedHashMap<>(Map.of(1L, f1)));
-        when(genresStorage.getAll()).thenReturn(null);
-        when(mpaStorage.getAll()).thenReturn(Set.of(new MpaResponseDto(1, "G")));
-        when(genresByFilmsDbStorage.getAll()).thenReturn(Map.of(1L, Set.of(1L)));
-
-        when(filmMapper.toResponseDto(eq(f1), isNull(), any(MpaResponseDto.class)))
-                .thenReturn(new FilmResponseDto(
-                        1L, "A", null, new MpaResponseDto(1, "G"),
-                        "DA", LocalDate.of(2000, 1, 1), 100
-                ));
+        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
+                .thenReturn(r1);
+        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
+                .thenReturn(null);
 
         List<FilmResponseDto> result = filmService.getAllFilms();
 
         assertEquals(1, result.size());
-        assertNull(result.get(0).genres());
+        assertEquals(r1, result.get(0));
+
+        ArgumentCaptor<Film> mappedFilms = ArgumentCaptor.forClass(Film.class);
+        verify(filmMapper, times(2)).toResponseDto(mappedFilms.capture());
+
+        Film mapped1 = mappedFilms.getAllValues().stream().filter(f -> Objects.equals(f.getId(), 1L)).findFirst().orElseThrow();
+        assertEquals(2, mapped1.getGenres().size());
+        assertEquals("G", mapped1.getMpa().name());
     }
 
     @Test
-    @DisplayName("getPopularFilms – успех: маппит жанры по filmIds и фильтрует null из mapper")
+    @DisplayName("getAllFilms – ветка: genres null или filmGenresMap null – маппит как есть")
+    void getAllFilms_branch_whenGenresNull() {
+        Film f1 = new Film();
+        f1.setId(1L);
+        f1.setName("A");
+        f1.setMpa(new Mpa(1L, null));
+        f1.setGenres(new HashMap<>());
+
+        when(filmStorage.getAll()).thenReturn(new LinkedHashMap<>(Map.of(1L, f1)));
+        when(genresStorage.getAll()).thenReturn(null);
+        when(mpaStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, new Mpa(1L, "G"))));
+        when(genresByFilmsDbStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, Set.of(1L))));
+
+        FilmResponseDto expected = new FilmResponseDto(
+                1L, "A",
+                List.of(),
+                new MpaResponseDto(1, "G"),
+                null, null, null
+        );
+
+        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+
+        List<FilmResponseDto> result = filmService.getAllFilms();
+
+        assertEquals(1, result.size());
+        assertEquals(expected, result.get(0));
+        verify(filmMapper, times(1)).toResponseDto(any(Film.class));
+    }
+
+    @Test
+    @DisplayName("getPopularFilms – успех: собирает жанры по filmIds и фильтрует null из mapper")
     void getPopularFilms_success_filtersNull() {
         Film f1 = new Film();
         f1.setId(1L);
         f1.setName("A");
-        f1.setDescription("DA");
-        f1.setReleaseDate(LocalDate.of(2000, 1, 1));
-        f1.setDuration(100);
-        f1.setMpa(1L);
+        f1.setMpa(new Mpa(1L, null));
+        f1.setGenres(new HashMap<>());
 
         Film f2 = new Film();
         f2.setId(2L);
         f2.setName("B");
-        f2.setDescription("DB");
-        f2.setReleaseDate(LocalDate.of(2001, 1, 1));
-        f2.setDuration(110);
-        f2.setMpa(1L);
+        f2.setMpa(new Mpa(1L, null));
+        f2.setGenres(new HashMap<>());
 
         when(filmStorage.getPopularFilms(10)).thenReturn(List.of(f1, f2));
 
-        Map<Long, GenreResponseDto> allGenres = Map.of(
-                1L, new GenreResponseDto(1, "Комедия")
-        );
-        when(genresStorage.getAll()).thenReturn(allGenres);
+        when(genresStorage.getAll()).thenReturn(new HashMap<>(Map.of(
+                1L, new Genre(1L, "Комедия")
+        )));
 
-        when(mpaStorage.getAll()).thenReturn(Set.of(new MpaResponseDto(1, "G")));
+        when(mpaStorage.getAll()).thenReturn(new HashMap<>(Map.of(
+                1L, new Mpa(1L, "G")
+        )));
 
         when(genresByFilmsDbStorage.getByfilmIds(Set.of(1L, 2L)))
-                .thenReturn(Map.of(
+                .thenReturn(new HashMap<>(Map.of(
                         1L, Set.of(1L),
                         2L, Set.of(1L)
-                ));
+                )));
 
-        when(filmMapper.toResponseDto(eq(f1), anySet(), any(MpaResponseDto.class)))
-                .thenReturn(new FilmResponseDto(
-                        1L, "A",
-                        Set.of(allGenres.get(1L)),
-                        new MpaResponseDto(1, "G"),
-                        "DA", LocalDate.of(2000, 1, 1), 100
-                ));
+        FilmResponseDto r1 = new FilmResponseDto(
+                1L, "A",
+                List.of(new GenreResponseDto(1, "Комедия")),
+                new MpaResponseDto(1, "G"),
+                null, null, null
+        );
 
-        when(filmMapper.toResponseDto(eq(f2), anySet(), any(MpaResponseDto.class)))
+        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
+                .thenReturn(r1);
+        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
                 .thenReturn(null);
 
         List<FilmResponseDto> result = filmService.getPopularFilms(10);
 
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).id());
+        assertEquals(r1, result.get(0));
         verify(genresByFilmsDbStorage).getByfilmIds(Set.of(1L, 2L));
     }
 
@@ -516,33 +559,40 @@ class FilmServiceImplTests {
         film.setDescription("DA");
         film.setReleaseDate(LocalDate.of(2000, 1, 1));
         film.setDuration(100);
-        film.setMpa(1L);
+        film.setMpa(new Mpa(1L, null));
+        film.setGenres(new HashMap<>());
 
-        MpaResponseDto mpaDto = new MpaResponseDto(1, "G");
-        Set<Long> genreIds = Set.of(1L);
-        LinkedHashSet<GenreResponseDto> genreDtos = new LinkedHashSet<>(Set.of(new GenreResponseDto(1, "Комедия")));
+        when(filmStorage.getById(10L)).thenReturn(Optional.of(film));
+        when(mpaStorage.getById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
+
+        when(genresByFilmsDbStorage.getByFilmId(10L)).thenReturn(Set.of(1L));
+        when(genresStorage.getByIds(Set.of(1L))).thenReturn(new HashMap<>(Map.of(
+                1L, new Genre(1L, "Комедия")
+        )));
 
         FilmResponseDto expected = new FilmResponseDto(
-                10L, "A", genreDtos, mpaDto,
+                10L, "A",
+                List.of(new GenreResponseDto(1, "Комедия")),
+                new MpaResponseDto(1, "G"),
                 "DA", LocalDate.of(2000, 1, 1), 100
         );
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(film));
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaDto));
-        when(genresByFilmsDbStorage.getByFilmId(10L)).thenReturn(genreIds);
-        when(genresStorage.getByIds(genreIds)).thenReturn(genreDtos);
-        when(filmMapper.toResponseDto(film, genreDtos, mpaDto)).thenReturn(expected);
+        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.getById(10L);
 
         assertEquals(expected, actual);
+        verify(genresByFilmsDbStorage).getByFilmId(10L);
+        verify(genresStorage).getByIds(Set.of(1L));
     }
 
     @Test
     @DisplayName("getById – ошибка: фильм не найден")
     void getById_throws_whenFilmNotFound() {
         when(filmStorage.getById(10L)).thenReturn(Optional.empty());
+
         assertThrows(FilmNotFoundException.class, () -> filmService.getById(10L));
+
         verifyNoInteractions(mpaStorage, genresByFilmsDbStorage, genresStorage, filmMapper);
     }
 
@@ -551,12 +601,14 @@ class FilmServiceImplTests {
     void getById_throws_whenMpaNotFound() {
         Film film = new Film();
         film.setId(10L);
-        film.setMpa(999L);
+        film.setMpa(new Mpa(999L, null));
+        film.setGenres(new HashMap<>());
 
         when(filmStorage.getById(10L)).thenReturn(Optional.of(film));
         when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
 
         assertThrows(MpaNotFoundException.class, () -> filmService.getById(10L));
+
         verify(genresByFilmsDbStorage, never()).getByFilmId(anyLong());
         verify(genresStorage, never()).getByIds(anySet());
     }

@@ -7,6 +7,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.genres.GenresServiceImpl;
 
 import java.util.HashMap;
@@ -14,8 +15,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GenresServiceImplTest {
@@ -27,9 +33,9 @@ class GenresServiceImplTest {
     @Test
     @DisplayName("getAll – возвращает множество всех жанров из storage")
     void getAll_returnsAllGenres() {
-        Map<Long, GenreResponseDto> stored = new HashMap<>();
-        stored.put(1L, new GenreResponseDto(1, "Комедия"));
-        stored.put(2L, new GenreResponseDto(2, "Драма"));
+        Map<Long, Genre> stored = new HashMap<>();
+        stored.put(1L, new Genre(1L, "Комедия"));
+        stored.put(2L, new Genre(2L, "Драма"));
 
         when(genresStorage.getAll()).thenReturn(stored);
 
@@ -56,12 +62,12 @@ class GenresServiceImplTest {
     @Test
     @DisplayName("getById – возвращает жанр если найден")
     void getById_returnsGenre_whenFound() {
-        GenreResponseDto dto = new GenreResponseDto(1, "Комедия");
+        Genre dto = new Genre(1L, "Комедия");
         when(genresStorage.getById(1L)).thenReturn(Optional.of(dto));
 
         GenreResponseDto result = genresService.getById(1L);
 
-        assertEquals(dto, result);
+        assertEquals(new GenreResponseDto(1L, "Комедия"), result);
         verify(genresStorage).getById(1L);
     }
 

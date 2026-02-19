@@ -8,7 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.model.film.Film;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -95,12 +96,12 @@ class FilmDbStorageTest {
         film.setDescription("DB");
         film.setReleaseDate(LocalDate.of(2001, 2, 2));
         film.setDuration(120);
-        film.setMpa(1L);
+        film.setMpa(new Mpa(1L, null));
 
         Film saved = filmStorage.save(film);
 
         Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
-        assertEquals(1L, fromDb.getMpa());
+        assertEquals(new Mpa(1L, null), fromDb.getMpa());
     }
 
     @Test
@@ -139,7 +140,7 @@ class FilmDbStorageTest {
         film.setDescription("OldD");
         film.setReleaseDate(LocalDate.of(1999, 1, 1));
         film.setDuration(90);
-        film.setMpa(1L);
+        film.setMpa(new Mpa(1L, null));
 
         Film saved = filmStorage.save(film);
 
@@ -147,13 +148,13 @@ class FilmDbStorageTest {
         saved.setDescription("NewD");
         saved.setReleaseDate(LocalDate.of(2002, 3, 3));
         saved.setDuration(150);
-        saved.setMpa(2L);
+        saved.setMpa(new Mpa(2L, null));
 
         filmStorage.update(saved);
 
         Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
         assertEquals("New", fromDb.getName());
-        assertEquals(2L, fromDb.getMpa());
+        assertEquals(new Mpa(2L, null), fromDb.getMpa());
     }
 
     @Test
@@ -228,7 +229,7 @@ class FilmDbStorageTest {
         f.setDescription("D");
         f.setReleaseDate(LocalDate.of(2000, 1, 1));
         f.setDuration(100);
-        f.setMpa(mpa);
+        f.setMpa(new Mpa(mpa, null));
         return f;
     }
 
