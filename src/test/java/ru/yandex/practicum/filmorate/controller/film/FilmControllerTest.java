@@ -22,15 +22,9 @@ import java.util.List;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = FilmController.class)
 class FilmControllerTest {
@@ -344,7 +338,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("GET /films/{id} возвращает HTTP-ответ со статусом 400 и сообщением 'id не может быть отрицательным'")
     void getFilmById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
-        mockMvc.perform(get("/films/{id}",  -2L))
+        mockMvc.perform(get("/films/{id}", -2L))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id не может быть отрицательным"));

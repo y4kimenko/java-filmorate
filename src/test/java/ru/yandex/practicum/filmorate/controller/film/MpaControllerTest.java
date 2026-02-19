@@ -2,14 +2,11 @@ package ru.yandex.practicum.filmorate.controller.film;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
@@ -20,7 +17,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MpaController.class)
 class MpaControllerTest {
@@ -69,7 +68,7 @@ class MpaControllerTest {
     @Test
     @DisplayName("GET /mpa/{id} возвращает HTTP-ответ со статусом 400 и сообщением 'id не может быть отрицательным'")
     void getMpaById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
-        mockMvc.perform(get("/mpa/{id}",  -2L))
+        mockMvc.perform(get("/mpa/{id}", -2L))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id mpa не может быть отрицательным"));

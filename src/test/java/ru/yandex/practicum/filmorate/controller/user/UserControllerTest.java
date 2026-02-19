@@ -9,10 +9,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
-import ru.yandex.practicum.filmorate.dto.user.request.UserRequestData;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.time.LocalDate;
@@ -45,7 +43,7 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 200 OK с созданным user")
     void createUser_ReturnsOkWhenPayloadValid() throws Exception {
-        UserRequestCreateDto requestDto  = new UserRequestCreateDto(
+        UserRequestCreateDto requestDto = new UserRequestCreateDto(
                 "mail@example.com",
                 "login",
                 "User Name",
@@ -60,7 +58,6 @@ class UserControllerTest {
                 "User Name",
                 LocalDate.of(1990, 1, 1)
         );
-
 
 
         when(userService.create(any(UserRequestCreateDto.class))).thenReturn(responseDto);
@@ -80,7 +77,7 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 400 и описанием ошибки 'E-mail  is incorrect'")
     void createUser_ReturnsBadRequestWhenEmailInvalid() throws Exception {
-        UserRequestCreateDto requestDto  = new UserRequestCreateDto(
+        UserRequestCreateDto requestDto = new UserRequestCreateDto(
                 "mail example.com",
                 "login",
                 "User Name",
@@ -101,7 +98,7 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /users возвращает HTTP-ответ со статусом 200 OK с обновленным user")
     void updateUser_ReturnsOkWhenPayloadValid() throws Exception {
-        UserRequestUpdateDto requestDto  = new UserRequestUpdateDto(
+        UserRequestUpdateDto requestDto = new UserRequestUpdateDto(
                 1L,
                 "mail@example.com",
                 "login",

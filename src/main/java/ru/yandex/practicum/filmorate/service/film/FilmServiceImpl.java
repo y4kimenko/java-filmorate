@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dal.genresByFilms.GenresByFilmsDbStorage;
-import ru.yandex.practicum.filmorate.dal.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.dal.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;

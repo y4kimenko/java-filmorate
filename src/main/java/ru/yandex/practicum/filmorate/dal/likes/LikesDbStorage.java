@@ -25,13 +25,13 @@ public class LikesDbStorage implements LikesStorage {
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public boolean addLikeFilmByUser(long userId, long film_id) {
+    public boolean addLikeFilmByUser(long userId, long filmId) {
 
         log.info("Adding favorite user's films with userID={} in table 'user_film_likes'", userId);
         int res = jdbcTemplate.update(MERGE_USER_LIKES_FILMS,
                 new MapSqlParameterSource()
                         .addValue("user_id", userId)
-                        .addValue("film_id", film_id)
+                        .addValue("film_id", filmId)
         );
         return res > 0;
     }

@@ -2,13 +2,11 @@ package ru.yandex.practicum.filmorate.controller.film;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
 
@@ -19,7 +17,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = GenresFilmController.class)
 class GenresFilmControllerTest {
@@ -38,10 +38,10 @@ class GenresFilmControllerTest {
         when(genresService.getAll()).thenReturn(Set.of(dto));
 
         mockMvc.perform(get("/genres"))
-                        .andExpect(status().isOk())
-                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(jsonPath("$[0].id").value(1))
-                                .andExpect(jsonPath("$[0].name").value("Комедия"));
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Комедия"));
 
         verify(genresService).getAll();
         verifyNoMoreInteractions(genresService);
@@ -68,7 +68,7 @@ class GenresFilmControllerTest {
     @Test
     @DisplayName("GET /genres/{id} возвращает HTTP-ответ со статусом 400 и сообщением 'id genre не может быть отрицательным'")
     void getGenreById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
-        mockMvc.perform(get("/genres/{id}",  -2L))
+        mockMvc.perform(get("/genres/{id}", -2L))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id genre не может быть отрицательным"));

@@ -8,11 +8,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dal.genresByFilms.GenresByFilmsDbStorage;
-
 import ru.yandex.practicum.filmorate.dal.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
@@ -30,13 +28,7 @@ import ru.yandex.practicum.filmorate.model.film.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -45,14 +37,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FilmServiceImplTests {
 
-    @Mock private FilmStorage filmStorage;
-    @Mock private GenresByFilmsDbStorage genresByFilmsDbStorage;
-    @Mock private GenresStorage genresStorage;
-    @Mock private MpaStorage mpaStorage;
-    @Mock private FilmMapper filmMapper;
+    @Mock
+    private FilmStorage filmStorage;
+    @Mock
+    private GenresByFilmsDbStorage genresByFilmsDbStorage;
+    @Mock
+    private GenresStorage genresStorage;
+    @Mock
+    private MpaStorage mpaStorage;
+    @Mock
+    private FilmMapper filmMapper;
 
-    @InjectMocks private FilmServiceImpl filmService;
-
+    @InjectMocks
+    private FilmServiceImpl filmService;
 
 
     @Test

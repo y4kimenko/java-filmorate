@@ -18,23 +18,23 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FriendsDbStorage implements FriendsStorage {
 
-    private final static String ADD_FRIEND = """
+    private static final String ADD_FRIEND = """
             INSERT INTO friendship (requester_id, addressee_id)
             VALUES (:requester_id, :addressee_id);""";
-    private final static String GET_FRIENDS = """
+    private static final String GET_FRIENDS = """
             SELECT requester_id, addressee_id, addressee_deleted, status
             FROM friendship
             WHERE requester_id = :id
                OR (addressee_id = :id AND addressee_deleted = false AND status = true);""";
-    private final static String GET_FRIENDSHIP = """
+    private static final String GET_FRIENDSHIP = """
             SELECT requester_id, addressee_id, addressee_deleted, status
             FROM friendship
             WHERE requester_id = :user_id AND addressee_id = :friend_id
                 OR (addressee_id = :user_id AND addressee_deleted = false AND status = true AND requester_id = :friend_id);""";
-    private final static String REMOVE_FRIENDSHIP = """
+    private static final String REMOVE_FRIENDSHIP = """
             DELETE FROM friendship
             WHERE requester_id = :requester and addressee_id = :addressee;""";
-    private final static String MERGE_FRIENSHIP = """
+    private static final String MERGE_FRIENSHIP = """
             MERGE INTO friendship (requester_id, addressee_id, addressee_deleted, status)
             KEY (requester_id, addressee_id)
             VALUES (:requester_id, :addressee_id, :addressee_deleted, :status);""";

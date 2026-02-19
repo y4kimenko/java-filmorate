@@ -25,8 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FriendsServiceImplTest {
 
-    private UserStorage userStorage = mock(UserStorage.class);
-    private FriendsStorage friendsStorage = mock(FriendsStorage.class);
+    private final UserStorage userStorage = mock(UserStorage.class);
+    private final FriendsStorage friendsStorage = mock(FriendsStorage.class);
 
     private FriendsServiceImpl friendsService;
 

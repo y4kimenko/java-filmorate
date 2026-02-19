@@ -1,52 +1,58 @@
 Diagram DB:
 ```mermaid
 erDiagram
-    USERS {
-        int id PK
-        varchar email
-        varchar login
-        varchar name
-        date birthday
-    }
+  USERS {
+    BIGINT id PK
+    VARCHAR email "UNIQUE, NOT NULL"
+    VARCHAR login "UNIQUE, NOT NULL"
+    VARCHAR name "NOT NULL"
+    DATE birthday
+  }
 
-    FRIENDSHIP {
-        int requester_id PK,FK
-        int addressee_id PK,FK
-        varchar requester_status
-        varchar addressee_status
-    }
+  FRIENDSHIP {
+    BIGINT requester_id PK, FK
+    BIGINT addressee_id PK, FK
+    BOOLEAN addressee_deleted "NOT NULL, DEFAULT false"
+    BOOLEAN status "NOT NULL, DEFAULT false"
+  }
 
-    USER_FILM_LIKES {
-        int film_id PK,FK
-        int user_id PK,FK
-    }
+  GENRES {
+    BIGINT id PK
+    VARCHAR name "UNIQUE, NOT NULL"
+  }
 
-    FILMS {
-        int id PK
-        varchar title
-        int genre FK
-        int rating FK
-        text description
-        date releaseDate
-        int duration
-    }
+  MPA {
+    INT id PK
+    VARCHAR name "UNIQUE, NOT NULL"
+  }
 
-    GENRES {
-        int id PK
-        varchar name
-    }
+  FILM {
+    BIGINT id PK
+    VARCHAR title "NOT NULL"
+    INT mpa_id FK
+    CLOB description
+    DATE release_date
+    INT duration
+  }
 
-    RATINGS {
-        int id PK
-        varchar name
-    }
+  USER_FILM_LIKES {
+    BIGINT user_id PK, FK
+    BIGINT film_id PK, FK
+  }
 
-    USERS ||--o{ FRIENDSHIP : requester_id
-    USERS ||--o{ FRIENDSHIP : addressee_id
+  FILM_GENRES {
+    BIGINT film_id PK, FK
+    BIGINT genre_id PK, FK
+  }
 
-    USERS ||--o{ USER_FILM_LIKES : user_id
-    FILMS ||--o{ USER_FILM_LIKES : film_id
+  USERS ||--o{ FRIENDSHIP : "requester_id"
+  USERS ||--o{ FRIENDSHIP : "addressee_id"
 
-    GENRES ||--o{ FILMS : genre
-    RATINGS ||--o{ FILMS : rating
+  MPA ||--o{ FILM : "mpa_id"
+
+  USERS ||--o{ USER_FILM_LIKES : "user_id"
+  FILM  ||--o{ USER_FILM_LIKES : "film_id"
+
+  FILM   ||--o{ FILM_GENRES : "film_id"
+  GENRES ||--o{ FILM_GENRES : "genre_id"
 ```
