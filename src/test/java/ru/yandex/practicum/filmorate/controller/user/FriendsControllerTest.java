@@ -7,11 +7,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.service.friends.FriendsService;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -29,7 +29,7 @@ class FriendsControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private FriendsService friendsService;
 
     @Test
     @DisplayName("PUT /users/{id}/friends/{friendId} возвращает HTTP-ответ со статусом 200")
@@ -37,7 +37,7 @@ class FriendsControllerTest {
         mockMvc.perform(put("/users/{id}/friends/{friendId}", 1L, 2L))
                 .andExpect(status().isOk());
 
-        verify(userService).addFriend(1L, 2L);
+        verify(friendsService).addFriend(1L, 2L);
     }
 
     @Test
@@ -49,7 +49,7 @@ class FriendsControllerTest {
                 .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
-        verifyNoInteractions(userService);
+        verifyNoInteractions(friendsService);
     }
 
     @Test
@@ -58,7 +58,7 @@ class FriendsControllerTest {
         mockMvc.perform(delete("/users/{id}/friends/{friendId}", 5L, 6L))
                 .andExpect(status().isOk());
 
-        verify(userService).removeFriend(5L, 6L);
+        verify(friendsService).removeFriend(5L, 6L);
     }
 
     @Test
@@ -69,31 +69,33 @@ class FriendsControllerTest {
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
-        verifyNoInteractions(userService);
+        verifyNoInteractions(friendsService);
     }
 
     @Test
     @DisplayName("GET /users/{id}/friends возвращает HTTP-ответ со статусом 200 и Collection<User> друзей")
     void getFriends_ReturnsOkWithPayload() throws Exception {
-        User friend = new User();
-        friend.setId(10L);
-        friend.setEmail("friend@example.com");
-        friend.setLogin("friend");
-        friend.setName("Friend Name");
-        friend.setBirthday(LocalDate.of(1980, 12, 12));
+        UserResponseDto dto = new UserResponseDto(
+                10L,
+                "friend@example.com",
+                "friend",
+                "Friend Name",
+                LocalDate.of(1980, 12, 12)
+        );
 
-        when(userService.getFriends(3L)).thenReturn(Set.of(friend));
 
-        mockMvc.perform(get("/users/{id}/friends", 3L))
+        when(friendsService.getFriends(10L)).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/users/{id}/friends", 10L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(10))
+                .andExpect(jsonPath("$[0].id").value(10L))
                 .andExpect(jsonPath("$[0].email").value("friend@example.com"))
                 .andExpect(jsonPath("$[0].login").value("friend"))
                 .andExpect(jsonPath("$[0].name").value("Friend Name"))
                 .andExpect(jsonPath("$[0].birthday").value("1980-12-12"));
 
-        verify(userService).getFriends(3L);
+        verify(friendsService).getFriends(10L);
     }
 
     @Test
@@ -104,31 +106,33 @@ class FriendsControllerTest {
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"));
 
-        verifyNoInteractions(userService);
+        verifyNoInteractions(friendsService);
     }
 
     @Test
     @DisplayName("GET /users/{id}/friends возвращает HTTP-ответ со статусом 200 и Collection<User>")
     void getMutualFriends_ReturnsOkWithPayload() throws Exception {
-        User mutual = new User();
-        mutual.setId(11L);
-        mutual.setEmail("mutual@example.com");
-        mutual.setLogin("mutual");
-        mutual.setName("Mutual Friend");
-        mutual.setBirthday(LocalDate.of(1988, 8, 8));
+        UserResponseDto dto = new UserResponseDto(
+                10L,
+                "friend@example.com",
+                "friend",
+                "Friend Name",
+                LocalDate.of(1980, 12, 12)
+        );
 
-        when(userService.getMutualFriends(1L, 2L)).thenReturn(Set.of(mutual));
+
+        when(friendsService.getMutualFriends(1L, 2L)).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/users/{id}/friends/common/{friendId}", 1L, 2L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(11))
-                .andExpect(jsonPath("$[0].email").value("mutual@example.com"))
-                .andExpect(jsonPath("$[0].login").value("mutual"))
-                .andExpect(jsonPath("$[0].name").value("Mutual Friend"))
-                .andExpect(jsonPath("$[0].birthday").value("1988-08-08"));
+                .andExpect(jsonPath("$[0].id").value(10))
+                .andExpect(jsonPath("$[0].email").value("friend@example.com"))
+                .andExpect(jsonPath("$[0].login").value("friend"))
+                .andExpect(jsonPath("$[0].name").value("Friend Name"))
+                .andExpect(jsonPath("$[0].birthday").value("1980-12-12"));
 
-        verify(userService).getMutualFriends(1L, 2L);
+        verify(friendsService).getMutualFriends(1L, 2L);
     }
 
     @Test
@@ -139,6 +143,6 @@ class FriendsControllerTest {
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
-        verifyNoInteractions(userService);
+        verifyNoInteractions(friendsService);
     }
 }

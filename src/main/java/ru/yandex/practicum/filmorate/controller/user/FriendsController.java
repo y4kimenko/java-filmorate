@@ -10,17 +10,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.service.friends.FriendsService;
 
-import java.util.Collection;
+import java.util.List;
 
 @Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users/{id}/friends")
 public class FriendsController {
-    private final UserService service;
+    private final FriendsService friendsService;
 
     @PutMapping("/{friendId}")
     public void addFriend(
@@ -34,7 +34,7 @@ public class FriendsController {
             @PositiveOrZero(message = "id друга не может быть отрицательным")
             Long friendId
     ) {
-        service.addFriend(id, friendId);
+        friendsService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{friendId}")
@@ -49,21 +49,21 @@ public class FriendsController {
             @PositiveOrZero(message = "id друга не может быть отрицательным")
             Long friendId
     ) {
-        service.removeFriend(id, friendId);
+        friendsService.removeFriend(id, friendId);
     }
 
     @GetMapping()
-    public Collection<User> getFriends(
+    public List<UserResponseDto> getFriends(
             @PathVariable
             @NotNull(message = "id пользователя обязателен")
             @PositiveOrZero(message = "id пользователя не может быть отрицательным")
             Long id
     ) {
-        return service.getFriends(id);
+        return friendsService.getFriends(id);
     }
 
     @GetMapping("/common/{friendId}")
-    public Collection<User> getMutualFriends(
+    public List<UserResponseDto> getMutualFriends(
             @PathVariable
             @NotNull(message = "id пользователя обязателен")
             @PositiveOrZero(message = "id пользователя не может быть отрицательным")
@@ -74,6 +74,6 @@ public class FriendsController {
             @PositiveOrZero(message = "id друга не может быть отрицательным")
             Long friendId
     ) {
-        return service.getMutualFriends(id, friendId);
+        return friendsService.getMutualFriends(id, friendId);
     }
 }

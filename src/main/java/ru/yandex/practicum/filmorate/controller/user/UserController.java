@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
+import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
+import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
-import java.util.Collection;
+import java.util.List;
 
 
 @Validated
@@ -25,18 +27,18 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public User createUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
-        return service.createUser(user);
+    public UserResponseDto createUser(@Validated({Default.class}) @NotNull @RequestBody UserRequestCreateDto user) {
+        return service.create(user);
     }
 
     @PutMapping
-    public User updateUser(@Validated({Default.class}) @NotNull @RequestBody User user) {
-        return service.updateUser(user);
+    public UserResponseDto updateUser(@Validated({Default.class}) @NotNull @RequestBody UserRequestUpdateDto user) {
+        return service.update(user);
     }
 
     @GetMapping
-    public Collection<User> getAllUsers() {
-        return service.getAllUsers();
+    public List<UserResponseDto> getAllUsers() {
+        return service.getAll();
     }
 
 

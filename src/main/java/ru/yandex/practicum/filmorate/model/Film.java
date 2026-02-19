@@ -1,44 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Data
 public class Film {
-    private static final LocalDate MIN = LocalDate.of(1895, 12, 28);
 
     private Long id;
 
-    @NotBlank(message = "name не должно состоять из пробелов")
     private String name;
 
-    @Size(max = 200, message = "у description максимальная длина 200 символов")
+    private Map<Long, Genre> genres = new HashMap<>();
+
+    private Mpa mpa = null;
+
     private String description;
 
-    @NotNull(message = "releaseDate не может быть пустой")
     private LocalDate releaseDate;
 
-    @NotNull(message = "duration не может быть пустым")
-    @Min(value = 1, message = "duration должна составлять не меньше 1 минуты")
     private Integer duration;
-
-    private Set<Long> likedUser = new HashSet<>();
-
-    @AssertTrue(message = "releaseDate не может быть раньше чем 28.12.1895")
-    public boolean isReleaseDateValid() {
-        if (releaseDate == null) return true;
-        return !releaseDate.isBefore(MIN);
-    }
-
 
 }
