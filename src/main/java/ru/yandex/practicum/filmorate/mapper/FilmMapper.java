@@ -4,13 +4,13 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestData;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
-import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
+import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.model.film.Film;
 
-import java.util.HashSet;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,7 +68,7 @@ public class FilmMapper {
         }
 
         if (dto.genres() != null) {
-            target.setGenres((HashSet<Long>) dto.genres().stream()
+            target.setGenres(dto.genres().stream()
                     .map(GenreRequestDto::id)
                     .collect(Collectors.toSet()));
         } else {

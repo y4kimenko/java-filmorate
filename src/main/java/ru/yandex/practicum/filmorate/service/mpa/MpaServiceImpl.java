@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.dal.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 
-
 import java.util.Set;
 
 @Service

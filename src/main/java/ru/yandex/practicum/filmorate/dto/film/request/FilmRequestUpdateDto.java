@@ -1,6 +1,11 @@
 package ru.yandex.practicum.filmorate.dto.film.request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 

@@ -16,8 +16,6 @@ import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 
-
-
 import java.util.List;
 
 

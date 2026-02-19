@@ -8,8 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
+import ru.yandex.practicum.filmorate.dto.user.request.UserRequestData;
+import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
+import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.model.user.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -41,24 +45,29 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 200 OK с созданным user")
     void createUser_ReturnsOkWhenPayloadValid() throws Exception {
-        User request = new User();
-        request.setEmail("mail@example.com");
-        request.setLogin("login");
-        request.setName("User Name");
-        request.setBirthday(LocalDate.of(1990, 1, 1));
+        UserRequestCreateDto requestDto  = new UserRequestCreateDto(
+                "mail@example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
 
-        User created = new User();
-        created.setId(1L);
-        created.setEmail(request.getEmail());
-        created.setLogin(request.getLogin());
-        created.setName(request.getName());
-        created.setBirthday(request.getBirthday());
 
-        when(userService.createUser(any(User.class))).thenReturn(created);
+        UserResponseDto responseDto = new UserResponseDto(
+                1L,
+                "mail@example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
+
+
+
+        when(userService.create(any(UserRequestCreateDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -71,15 +80,17 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 400 и описанием ошибки 'E-mail  is incorrect'")
     void createUser_ReturnsBadRequestWhenEmailInvalid() throws Exception {
-        User request = new User();
-        request.setEmail("invalid_email");
-        request.setLogin("login");
-        request.setName("User Name");
-        request.setBirthday(LocalDate.of(1990, 1, 1));
+        UserRequestCreateDto requestDto  = new UserRequestCreateDto(
+                "mail example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
+
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.email").value("E-mail  is incorrect"));
@@ -90,50 +101,60 @@ class UserControllerTest {
     @Test
     @DisplayName("PUT /users возвращает HTTP-ответ со статусом 200 OK с обновленным user")
     void updateUser_ReturnsOkWhenPayloadValid() throws Exception {
-        User request = new User();
-        request.setId(5L);
-        request.setEmail("new@example.com");
-        request.setLogin("newlogin");
-        request.setName("New Name");
-        request.setBirthday(LocalDate.of(1995, 5, 5));
+        UserRequestUpdateDto requestDto  = new UserRequestUpdateDto(
+                1L,
+                "mail@example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
 
-        when(userService.updateUser(any(User.class))).thenReturn(request);
+        UserResponseDto responseDto = new UserResponseDto(
+                1L,
+                "mail@example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
+
+        when(userService.update(any(UserRequestUpdateDto.class))).thenReturn(responseDto);
 
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(5))
-                .andExpect(jsonPath("$.email").value("new@example.com"))
-                .andExpect(jsonPath("$.login").value("newlogin"))
-                .andExpect(jsonPath("$.name").value("New Name"))
-                .andExpect(jsonPath("$.birthday").value("1995-05-05"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("mail@example.com"))
+                .andExpect(jsonPath("$.login").value("login"))
+                .andExpect(jsonPath("$.name").value("User Name"))
+                .andExpect(jsonPath("$.birthday").value("1990-01-01"));
 
-        verify(userService).updateUser(any(User.class));
+        verify(userService).update(any(UserRequestUpdateDto.class));
     }
 
     @Test
     @DisplayName("GET /users возвращает HTTP-ответ со статусом 200 OK и списком пользователей")
     void getAllUsers_ReturnsOkWithPayload() throws Exception {
-        User user = new User();
-        user.setId(2L);
-        user.setEmail("user@example.com");
-        user.setLogin("userlogin");
-        user.setName("User");
-        user.setBirthday(LocalDate.of(1985, 3, 3));
+        UserResponseDto responseDto = new UserResponseDto(
+                1L,
+                "mail@example.com",
+                "login",
+                "User Name",
+                LocalDate.of(1990, 1, 1)
+        );
 
-        when(userService.getAllUsers()).thenReturn(List.of(user));
+        when(userService.getAll()).thenReturn(List.of(responseDto));
 
         mockMvc.perform(get("/users"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].id").value(2))
-                .andExpect(jsonPath("$[0].email").value("user@example.com"))
-                .andExpect(jsonPath("$[0].login").value("userlogin"))
-                .andExpect(jsonPath("$[0].name").value("User"))
-                .andExpect(jsonPath("$[0].birthday").value("1985-03-03"));
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].email").value("mail@example.com"))
+                .andExpect(jsonPath("$[0].login").value("login"))
+                .andExpect(jsonPath("$[0].name").value("User Name"))
+                .andExpect(jsonPath("$[0].birthday").value("1990-01-01"));
 
-        verify(userService).getAllUsers();
+        verify(userService).getAll();
     }
 
 

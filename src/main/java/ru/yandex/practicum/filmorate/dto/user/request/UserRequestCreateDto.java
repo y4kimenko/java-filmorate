@@ -1,6 +1,11 @@
 package ru.yandex.practicum.filmorate.dto.user.request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 
@@ -8,7 +13,7 @@ public record UserRequestCreateDto(
         @NotEmpty(message = "email не может быть пустым")
         @NotBlank(message = "email не должно состоять из пробелов")
         @Email(message = "E-mail  is incorrect")
-         String email,
+        String email,
 
         @NotBlank(message = "login не должно состоять из пробелов")
         @Pattern(regexp = "\\S+", message = "login не должен содержать пробелы")

@@ -8,7 +8,7 @@ import java.util.Set;
 
 
 public interface MpaStorage {
-    public Set<MpaResponseDto> getAll();
+    Set<MpaResponseDto> getAll();
 
-    public Optional<MpaResponseDto> getById(Long id);
+    Optional<MpaResponseDto> getById(Long id);
 }

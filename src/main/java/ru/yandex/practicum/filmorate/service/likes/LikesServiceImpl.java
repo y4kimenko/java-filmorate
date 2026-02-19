@@ -34,6 +34,6 @@ public class LikesServiceImpl implements LikesService {
             throw new FilmNotFoundException("Film c id=" + filmId + " не найден.");
 
         if (!likesStorage.removeLikeFilmByUser(userId, filmId))
-            throw new LikeNotFoundException("User c id=" + userId + " не ставил лай фильму с id=" + filmId);
+            throw new LikeNotFoundException("User c id=" + userId + " не ставил лайк фильму с id=" + filmId);
     }
 }

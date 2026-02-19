@@ -7,29 +7,32 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
 @RequiredArgsConstructor
-public class GenresDbStorage implements GenresStorage{
+public class GenresDbStorage implements GenresStorage {
     private static final String SELECT_ALL_GENRE = """
-        SELECT id, name
-        FROM genres;""";
+            SELECT id, name
+            FROM genres;""";
 
     private static final String SELECT_GENRE_BY_IDS = """
-        SELECT id, name
-        FROM genres
-        WHERE id IN (:ids)
-        ORDER BY id;""";
+            SELECT id, name
+            FROM genres
+            WHERE id IN (:ids)
+            ORDER BY id;""";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
     public Map<Long, GenreResponseDto> getAll() {
         return jdbcTemplate.query(SELECT_ALL_GENRE,
-                        new MapSqlParameterSource(),
+                new MapSqlParameterSource(),
                 rs -> {
                     Map<Long, GenreResponseDto> result = new HashMap<>();
                     while (rs.next()) {

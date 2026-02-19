@@ -11,11 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.service.friends.FriendsService;
-import ru.yandex.practicum.filmorate.service.user.UserService;
 
-import java.util.Collection;
 import java.util.List;
 
 @Validated

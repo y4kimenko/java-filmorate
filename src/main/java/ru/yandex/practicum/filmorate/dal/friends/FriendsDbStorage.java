@@ -63,10 +63,10 @@ public class FriendsDbStorage implements FriendsStorage {
     public void updateFriendships(FriendShipsDto dto) {
         jdbcTemplate.update(MERGE_FRIENSHIP,
                 new MapSqlParameterSource()
-                        .addValue("requester_id",dto.requesterId())
-                        .addValue("addressee_id",dto.addresseeId())
-                        .addValue("addressee_deleted",dto.addresseeDeleted())
-                        .addValue("status",dto.status())
+                        .addValue("requester_id", dto.requesterId())
+                        .addValue("addressee_id", dto.addresseeId())
+                        .addValue("addressee_deleted", dto.addresseeDeleted())
+                        .addValue("status", dto.status())
         );
     }
 

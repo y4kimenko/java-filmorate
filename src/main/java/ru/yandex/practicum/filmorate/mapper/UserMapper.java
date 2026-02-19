@@ -2,16 +2,11 @@ package ru.yandex.practicum.filmorate.mapper;
 
 
 import org.springframework.stereotype.Component;
-
-import ru.yandex.practicum.filmorate.dal.user.mappers.UserRowMapper;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestData;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
-
-
 import ru.yandex.practicum.filmorate.model.user.User;
-
 
 
 @Component

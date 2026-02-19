@@ -6,5 +6,6 @@ import java.util.Set;
 
 public interface MpaService {
     Set<MpaResponseDto> getAll();
+
     MpaResponseDto getById(long id);
 }

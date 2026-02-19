@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 
-
 import java.util.HashSet;
 import java.util.Set;
 

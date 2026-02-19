@@ -7,20 +7,11 @@ import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
-
 
 import java.util.List;
 
@@ -34,19 +25,19 @@ public class FilmController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FilmResponseDto createFilm( @Validated({Default.class})
-                                       @NotNull
-                                       @RequestBody
-                                       FilmRequestCreateDto film
+    public FilmResponseDto createFilm(@Validated({Default.class})
+                                      @NotNull
+                                      @RequestBody
+                                      FilmRequestCreateDto film
     ) {
         return filmService.createFilm(film);
     }
 
     @PutMapping
-    public FilmResponseDto updateFilm( @Validated({Default.class})
-                                       @NotNull
-                                       @RequestBody
-                                       FilmRequestUpdateDto film
+    public FilmResponseDto updateFilm(@Validated({Default.class})
+                                      @NotNull
+                                      @RequestBody
+                                      FilmRequestUpdateDto film
     ) {
         return filmService.updateFilm(film);
     }
@@ -57,19 +48,18 @@ public class FilmController {
     }
 
 
-
     @GetMapping("/popular")
     public List<FilmResponseDto> getPopularFilms(@RequestParam(defaultValue = "10")
-                                                        @PositiveOrZero(message = "count  не может быть отрицательным")
-                                                        int count
+                                                 @PositiveOrZero(message = "count  не может быть отрицательным")
+                                                 int count
     ) {
         return filmService.getPopularFilms(count);
     }
 
     @GetMapping("/{id}")
-    public FilmResponseDto getFilmById( @PathVariable("id")
-                                        @PositiveOrZero(message = "id не может быть отрицательным")
-                                        Long id
+    public FilmResponseDto getFilmById(@PathVariable("id")
+                                       @PositiveOrZero(message = "id не может быть отрицательным")
+                                       Long id
     ) {
         return filmService.getById(id);
     }

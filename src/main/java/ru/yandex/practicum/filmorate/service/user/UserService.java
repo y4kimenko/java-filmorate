@@ -8,9 +8,9 @@ import java.util.List;
 
 
 public interface UserService {
-    UserResponseDto create (UserRequestCreateDto dto);
+    UserResponseDto create(UserRequestCreateDto dto);
 
-    UserResponseDto update (UserRequestUpdateDto dto);
+    UserResponseDto update(UserRequestUpdateDto dto);
 
     List<UserResponseDto> getAll();
 

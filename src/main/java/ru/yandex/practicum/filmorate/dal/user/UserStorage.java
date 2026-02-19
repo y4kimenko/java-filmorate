@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dal.user;
 
 import ru.yandex.practicum.filmorate.model.user.User;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

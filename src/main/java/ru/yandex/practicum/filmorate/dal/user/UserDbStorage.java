@@ -12,15 +12,11 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.friends.FriendsStorage;
 import ru.yandex.practicum.filmorate.dal.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.dal.user.mappers.UserRowMapper;
-
-
 import ru.yandex.practicum.filmorate.model.user.User;
 
-
-
-import java.util.*;
-
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Repository
@@ -37,7 +33,7 @@ public class UserDbStorage implements UserStorage {
             SELECT id, email, login, name, birthday
             FROM users
             WHERE id IN (:ids)""";
-    private static final String SELECT_ALL_USERS= """
+    private static final String SELECT_ALL_USERS = """
             SELECT id, email, login, name, birthday
             FROM users
             ORDER BY id""";
@@ -61,7 +57,6 @@ public class UserDbStorage implements UserStorage {
             WHERE id = :id""";
 
 
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     private final FriendsStorage friendsStorage;
@@ -70,11 +65,11 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User save(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(INSERT_USER,  new MapSqlParameterSource()
-                .addValue("email", user.getEmail())
-                .addValue("login", user.getLogin())
-                .addValue("name", user.getName())
-                .addValue("birthday", user.getBirthday()),
+        jdbcTemplate.update(INSERT_USER, new MapSqlParameterSource()
+                        .addValue("email", user.getEmail())
+                        .addValue("login", user.getLogin())
+                        .addValue("name", user.getName())
+                        .addValue("birthday", user.getBirthday()),
                 keyHolder,
                 new String[]{"id"}
         );
@@ -106,7 +101,6 @@ public class UserDbStorage implements UserStorage {
         log.info("Updating a value in the table 'users' by ID={} with fields: email, login, name, birthday", user.getId());
 
 
-
         return user;
     }
 
@@ -127,7 +121,7 @@ public class UserDbStorage implements UserStorage {
                 SELECT_USER_BY_ID,
                 new MapSqlParameterSource("id", id),
                 new UserRowMapper()
-                ).stream().findFirst();
+        ).stream().findFirst();
         log.info("getById() – request UserId={}", id);
         return user;
     }

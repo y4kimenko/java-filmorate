@@ -5,16 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
-
 import ru.yandex.practicum.filmorate.model.film.Film;
 
-
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -69,11 +68,10 @@ public class FilmDbStorage implements FilmStorage {
             LIMIT :max_size;""";
 
 
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public Film save(Film film){
+    public Film save(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -142,13 +140,13 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public LinkedHashMap<Long, Film> getAll() {
         return jdbcTemplate.queryForStream(SELECT_FILMS,
-                    new MapSqlParameterSource(),
-                    new FilmRowMapper()).collect(
-                            Collectors.toMap(
-                                    Film::getId,             // Ключ
-                                    film -> film,
-                                    (prev, next) -> next, // Если ключи совпали, берем новый (или старый)
-                                    LinkedHashMap::new)    // Значение (сам объект)
+                new MapSqlParameterSource(),
+                new FilmRowMapper()).collect(
+                Collectors.toMap(
+                        Film::getId,             // Ключ
+                        film -> film,
+                        (prev, next) -> next, // Если ключи совпали, берем новый (или старый)
+                        LinkedHashMap::new)    // Значение (сам объект)
         );
     }
 
@@ -178,6 +176,6 @@ public class FilmDbStorage implements FilmStorage {
                 new MapSqlParameterSource("id", id),
                 Long.class
         );
-        return count != null  && count != 0;
+        return count != null && count != 0;
     }
 }

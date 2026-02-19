@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MpaDbStorage implements MpaStorage {
     private static final String SELECT_ALL_MPA = """
-        SELECT id, name
-        FROM mpa;""";
+            SELECT id, name
+            FROM mpa;""";
 
     private static final String SELECT_MPA_BY_ID = """
             SELECT id, name
@@ -28,16 +28,16 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Set<MpaResponseDto> getAll() {
         return jdbcTemplate.queryForStream(SELECT_ALL_MPA,
-                                            new MapSqlParameterSource(),
-                                            new DataClassRowMapper<>(MpaResponseDto.class))
+                        new MapSqlParameterSource(),
+                        new DataClassRowMapper<>(MpaResponseDto.class))
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Optional<MpaResponseDto> getById(Long id) {
         return jdbcTemplate.query(SELECT_MPA_BY_ID,
-                                           new MapSqlParameterSource("id", id),
-                                           new DataClassRowMapper<>(MpaResponseDto.class)
+                new MapSqlParameterSource("id", id),
+                new DataClassRowMapper<>(MpaResponseDto.class)
         ).stream().findFirst();
     }
 }

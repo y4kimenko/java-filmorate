@@ -5,9 +5,14 @@ import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 
 public interface FilmRequestData {
     String name();
+
     String description();
+
     java.time.LocalDate releaseDate();
+
     Integer duration();
+
     MpaRequestDto mpa();
+
     java.util.Set<GenreRequestDto> genres();
 }

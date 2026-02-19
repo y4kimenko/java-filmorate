@@ -3,16 +3,9 @@ package ru.yandex.practicum.filmorate.dal.likes;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,7 +22,6 @@ public class LikesDbStorage implements LikesStorage {
             AND film_id = :film_id;""";
 
 
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
@@ -37,9 +29,9 @@ public class LikesDbStorage implements LikesStorage {
 
         log.info("Adding favorite user's films with userID={} in table 'user_film_likes'", userId);
         int res = jdbcTemplate.update(MERGE_USER_LIKES_FILMS,
-                 new MapSqlParameterSource()
-                                .addValue("user_id", userId)
-                                .addValue("film_id", film_id)
+                new MapSqlParameterSource()
+                        .addValue("user_id", userId)
+                        .addValue("film_id", film_id)
         );
         return res > 0;
     }
@@ -47,11 +39,11 @@ public class LikesDbStorage implements LikesStorage {
     @Override
     public boolean removeLikeFilmByUser(long userId, long filmId) {
         long res = jdbcTemplate.update(DELETE_LIKE_FILM_BY_USER,
-                 new MapSqlParameterSource()
-                                .addValue("user_id", userId)
-                                .addValue("film_id", filmId)
+                new MapSqlParameterSource()
+                        .addValue("user_id", userId)
+                        .addValue("film_id", filmId)
         );
-        log.info("Delete filmId={} likes for userId={} from the table 'user_film_likes'",filmId, userId);
+        log.info("Delete filmId={} likes for userId={} from the table 'user_film_likes'", filmId, userId);
         return res > 0;
     }
 }
