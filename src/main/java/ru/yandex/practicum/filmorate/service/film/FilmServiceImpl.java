@@ -186,6 +186,38 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<FilmResponseDto> getCommonFilmsBetweenUsers(long userId, long friendId) {
+        List<Film> commonFilms = filmStorage.getCommonFilmsBetweenUsers(userId, friendId);
+
+        Map<Long, Genre> genres = genresStorage.getAll();
+        Map<Long, Mpa> mpas = mpaStorage.getAll();
+
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(commonFilms.stream()
+                .map(Film::getId)
+                .collect(Collectors.toSet())
+        );
+
+        List<FilmResponseDto> result = commonFilms.stream()
+                .map(f -> {
+                    Long filmId = f.getId();
+                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
+                            .map(genres::get)
+                            .collect(Collectors.toMap(
+                                    Genre::id,
+                                    Function.identity()))
+                    );
+
+                    f.setMpa(mpas.get(f.getMpa().id()));
+                    return filmMapper.toResponseDto(f);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        log.debug("getCommonFilmsBetweenUsers() – total={} / userId={}, friendId={}", result.size(), userId, friendId);
+        return result;
+    }
+
+    @Override
     public FilmResponseDto getById(Long filmId) {
         Film film = filmStorage.getById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
