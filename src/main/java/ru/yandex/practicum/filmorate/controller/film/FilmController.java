@@ -71,14 +71,4 @@ public class FilmController {
     ) {
         return filmService.getById(id);
     }
-
-    @GetMapping("/common")
-    public List<FilmResponseDto> getCommonFilmsBetweenUsers(@RequestParam @PositiveOrZero
-                                                                    (message = "userId не может быть отрицательным") long userId,
-                                                            @RequestParam @PositiveOrZero
-                                                                    (message = "friendId не может быть отрицательным") long friendId) {
-        return filmService.getCommonFilmsBetweenUsers(userId, friendId);
-    }
-
-
 }

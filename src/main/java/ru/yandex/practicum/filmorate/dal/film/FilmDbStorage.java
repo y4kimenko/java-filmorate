@@ -9,18 +9,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
-import ru.yandex.practicum.filmorate.dal.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.exception.NotFriendsException;
-import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -76,7 +69,6 @@ public class FilmDbStorage implements FilmStorage {
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final UserDbStorage userDbStorage;
 
     @Override
     public Film save(Film film) {
@@ -175,37 +167,6 @@ public class FilmDbStorage implements FilmStorage {
         log.info("getPopularFilms() – request limit={}", limit);
 
         return res;
-    }
-
-    @Override
-    public int countLikesByFilmId(Long filmId) {
-        MapSqlParameterSource params = new MapSqlParameterSource("filmId", filmId);
-        return jdbcTemplate.queryForObject(
-                "SELECT COALESCE(COUNT(*), 0) FROM user_film_likes WHERE film_id = :filmId",
-                params,
-                Integer.class
-        );
-    }
-
-    @Override
-    public List<Film> getCommonFilmsBetweenUsers(long userId, long friendId) {
-        User firstUser = userDbStorage.getById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
-        User secondUser = userDbStorage.getById(friendId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
-
-        if (!firstUser.getFriends().contains(friendId)) {
-            throw new NotFriendsException("Пользователи " + userId + " и " + friendId + " не друзья");
-        }
-
-        Set<Long> commonLikedFilmIds = new HashSet<>(firstUser.getLikedFilm());
-        commonLikedFilmIds.retainAll(secondUser.getLikedFilm());
-
-        return getAll().values().stream()
-                .filter(film -> commonLikedFilmIds.contains(film.getId()))
-                .sorted(Comparator.comparingInt((Film film) -> countLikesByFilmId(film.getId())).reversed())
-                .collect(Collectors.toList());
-
     }
 
     @Override
