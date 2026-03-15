@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
-import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
-import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 
 import java.util.Comparator;
 import java.util.LinkedHashSet;
