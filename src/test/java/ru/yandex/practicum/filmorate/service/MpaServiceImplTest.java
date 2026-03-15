@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.mpa.MpaServiceImpl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -39,7 +40,7 @@ class MpaServiceImplTest {
 
         when(mpaStorage.getAll()).thenReturn(stored);
 
-        Set<MpaResponseDto> result = mpaService.getAll();
+        List<MpaResponseDto> result = mpaService.getAll();
 
 
         assertTrue(result.contains(new MpaResponseDto(1L, "G")));

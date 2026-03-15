@@ -10,16 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
 
-import java.util.Set;
+import java.util.List;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = GenresFilmController.class)
 class GenresFilmControllerTest {
@@ -35,7 +30,7 @@ class GenresFilmControllerTest {
     void getAllGenres_ReturnsOk() throws Exception {
         GenreResponseDto dto = new GenreResponseDto(1, "Комедия");
 
-        when(genresService.getAll()).thenReturn(Set.of(dto));
+        when(genresService.getAll()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/genres"))
                 .andExpect(status().isOk())

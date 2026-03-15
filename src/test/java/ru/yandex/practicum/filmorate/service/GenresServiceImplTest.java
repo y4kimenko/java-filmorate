@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.genres.GenresServiceImpl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,7 +36,7 @@ class GenresServiceImplTest {
 
         when(genresStorage.getAll()).thenReturn(stored);
 
-        Set<GenreResponseDto> result = genresService.getAll();
+        List<GenreResponseDto> result = genresService.getAll();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(new GenreResponseDto(1, "Комедия")));
@@ -52,7 +49,7 @@ class GenresServiceImplTest {
     void getAll_returnsEmptySet_whenStorageEmpty() {
         when(genresStorage.getAll()).thenReturn(Map.of());
 
-        Set<GenreResponseDto> result = genresService.getAll();
+        List<GenreResponseDto> result = genresService.getAll();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());

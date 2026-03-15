@@ -10,16 +10,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
-import java.util.Set;
+import java.util.List;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = MpaController.class)
 class MpaControllerTest {
@@ -35,7 +30,7 @@ class MpaControllerTest {
     void getAllMpa_ReturnsOk() throws Exception {
         MpaResponseDto dto = new MpaResponseDto(1, "R");
 
-        when(mpaService.getAll()).thenReturn(Set.of(dto));
+        when(mpaService.getAll()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/mpa"))
                 .andExpect(status().isOk())
