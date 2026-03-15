@@ -16,10 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest
 @Import({UserDbStorage.class})
@@ -31,6 +28,14 @@ class UserDbStorageTest {
     @Autowired
     private NamedParameterJdbcTemplate jdbc;
 
+    private static User user(String email, String login, String name, LocalDate birthday) {
+        User u = new User();
+        u.setEmail(email);
+        u.setLogin(login);
+        u.setName(name);
+        u.setBirthday(birthday);
+        return u;
+    }
 
     @BeforeEach
     void setUp() {
@@ -121,14 +126,5 @@ class UserDbStorageTest {
         List<Long> expected = List.of(u1.getId(), u2.getId()).stream().sorted(Comparator.naturalOrder()).toList();
 
         assertEquals(expected, ids);
-    }
-
-    private static User user(String email, String login, String name, LocalDate birthday) {
-        User u = new User();
-        u.setEmail(email);
-        u.setLogin(login);
-        u.setName(name);
-        u.setBirthday(birthday);
-        return u;
     }
 }
