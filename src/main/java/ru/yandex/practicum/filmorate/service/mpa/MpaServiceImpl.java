@@ -7,6 +7,8 @@ import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.MpaMapper;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,9 +18,11 @@ public class MpaServiceImpl implements MpaService {
     private final MpaStorage mpaStorage;
 
     public Set<MpaResponseDto> getAll() {
-        return mpaStorage.getAll().values().stream()
+        Set<MpaResponseDto> map = mpaStorage.getAll().values().stream()
                 .map(MpaMapper::toResponseDto)
-                .collect(Collectors.toSet());
+                .sorted(Comparator.comparing(MpaResponseDto::id))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return map;
     }
 
     public MpaResponseDto getById(long id) {
