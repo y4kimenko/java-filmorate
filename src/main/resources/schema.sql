@@ -95,7 +95,3 @@ CREATE TABLE IF NOT EXISTS film_genres
 );
 
 CREATE INDEX IF NOT EXISTS idx_film_genres_film_id ON film_genres (film_id);
-
-
-
-

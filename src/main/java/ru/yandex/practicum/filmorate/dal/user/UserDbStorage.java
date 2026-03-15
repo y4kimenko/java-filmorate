@@ -10,6 +10,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.user.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -54,6 +55,10 @@ public class UserDbStorage implements UserStorage {
             FROM users
             WHERE id = :id""";
 
+    private static final String DELETE_BY_ID = """
+                    DELETE FROM users
+                    WHERE id = :id
+            """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -142,5 +147,16 @@ public class UserDbStorage implements UserStorage {
         );
         log.info("getByIds() – request UserIds={}", ids);
         return user;
+    }
+
+    @Override
+    public void deleteById(long id) {
+        if (existsById(id)) {
+            jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+            log.info("deleteById() - userId={} deleted", id);
+        } else {
+            log.info("deleteById() - userId={} does not exist", id);
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
+        }
     }
 }

@@ -68,4 +68,9 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toResponseDto)
                 .toList();
     }
+
+    @Override
+    public void deleteById(long id) {
+        userStorage.deleteById(id);
+    }
 }

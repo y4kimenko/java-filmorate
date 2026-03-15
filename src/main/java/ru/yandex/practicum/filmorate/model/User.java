@@ -19,6 +19,17 @@ public class User {
     private Set<Long> friends = new HashSet<>();
     private Set<Long> likedFilm = new HashSet<>();
 
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String trimToNull(String s) {
+        if (s == null) return null;
+        String t = s.trim();
+        return t.isEmpty() ? null : t;
+    }
+
+    // ==== УТИЛИТЫ ====
 
     public void setLogin(String email) {
         this.login = trimToNull(email);
@@ -32,18 +43,6 @@ public class User {
         String n = trimToNull(name);
         // Если прислали пустое name – берём текущий email
         this.name = (n == null) ? this.login : n;
-    }
-
-    // ==== УТИЛИТЫ ====
-
-    private static boolean isBlank(String s) {
-        return s == null || s.trim().isEmpty();
-    }
-
-    private static String trimToNull(String s) {
-        if (s == null) return null;
-        String t = s.trim();
-        return t.isEmpty() ? null : t;
     }
 
 }

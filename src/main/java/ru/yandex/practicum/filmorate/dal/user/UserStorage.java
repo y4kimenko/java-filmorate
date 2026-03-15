@@ -18,4 +18,6 @@ public interface UserStorage {
     boolean existsById(long id);
 
     List<User> getByIds(Set<Long> ids);
+
+    void deleteById(long id);
 }
