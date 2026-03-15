@@ -203,4 +203,9 @@ public class FilmServiceImpl implements FilmService {
         return filmMapper.toResponseDto(film);
     }
 
+    @Override
+    public void deleteById(long id) {
+        filmStorage.deleteById(id);
+    }
+
 }

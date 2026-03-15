@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.LinkedHashMap;
@@ -66,6 +67,11 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(l.user_id) DESC, f.id ASC
             LIMIT :max_size;""";
+
+    private static final String DELETE_BY_ID = """
+                    DELETE FROM film
+                    WHERE id = :id
+            """;
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -177,5 +183,16 @@ public class FilmDbStorage implements FilmStorage {
                 Long.class
         );
         return count != null && count != 0;
+    }
+
+    @Override
+    public void deleteById(long id) {
+        if (existsById(id)) {
+            jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+            log.info("deleteById() - filmId={} deleted", id);
+        } else {
+            log.info("deleteById() - filmId={} does not exist", id);
+            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
+        }
     }
 }

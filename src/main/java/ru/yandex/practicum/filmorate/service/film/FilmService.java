@@ -19,4 +19,6 @@ public interface FilmService {
     List<FilmResponseDto> getPopularFilms(int count);
 
     FilmResponseDto getById(Long filmId);
+
+    void deleteById(long id);
 }
