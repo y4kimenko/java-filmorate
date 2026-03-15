@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -76,7 +77,9 @@ public class FilmDbStorage implements FilmStorage {
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final UserDbStorage userDbStorage;
+
+    @Autowired(required = false)
+    private UserDbStorage userDbStorage;
 
     @Override
     public Film save(Film film) {
