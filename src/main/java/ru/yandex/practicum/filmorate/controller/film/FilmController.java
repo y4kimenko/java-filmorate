@@ -64,6 +64,21 @@ public class FilmController {
         return filmService.getPopularFilms(count);
     }
 
+    @GetMapping("/common")
+    public List<FilmResponseDto> getCommonFilms(
+            @RequestParam
+            @NotNull(message = "userId обязателен")
+            @PositiveOrZero(message = "userId не может быть отрицательным")
+            Long userId,
+
+            @RequestParam
+            @NotNull(message = "friendId обязателен")
+            @PositiveOrZero(message = "friendId не может быть отрицательным")
+            Long friendId
+    ) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     @GetMapping("/{id}")
     public FilmResponseDto getFilmById(@PathVariable("id")
                                        @PositiveOrZero(message = "id не может быть отрицательным")
