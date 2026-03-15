@@ -4,12 +4,14 @@ package ru.yandex.practicum.filmorate.dal.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.user.mappers.UserRowMapper;
+import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -62,7 +64,6 @@ public class UserDbStorage implements UserStorage {
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
 
     @Override
     public User save(User user) {
@@ -157,6 +158,17 @@ public class UserDbStorage implements UserStorage {
             log.info("deleteById() - userId={} deleted", id);
         } else {
             log.info("deleteById() - userId={} does not exist", id);
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
+        }
+    }
+
+    @Override
+    public User getUserById(long id) {
+        try{
+        return jdbcTemplate.queryForObject(SELECT_USER_BY_ID, new MapSqlParameterSource("id", id),
+                new UserRowMapper()
+        ); }
+        catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
         }
     }

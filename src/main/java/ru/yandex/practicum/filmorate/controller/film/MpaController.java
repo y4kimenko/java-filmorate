@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.dal.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -21,7 +23,7 @@ public class MpaController {
     private final MpaService mpaService;
 
     @GetMapping
-    public Set<MpaResponseDto> getMpa() {
+    public List<MpaResponseDto> getMpa() {
         return mpaService.getAll();
     }
 

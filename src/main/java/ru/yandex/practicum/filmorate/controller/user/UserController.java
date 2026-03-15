@@ -37,6 +37,11 @@ public class UserController {
         return service.getAll();
     }
 
+    @GetMapping("/{id}")
+    public UserResponseDto getUserById(@PathVariable long id) {
+        return service.getUserById(id);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable("id") @PositiveOrZero(message = "id не может быть отрицательным") Long id) {
         service.deleteById(id);

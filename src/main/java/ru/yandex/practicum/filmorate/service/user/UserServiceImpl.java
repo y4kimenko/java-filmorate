@@ -73,4 +73,9 @@ public class UserServiceImpl implements UserService {
     public void deleteById(long id) {
         userStorage.deleteById(id);
     }
+
+    @Override
+    public UserResponseDto getUserById(long id) {
+        return UserMapper.toResponseDto(userStorage.getUserById(id));
+    }
 }

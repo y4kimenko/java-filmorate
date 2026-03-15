@@ -16,4 +16,5 @@ public interface UserService {
 
     void deleteById(long id);
 
+    UserResponseDto getUserById(long id);
 }

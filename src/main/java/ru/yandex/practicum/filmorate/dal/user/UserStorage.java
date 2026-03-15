@@ -20,4 +20,6 @@ public interface UserStorage {
     List<User> getByIds(Set<Long> ids);
 
     void deleteById(long id);
+
+    User getUserById(long id);
 }
