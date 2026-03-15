@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class MpaServiceImpl implements MpaService {
         return mpaStorage.getAll().values().stream()
                 .sorted(Comparator.comparingLong(Mpa::id))
                 .map(MpaMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public MpaResponseDto getById(long id) {

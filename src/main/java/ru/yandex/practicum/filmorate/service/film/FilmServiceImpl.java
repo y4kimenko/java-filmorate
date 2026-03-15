@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dal.genresByFilms.GenresByFilmsDbStorage;
 import ru.yandex.practicum.filmorate.dal.mpa.MpaStorage;
+import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
+import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -37,6 +39,7 @@ public class FilmServiceImpl implements FilmService {
     private final MpaStorage mpaStorage;
 
     private final FilmMapper filmMapper;
+    private final UserStorage userStorage;
 
     @Override
     @Transactional
@@ -186,20 +189,30 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmResponseDto> getCommonFilmsBetweenUsers(long userId, long friendId) {
-        List<Film> commonFilms = filmStorage.getCommonFilmsBetweenUsers(userId, friendId);
+    public List<FilmResponseDto> getCommonFilms(long userId, long friendId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotFoundException("User c id=" + userId + " не найден.");
+        }
+
+        if (!userStorage.existsById(friendId)) {
+            throw new UserNotFoundException("User c id=" + friendId + " не найден.");
+        }
+
+        List<Film> films = filmStorage.getCommonFilms(userId, friendId);
 
         Map<Long, Genre> genres = genresStorage.getAll();
         Map<Long, Mpa> mpas = mpaStorage.getAll();
 
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(commonFilms.stream()
-                .map(Film::getId)
-                .collect(Collectors.toSet())
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(
+                films.stream()
+                        .map(Film::getId)
+                        .collect(Collectors.toSet())
         );
 
-        List<FilmResponseDto> result = commonFilms.stream()
+        List<FilmResponseDto> result = films.stream()
                 .map(f -> {
                     Long filmId = f.getId();
+
                     f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
                             .map(genres::get)
                             .collect(Collectors.toMap(
@@ -207,13 +220,16 @@ public class FilmServiceImpl implements FilmService {
                                     Function.identity()))
                     );
 
-                    f.setMpa(mpas.get(f.getMpa().id()));
+                    if (f.getMpa() != null) {
+                        f.setMpa(mpas.get(f.getMpa().id()));
+                    }
+
                     return filmMapper.toResponseDto(f);
                 })
                 .filter(Objects::nonNull)
                 .toList();
 
-        log.debug("getCommonFilmsBetweenUsers() – total={} / userId={}, friendId={}", result.size(), userId, friendId);
+        log.debug("getCommonFilms() – total={}", result.size());
         return result;
     }
 

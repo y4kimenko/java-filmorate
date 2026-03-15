@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +20,7 @@ public class GenresServiceImpl implements GenresService {
         return genresStorage.getAll().values().stream()
                 .sorted(Comparator.comparingLong(Genre::id))
                 .map(GenreMapper::toResponseDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public GenreResponseDto getById(long id) {

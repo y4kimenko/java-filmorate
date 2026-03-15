@@ -17,12 +17,9 @@ public interface FilmStorage {
 
     List<Film> getPopularFilms(long limit);
 
-    int countLikesByFilmId(Long filmId);
-
-    List<Film> getCommonFilmsBetweenUsers(long userId, long friendId);
+    List<Film> getCommonFilms(long userId, long friendId);
 
     Optional<Film> getById(long id);
 
     boolean existsById(long id);
-
 }
