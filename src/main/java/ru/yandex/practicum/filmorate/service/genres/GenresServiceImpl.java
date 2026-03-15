@@ -6,8 +6,10 @@ import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Set;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,10 +17,11 @@ import java.util.stream.Collectors;
 public class GenresServiceImpl implements GenresService {
     private final GenresStorage genresStorage;
 
-    public Set<GenreResponseDto> getAll() {
+    public List<GenreResponseDto> getAll() {
         return genresStorage.getAll().values().stream()
+                .sorted(Comparator.comparingLong(Genre::id))
                 .map(GenreMapper::toResponseDto)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public GenreResponseDto getById(long id) {

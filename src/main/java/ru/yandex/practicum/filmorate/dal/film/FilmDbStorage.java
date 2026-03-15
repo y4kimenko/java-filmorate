@@ -11,17 +11,13 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.dal.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.exception.NotFriendsException;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -75,10 +71,18 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY COUNT(l.user_id) DESC, f.id ASC
             LIMIT :max_size;""";
 
+    private static final String SELECT_COMMON_FILM_IDS = """
+            SELECT film_id
+            FROM user_film_likes
+            WHERE user_id = :userId
+              AND film_id IN (
+                  SELECT film_id FROM user_film_likes WHERE user_id = :friendId
+              )""";
+
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    @Autowired(required = false)
+    @Autowired
     private UserDbStorage userDbStorage;
 
     @Override
@@ -192,20 +196,23 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getCommonFilmsBetweenUsers(long userId, long friendId) {
-        User firstUser = userDbStorage.getById(userId)
+        userDbStorage.getById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
-        User secondUser = userDbStorage.getById(friendId)
+        userDbStorage.getById(friendId)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь с ID " + userId + " не найден"));
 
-        if (!firstUser.getFriends().contains(friendId)) {
-            throw new NotFriendsException("Пользователи " + userId + " и " + friendId + " не друзья");
-        }
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("userId", userId)
+                .addValue("friendId", friendId);
 
-        Set<Long> commonLikedFilmIds = new HashSet<>(firstUser.getLikedFilm());
-        commonLikedFilmIds.retainAll(secondUser.getLikedFilm());
+        List<Long> commonIds = jdbcTemplate.query(
+                SELECT_COMMON_FILM_IDS,
+                params,
+                (rs, rowNum) -> rs.getLong("film_id")
+        );
 
         return getAll().values().stream()
-                .filter(film -> commonLikedFilmIds.contains(film.getId()))
+                .filter(film -> commonIds.contains(film.getId()))
                 .sorted(Comparator.comparingInt((Film film) -> countLikesByFilmId(film.getId())).reversed())
                 .collect(Collectors.toList());
 

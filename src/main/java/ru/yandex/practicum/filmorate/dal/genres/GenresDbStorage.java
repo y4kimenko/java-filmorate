@@ -20,7 +20,8 @@ import java.util.stream.Collectors;
 public class GenresDbStorage implements GenresStorage {
     private static final String SELECT_ALL_GENRE = """
             SELECT id, name
-            FROM genres;""";
+            FROM genres
+            ORDER BY id;""";
 
     private static final String SELECT_GENRE_BY_IDS = """
             SELECT id, name
