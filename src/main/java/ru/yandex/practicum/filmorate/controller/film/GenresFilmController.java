@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/genres")
