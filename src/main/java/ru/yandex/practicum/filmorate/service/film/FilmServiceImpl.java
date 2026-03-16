@@ -251,4 +251,42 @@ public class FilmServiceImpl implements FilmService {
         return filmMapper.toResponseDto(film);
     }
 
+
+    public List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
+
+        Map<Long, Genre> genres = genresStorage.getAll();
+        Map<Long, Mpa> mpas = mpaStorage.getAll();
+
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(
+                films.stream()
+                        .map(Film::getId)
+                        .collect(Collectors.toSet())
+        );
+
+        if (genres == null || filmGenresMap == null) {
+            return films.stream()
+                    .map(filmMapper::toResponseDto)
+                    .toList();
+        }
+
+        return films.stream()
+                .map(f -> {
+                    Long filmId = f.getId();
+                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
+                            .map(genres::get)
+                            .collect(Collectors.toMap(
+                                    Genre::id,
+                                    Function.identity()))
+                    );
+
+
+                    f.setMpa(mpas.get(f.getMpa().id()));
+
+                    return filmMapper.toResponseDto(f);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+
 }
