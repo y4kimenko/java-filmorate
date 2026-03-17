@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/mpa")
@@ -21,7 +21,7 @@ public class MpaController {
     private final MpaService mpaService;
 
     @GetMapping
-    public List<MpaResponseDto> getMpa() {
+    public Set<MpaResponseDto> getMpa() {
         return mpaService.getAll();
     }
 

@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -35,7 +35,7 @@ class MpaControllerTest {
     void getAllMpa_ReturnsOk() throws Exception {
         MpaResponseDto dto = new MpaResponseDto(1, "R");
 
-        when(mpaService.getAll()).thenReturn(List.of(dto));
+        when(mpaService.getAll()).thenReturn(Set.of(dto));
 
         mockMvc.perform(get("/mpa"))
                 .andExpect(status().isOk())

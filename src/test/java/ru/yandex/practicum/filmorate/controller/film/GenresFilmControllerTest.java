@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
 
-import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -35,7 +35,7 @@ class GenresFilmControllerTest {
     void getAllGenres_ReturnsOk() throws Exception {
         GenreResponseDto dto = new GenreResponseDto(1, "Комедия");
 
-        when(genresService.getAll()).thenReturn(List.of(dto));
+        when(genresService.getAll()).thenReturn(Set.of(dto));
 
         mockMvc.perform(get("/genres"))
                 .andExpect(status().isOk())

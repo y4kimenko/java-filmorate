@@ -8,14 +8,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dal.genres.GenresDbStorage;
-import ru.yandex.practicum.filmorate.dal.mpa.MpaDbStorage;
-import ru.yandex.practicum.filmorate.dal.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
-@Import({FilmDbStorage.class, UserDbStorage.class, MpaDbStorage.class, GenresDbStorage.class})
+@Import(FilmDbStorage.class)
 class FilmDbStorageTest {
 
     @Autowired
@@ -192,11 +190,11 @@ class FilmDbStorageTest {
         Film s1 = filmStorage.save(f1);
         Film s2 = filmStorage.save(f2);
 
-        List<Film> all = filmStorage.getAll();
+        LinkedHashMap<Long, Film> all = filmStorage.getAll();
 
         assertEquals(2, all.size());
 
-        List<Long> ids = new ArrayList<>(all.stream().map(Film::getId).toList());
+        List<Long> ids = new ArrayList<>(all.keySet());
         assertEquals(List.of(s1.getId(), s2.getId()), ids);
     }
 

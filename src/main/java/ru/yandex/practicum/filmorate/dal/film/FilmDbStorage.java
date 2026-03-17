@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -64,18 +66,6 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(l.user_id) DESC, f.id ASC
             LIMIT :max_size;""";
-
-    private static final String GET_COMMON_FILMS = """
-            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
-            FROM film f
-            JOIN user_film_likes ul1 ON f.id = ul1.film_id
-            JOIN user_film_likes ul2 ON f.id = ul2.film_id
-            LEFT JOIN user_film_likes likes ON f.id = likes.film_id
-            WHERE ul1.user_id = :userId
-            AND ul2.user_id = :friendId
-            GROUP BY f.id
-            ORDER BY COUNT(likes.user_id) DESC, f.id ASC;
-            """;
 
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -148,10 +138,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getAll() {
-        return jdbcTemplate.query(SELECT_FILMS,
+    public LinkedHashMap<Long, Film> getAll() {
+        return jdbcTemplate.queryForStream(SELECT_FILMS,
                 new MapSqlParameterSource(),
-                new FilmRowMapper()
+                new FilmRowMapper()).collect(
+                Collectors.toMap(
+                        Film::getId,             // Ключ
+                        film -> film,
+                        (prev, next) -> next, // Если ключи совпали, берем новый (или старый)
+                        LinkedHashMap::new)    // Значение (сам объект)
         );
     }
 
@@ -171,20 +166,6 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmRowMapper());
         log.info("getPopularFilms() – request limit={}", limit);
 
-        return res;
-    }
-
-    @Override
-    public List<Film> getCommonFilms(long userId, long friendId) {
-        List<Film> res = jdbcTemplate.query(
-                GET_COMMON_FILMS,
-                new MapSqlParameterSource()
-                        .addValue("userId", userId)
-                        .addValue("friendId", friendId),
-                new FilmRowMapper()
-        );
-
-        log.info("getCommonFilms() – request userId={}, friendId={}", userId, friendId);
         return res;
     }
 

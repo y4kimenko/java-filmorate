@@ -18,7 +18,10 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
-
+    private static final String SELECT_FILM_GENRES = """
+            SELECT film_id, genre_id
+            FROM film_genres
+            ORDER BY film_id, genre_id;""";
     private static final String SELECT_FILMS_GENRES_BY_ID = """
             SELECT film_id, genre_id
             FROM film_genres
@@ -64,9 +67,24 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
         jdbcTemplate.batchUpdate(MERGE_GENRE_FILM, batch);
     }
 
+    @Override
+    public Map<Long, Set<Long>> getAll() {
+        return jdbcTemplate.query(
+                SELECT_FILM_GENRES,
+                new MapSqlParameterSource(),
+                rs -> {
+                    Map<Long, Set<Long>> map = new HashMap<>();
+                    while (rs.next()) {
+                        map.computeIfAbsent(rs.getLong("film_id"), k -> new LinkedHashSet<>())
+                                .add(rs.getLong("genre_id"));
+                    }
+                    return map;
+                }
+        );
+    }
 
     @Override
-    public Map<Long, Set<Long>> getByFilmIds(Set<Long> filmIds) {
+    public Map<Long, Set<Long>> getByfilmIds(Set<Long> filmIds) {
         return jdbcTemplate.query(
                 SELECT_FILMS_GENRES_BY_ID,
                 new MapSqlParameterSource("film_id", filmIds),

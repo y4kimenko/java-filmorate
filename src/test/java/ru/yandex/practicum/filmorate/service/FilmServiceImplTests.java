@@ -29,8 +29,8 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -421,9 +421,9 @@ class FilmServiceImplTests {
         f2.setMpa(new Mpa(2L, null));
         f2.setGenres(new HashMap<>());
 
-        List<Film> films = new ArrayList<>();
-        films.add(f1);
-        films.add(f2);
+        LinkedHashMap<Long, Film> films = new LinkedHashMap<>();
+        films.put(1L, f1);
+        films.put(2L, f2);
 
         Map<Long, Genre> genres = new HashMap<>(Map.of(
                 1L, new Genre(1L, "Комедия"),
@@ -443,7 +443,7 @@ class FilmServiceImplTests {
         when(filmStorage.getAll()).thenReturn(films);
         when(genresStorage.getAll()).thenReturn(genres);
         when(mpaStorage.getAll()).thenReturn(mpas);
-        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L, 2L))).thenReturn(filmGenresMap);
+        when(genresByFilmsDbStorage.getAll()).thenReturn(filmGenresMap);
 
         FilmResponseDto r1 = new FilmResponseDto(
                 1L, "A",
@@ -479,10 +479,10 @@ class FilmServiceImplTests {
         f1.setMpa(new Mpa(1L, null));
         f1.setGenres(new HashMap<>());
 
-        when(filmStorage.getAll()).thenReturn(List.of(f1));
+        when(filmStorage.getAll()).thenReturn(new LinkedHashMap<>(Map.of(1L, f1)));
         when(genresStorage.getAll()).thenReturn(null);
         when(mpaStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, new Mpa(1L, "G"))));
-        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L))).thenReturn(new HashMap<>(Map.of(1L, Set.of(1L))));
+        when(genresByFilmsDbStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, Set.of(1L))));
 
         FilmResponseDto expected = new FilmResponseDto(
                 1L, "A",
@@ -525,7 +525,7 @@ class FilmServiceImplTests {
                 1L, new Mpa(1L, "G")
         )));
 
-        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L, 2L)))
+        when(genresByFilmsDbStorage.getByfilmIds(Set.of(1L, 2L)))
                 .thenReturn(new HashMap<>(Map.of(
                         1L, Set.of(1L),
                         2L, Set.of(1L)
@@ -547,7 +547,7 @@ class FilmServiceImplTests {
 
         assertEquals(1, result.size());
         assertEquals(r1, result.get(0));
-        verify(genresByFilmsDbStorage).getByFilmIds(Set.of(1L, 2L));
+        verify(genresByFilmsDbStorage).getByfilmIds(Set.of(1L, 2L));
     }
 
     @Test

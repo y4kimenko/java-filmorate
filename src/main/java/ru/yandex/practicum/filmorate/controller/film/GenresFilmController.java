@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/genres")
@@ -21,7 +21,7 @@ public class GenresFilmController {
     private final GenresService genresService;
 
     @GetMapping
-    public List<GenreResponseDto> getGenres() {
+    public Set<GenreResponseDto> getGenres() {
         return genresService.getAll();
     }
 
