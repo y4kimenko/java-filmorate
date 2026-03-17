@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +12,11 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    LinkedHashMap<Long, Film> getAll();
+    List<Film> getAll();
 
     List<Film> getPopularFilms(long limit);
+
+    List<Film> getCommonFilms(long userId, long friendId);
 
     Optional<Film> getById(long id);
 
