@@ -4,7 +4,6 @@ package ru.yandex.practicum.filmorate.dal.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -162,13 +161,10 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(long id) {
-        try {
-            return jdbcTemplate.queryForObject(SELECT_USER_BY_ID, new MapSqlParameterSource("id", id),
-                    new UserRowMapper()
-            );
-        } catch (EmptyResultDataAccessException e) {
-            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
-        }
+    public Optional<User> getUserById(long id) {
+        List<User> users = jdbcTemplate.query(SELECT_USER_BY_ID, new MapSqlParameterSource("id", id),
+                new UserRowMapper());
+
+        return users.stream().findFirst();
     }
 }

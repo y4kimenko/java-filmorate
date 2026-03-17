@@ -76,6 +76,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(long id) {
-        return UserMapper.toResponseDto(userStorage.getUserById(id));
+        User user = userStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException(
+                "Пользователь с id = " + id + " не найден"));
+
+        return UserMapper.toResponseDto(user);
     }
 }
