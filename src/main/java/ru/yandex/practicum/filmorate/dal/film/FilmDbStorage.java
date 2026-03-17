@@ -11,10 +11,8 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -150,15 +148,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public LinkedHashMap<Long, Film> getAll() {
-        return jdbcTemplate.queryForStream(SELECT_FILMS,
+    public List<Film> getAll() {
+        return jdbcTemplate.query(SELECT_FILMS,
                 new MapSqlParameterSource(),
-                new FilmRowMapper()).collect(
-                Collectors.toMap(
-                        Film::getId,             // Ключ
-                        film -> film,
-                        (prev, next) -> next, // Если ключи совпали, берем новый (или старый)
-                        LinkedHashMap::new)    // Значение (сам объект)
+                new FilmRowMapper()
         );
     }
 

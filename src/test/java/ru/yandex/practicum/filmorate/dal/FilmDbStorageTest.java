@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -193,11 +192,11 @@ class FilmDbStorageTest {
         Film s1 = filmStorage.save(f1);
         Film s2 = filmStorage.save(f2);
 
-        LinkedHashMap<Long, Film> all = filmStorage.getAll();
+        List<Film> all = filmStorage.getAll();
 
         assertEquals(2, all.size());
 
-        List<Long> ids = new ArrayList<>(all.keySet());
+        List<Long> ids = new ArrayList<>(all.stream().map(Film::getId).toList());
         assertEquals(List.of(s1.getId(), s2.getId()), ids);
     }
 

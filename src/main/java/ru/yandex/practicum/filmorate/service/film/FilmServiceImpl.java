@@ -122,35 +122,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<FilmResponseDto> getAllFilms() {
-        Map<Long, Film> films = filmStorage.getAll();
-        Map<Long, Genre> genres = genresStorage.getAll();
-        Map<Long, Mpa> mpas = mpaStorage.getAll();
 
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getAll();
-
-        if (genres == null || filmGenresMap == null) {
-            return films.values().stream()
-                    .map(filmMapper::toResponseDto)
-                    .toList();
-        }
-
-        List<FilmResponseDto> result = films.entrySet().stream()
-                .map(entry -> {
-                    Film f = entry.getValue();
-                    Long filmId = entry.getKey();
-
-                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
-                            .map(genres::get)
-                            .collect(Collectors.toMap(
-                                    Genre::id,
-                                    Function.identity()))
-                    );
-
-                    f.setMpa(mpas.get(f.getMpa().id()));
-                    return filmMapper.toResponseDto(f);
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getAll());
 
         log.debug("getAll() – total={}", result.size());
         return result;
@@ -158,31 +131,8 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<FilmResponseDto> getPopularFilms(int count) {
-        List<Film> films = filmStorage.getPopularFilms(count);
 
-        Map<Long, Genre> genres = genresStorage.getAll();
-        Map<Long, Mpa> mpas = mpaStorage.getAll();
-
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(films.stream()
-                .map(Film::getId)
-                .collect(Collectors.toSet())
-        );
-
-        List<FilmResponseDto> result = films.stream()
-                .map(f -> {
-                    Long filmId = f.getId();
-                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
-                            .map(genres::get)
-                            .collect(Collectors.toMap(
-                                    Genre::id,
-                                    Function.identity()))
-                    );
-
-                    f.setMpa(mpas.get(f.getMpa().id()));
-                    return filmMapper.toResponseDto(f);
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getPopularFilms(count));
 
         log.debug("getPopularFilms() – total={}", result.size());
         return result;
@@ -198,36 +148,7 @@ public class FilmServiceImpl implements FilmService {
             throw new UserNotFoundException("User c id=" + friendId + " не найден.");
         }
 
-        List<Film> films = filmStorage.getCommonFilms(userId, friendId);
-
-        Map<Long, Genre> genres = genresStorage.getAll();
-        Map<Long, Mpa> mpas = mpaStorage.getAll();
-
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(
-                films.stream()
-                        .map(Film::getId)
-                        .collect(Collectors.toSet())
-        );
-
-        List<FilmResponseDto> result = films.stream()
-                .map(f -> {
-                    Long filmId = f.getId();
-
-                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
-                            .map(genres::get)
-                            .collect(Collectors.toMap(
-                                    Genre::id,
-                                    Function.identity()))
-                    );
-
-                    if (f.getMpa() != null) {
-                        f.setMpa(mpas.get(f.getMpa().id()));
-                    }
-
-                    return filmMapper.toResponseDto(f);
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getCommonFilms(userId, friendId));
 
         log.debug("getCommonFilms() – total={}", result.size());
         return result;
@@ -255,15 +176,15 @@ public class FilmServiceImpl implements FilmService {
     public List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
 
         Map<Long, Genre> genres = genresStorage.getAll();
-        Map<Long, Mpa> mpas = mpaStorage.getAll();
+        Map<Long, Mpa> mpa = mpaStorage.getAll();
 
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByFilmIds(
                 films.stream()
                         .map(Film::getId)
                         .collect(Collectors.toSet())
         );
 
-        if (genres == null || filmGenresMap == null) {
+        if (filmGenresMap == null || genres == null) {
             return films.stream()
                     .map(filmMapper::toResponseDto)
                     .toList();
@@ -272,6 +193,7 @@ public class FilmServiceImpl implements FilmService {
         return films.stream()
                 .map(f -> {
                     Long filmId = f.getId();
+
                     f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
                             .map(genres::get)
                             .collect(Collectors.toMap(
@@ -279,8 +201,9 @@ public class FilmServiceImpl implements FilmService {
                                     Function.identity()))
                     );
 
-
-                    f.setMpa(mpas.get(f.getMpa().id()));
+                    if (f.getMpa() != null) {
+                        f.setMpa(mpa.get(f.getMpa().id()));
+                    }
 
                     return filmMapper.toResponseDto(f);
                 })
