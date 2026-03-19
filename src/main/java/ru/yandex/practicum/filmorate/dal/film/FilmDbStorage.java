@@ -11,8 +11,10 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -170,10 +172,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getAll() {
-        return jdbcTemplate.query(SELECT_FILMS,
+    public LinkedHashMap<Long, Film> getAll() {
+        return jdbcTemplate.queryForStream(SELECT_FILMS,
                 new MapSqlParameterSource(),
-                new FilmRowMapper()
+                new FilmRowMapper()).collect(
+                Collectors.toMap(
+                        Film::getId,             // Ключ
+                        film -> film,
+                        (prev, next) -> next, // Если ключи совпали, берем новый (или старый)
+                        LinkedHashMap::new)    // Значение (сам объект)
         );
     }
 
@@ -193,20 +200,6 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmRowMapper());
         log.info("getPopularFilms() – request limit={}", limit);
 
-        return res;
-    }
-
-    @Override
-    public List<Film> getCommonFilms(long userId, long friendId) {
-        List<Film> res = jdbcTemplate.query(
-                GET_COMMON_FILMS,
-                new MapSqlParameterSource()
-                        .addValue("userId", userId)
-                        .addValue("friendId", friendId),
-                new FilmRowMapper()
-        );
-
-        log.info("getCommonFilms() – request userId={}, friendId={}", userId, friendId);
         return res;
     }
 
@@ -231,5 +224,4 @@ public class FilmDbStorage implements FilmStorage {
         log.info("getRecommendations() - request userId={}", userId);
         return res;
     }
-
 }
