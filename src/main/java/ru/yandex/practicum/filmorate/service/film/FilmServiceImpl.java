@@ -139,22 +139,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmResponseDto> getCommonFilms(long userId, long friendId) {
-        if (!userStorage.existsById(userId)) {
-            throw new UserNotFoundException("User c id=" + userId + " не найден.");
-        }
-
-        if (!userStorage.existsById(friendId)) {
-            throw new UserNotFoundException("User c id=" + friendId + " не найден.");
-        }
-
-        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getCommonFilms(userId, friendId));
-
-        log.debug("getCommonFilms() – total={}", result.size());
-        return result;
-    }
-
-    @Override
     public FilmResponseDto getById(Long filmId) {
         Film film = filmStorage.getById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
@@ -172,7 +156,7 @@ public class FilmServiceImpl implements FilmService {
         return filmMapper.toResponseDto(film);
     }
 
-  
+
     public List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
 
         Map<Long, Genre> genres = genresStorage.getAll();
@@ -210,7 +194,7 @@ public class FilmServiceImpl implements FilmService {
                 .filter(Objects::nonNull)
                 .toList();
     }
-  
+
     @Override
     public List<FilmResponseDto> getRecommendations(long userId) {
         if (!userStorage.existsById(userId)) {
@@ -222,7 +206,7 @@ public class FilmServiceImpl implements FilmService {
         Map<Long, Genre> genres = genresStorage.getAll();
         Map<Long, Mpa> mpas = mpaStorage.getAll();
 
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByfilmIds(
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByFilmIds(
                 films.stream()
                         .map(Film::getId)
                         .collect(Collectors.toSet())
