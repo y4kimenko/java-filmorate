@@ -8,9 +8,7 @@ public interface GenresByFilmsStorage {
 
     void update(long filmId, Set<Long> genres);
 
-    Map<Long, Set<Long>> getAll();
-
-    Map<Long, Set<Long>> getByfilmIds(Set<Long> filmIds);
+    Map<Long, Set<Long>> getByFilmIds(Set<Long> filmIds);
 
     Set<Long> getByFilmId(Long filmId);
 }

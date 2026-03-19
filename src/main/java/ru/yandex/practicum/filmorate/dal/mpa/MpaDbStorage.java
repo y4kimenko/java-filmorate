@@ -17,7 +17,8 @@ import java.util.Optional;
 public class MpaDbStorage implements MpaStorage {
     private static final String SELECT_ALL_MPA = """
             SELECT id, name
-            FROM mpa;""";
+            FROM mpa
+            ORDER BY id;""";
 
     private static final String SELECT_MPA_BY_ID = """
             SELECT id, name
