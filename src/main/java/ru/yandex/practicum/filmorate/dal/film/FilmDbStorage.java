@@ -231,4 +231,5 @@ public class FilmDbStorage implements FilmStorage {
         log.info("getRecommendations() - request userId={}", userId);
         return res;
     }
+
 }
