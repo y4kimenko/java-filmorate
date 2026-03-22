@@ -20,5 +20,7 @@ public interface FilmService {
 
     FilmResponseDto getById(Long filmId);
 
+    List<FilmResponseDto> getCommonFilms(long userId, long friendId);
+
     List<FilmResponseDto> getRecommendations(long userId);
 }

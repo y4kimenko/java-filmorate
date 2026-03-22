@@ -139,6 +139,22 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<FilmResponseDto> getCommonFilms(long userId, long friendId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotFoundException("User c id=" + userId + " не найден.");
+        }
+
+        if (!userStorage.existsById(friendId)) {
+            throw new UserNotFoundException("User c id=" + friendId + " не найден.");
+        }
+
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getCommonFilms(userId, friendId));
+
+        log.debug("getCommonFilms() – total={}", result.size());
+        return result;
+    }
+
+    @Override
     public FilmResponseDto getById(Long filmId) {
         Film film = filmStorage.getById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
