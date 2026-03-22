@@ -197,6 +197,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        List<Film> res = jdbcTemplate.query(
+                GET_COMMON_FILMS,
+                new MapSqlParameterSource()
+                        .addValue("userId", userId)
+                        .addValue("friendId", friendId),
+                new FilmRowMapper()
+        );
+
+        log.info("getCommonFilms() – request userId={}, friendId={}", userId, friendId);
+        return res;
+    }
+
+    @Override
     public boolean existsById(long id) {
         Long count = jdbcTemplate.queryForObject(
                 EXISTS_BY_ID,
