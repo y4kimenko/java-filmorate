@@ -69,6 +69,7 @@ public class FilmDbStorage implements FilmStorage {
     private static final String DELETE_BY_ID = """
                     DELETE FROM film
                     WHERE id = :id
+                    """;
     private static final String GET_COMMON_FILMS = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
