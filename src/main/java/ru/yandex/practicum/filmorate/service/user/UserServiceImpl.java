@@ -71,6 +71,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteById(long id) {
+        if (!userStorage.existsById(id)) {
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
+        }
         userStorage.deleteById(id);
     }
 

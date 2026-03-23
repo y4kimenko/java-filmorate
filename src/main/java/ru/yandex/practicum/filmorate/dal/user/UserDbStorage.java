@@ -151,13 +151,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteById(long id) {
-        if (existsById(id)) {
-            jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
-            log.info("deleteById() - userId={} deleted", id);
-        } else {
-            log.info("deleteById() - userId={} does not exist", id);
-            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
-        }
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
     }
 
     @Override
