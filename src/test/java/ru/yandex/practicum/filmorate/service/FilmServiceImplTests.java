@@ -34,6 +34,26 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FilmServiceImplTests {
@@ -406,9 +426,9 @@ class FilmServiceImplTests {
         f2.setMpa(new Mpa(2L, null));
         f2.setGenres(new HashMap<>());
 
-        LinkedHashMap<Long, Film> films = new LinkedHashMap<>();
-        films.put(1L, f1);
-        films.put(2L, f2);
+        List<Film> films = new ArrayList<>();
+        films.add(f1);
+        films.add(f2);
 
         Map<Long, Genre> genres = new HashMap<>(Map.of(
                 1L, new Genre(1L, "Комедия"),
@@ -428,7 +448,7 @@ class FilmServiceImplTests {
         when(filmStorage.getAll()).thenReturn(films);
         when(genresStorage.getAll()).thenReturn(genres);
         when(mpaStorage.getAll()).thenReturn(mpas);
-        when(genresByFilmsDbStorage.getAll()).thenReturn(filmGenresMap);
+        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L, 2L))).thenReturn(filmGenresMap);
 
         FilmResponseDto r1 = new FilmResponseDto(
                 1L, "A",
@@ -464,10 +484,10 @@ class FilmServiceImplTests {
         f1.setMpa(new Mpa(1L, null));
         f1.setGenres(new HashMap<>());
 
-        when(filmStorage.getAll()).thenReturn(new LinkedHashMap<>(Map.of(1L, f1)));
+        when(filmStorage.getAll()).thenReturn(List.of(f1));
         when(genresStorage.getAll()).thenReturn(null);
         when(mpaStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, new Mpa(1L, "G"))));
-        when(genresByFilmsDbStorage.getAll()).thenReturn(new HashMap<>(Map.of(1L, Set.of(1L))));
+        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L))).thenReturn(new HashMap<>(Map.of(1L, Set.of(1L))));
 
         FilmResponseDto expected = new FilmResponseDto(
                 1L, "A",
@@ -510,7 +530,7 @@ class FilmServiceImplTests {
                 1L, new Mpa(1L, "G")
         )));
 
-        when(genresByFilmsDbStorage.getByfilmIds(Set.of(1L, 2L)))
+        when(genresByFilmsDbStorage.getByFilmIds(Set.of(1L, 2L)))
                 .thenReturn(new HashMap<>(Map.of(
                         1L, Set.of(1L),
                         2L, Set.of(1L)
@@ -532,7 +552,7 @@ class FilmServiceImplTests {
 
         assertEquals(1, result.size());
         assertEquals(r1, result.get(0));
-        verify(genresByFilmsDbStorage).getByfilmIds(Set.of(1L, 2L));
+        verify(genresByFilmsDbStorage).getByFilmIds(Set.of(1L, 2L));
     }
 
     @Test
