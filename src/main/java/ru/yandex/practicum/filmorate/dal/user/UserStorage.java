@@ -19,7 +19,7 @@ public interface UserStorage {
 
     List<User> getByIds(Set<Long> ids);
 
-    void deleteById(long id);
+    int deleteById(long id);
 
     Optional<User> getUserById(long id);
 }
