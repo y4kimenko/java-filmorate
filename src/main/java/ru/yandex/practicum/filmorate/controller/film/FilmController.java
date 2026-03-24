@@ -7,6 +7,7 @@ import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -80,10 +81,15 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public FilmResponseDto getFilmById(@PathVariable("id")
+    public FilmResponseDto getFilmById(@PathVariable
                                        @PositiveOrZero(message = "id не может быть отрицательным")
                                        Long id
     ) {
         return filmService.getById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable @PositiveOrZero(message = "id не может быть отрицательным") Long id) {
+        filmService.deleteById(id);
     }
 }

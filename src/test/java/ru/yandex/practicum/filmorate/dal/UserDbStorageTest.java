@@ -31,6 +31,14 @@ class UserDbStorageTest {
     @Autowired
     private NamedParameterJdbcTemplate jdbc;
 
+    private static User user(String email, String login, String name, LocalDate birthday) {
+        User u = new User();
+        u.setEmail(email);
+        u.setLogin(login);
+        u.setName(name);
+        u.setBirthday(birthday);
+        return u;
+    }
 
     @BeforeEach
     void setUp() {
@@ -121,14 +129,5 @@ class UserDbStorageTest {
         List<Long> expected = List.of(u1.getId(), u2.getId()).stream().sorted(Comparator.naturalOrder()).toList();
 
         assertEquals(expected, ids);
-    }
-
-    private static User user(String email, String login, String name, LocalDate birthday) {
-        User u = new User();
-        u.setEmail(email);
-        u.setLogin(login);
-        u.setName(name);
-        u.setBirthday(birthday);
-        return u;
     }
 }

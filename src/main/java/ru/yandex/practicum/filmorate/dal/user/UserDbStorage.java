@@ -54,9 +54,13 @@ public class UserDbStorage implements UserStorage {
             FROM users
             WHERE id = :id""";
 
+    private static final String DELETE_BY_ID = """
+                    DELETE FROM users
+                    WHERE id = :id
+            """;
+
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
 
     @Override
     public User save(User user) {
@@ -142,5 +146,22 @@ public class UserDbStorage implements UserStorage {
         );
         log.info("getByIds() – request UserIds={}", ids);
         return user;
+    }
+
+    @Override
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
+    }
+
+    @Override
+    public Optional<User> getUserById(long id) {
+        return jdbcTemplate.query(
+                SELECT_USER_BY_ID,
+                new MapSqlParameterSource("id", id),
+                new UserRowMapper()
+        ).stream().findFirst();
     }
 }

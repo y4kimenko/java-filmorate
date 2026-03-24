@@ -21,4 +21,6 @@ public interface FilmStorage {
     Optional<Film> getById(long id);
 
     boolean existsById(long id);
+
+    int deleteById(long id);
 }

@@ -172,6 +172,13 @@ public class FilmServiceImpl implements FilmService {
         return filmMapper.toResponseDto(film);
     }
 
+    @Override
+    public void deleteById(long id) {
+        if (filmStorage.deleteById(id) == 0) {
+            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
+        }
+    }
+
 
     public List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
 

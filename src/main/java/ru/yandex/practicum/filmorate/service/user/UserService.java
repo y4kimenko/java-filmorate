@@ -14,4 +14,7 @@ public interface UserService {
 
     List<UserResponseDto> getAll();
 
+    void deleteById(long id);
+
+    UserResponseDto getUserById(long id);
 }

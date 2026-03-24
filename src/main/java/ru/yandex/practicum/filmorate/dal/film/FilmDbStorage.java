@@ -65,6 +65,10 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY COUNT(l.user_id) DESC, f.id ASC
             LIMIT :max_size;""";
 
+    private static final String DELETE_BY_ID = """
+            DELETE FROM film
+            WHERE id = :id
+            """;
     private static final String GET_COMMON_FILMS = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
@@ -196,5 +200,13 @@ public class FilmDbStorage implements FilmStorage {
                 Long.class
         );
         return count != null && count != 0;
+    }
+
+    @Override
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
     }
 }
