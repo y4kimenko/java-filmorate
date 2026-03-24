@@ -4,9 +4,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
-import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.List;
 
 

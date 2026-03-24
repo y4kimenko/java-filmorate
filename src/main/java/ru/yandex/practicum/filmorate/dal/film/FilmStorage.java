@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 

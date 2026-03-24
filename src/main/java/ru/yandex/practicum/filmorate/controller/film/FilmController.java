@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller.film;
 
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
