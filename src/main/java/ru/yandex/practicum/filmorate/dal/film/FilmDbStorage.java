@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
-import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -204,13 +203,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteById(long id) {
-        if (existsById(id)) {
-            jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
-            log.info("deleteById() - filmId={} deleted", id);
-        } else {
-            log.info("deleteById() - filmId={} does not exist", id);
-            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
-        }
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
     }
 }

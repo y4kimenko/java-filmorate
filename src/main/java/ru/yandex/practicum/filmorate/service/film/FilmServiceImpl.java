@@ -174,7 +174,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void deleteById(long id) {
-        filmStorage.deleteById(id);
+        if (filmStorage.deleteById(id) == 0) {
+            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
+        }
     }
 
 

@@ -11,8 +11,15 @@ import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.service.likes.LikesServiceImpl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LikesServiceImplTest {

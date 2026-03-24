@@ -29,11 +29,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
 
 import java.time.LocalDate;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
