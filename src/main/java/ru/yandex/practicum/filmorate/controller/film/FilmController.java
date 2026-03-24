@@ -100,7 +100,7 @@ public class FilmController {
     ) {
         return filmService.getById(id);
     }
-}
+
 
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable @PositiveOrZero(message = "id не может быть отрицательным") Long id) {

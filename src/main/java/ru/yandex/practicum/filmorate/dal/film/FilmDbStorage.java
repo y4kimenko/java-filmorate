@@ -216,15 +216,19 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getMostPopularFilms(long count, long genreId, long year) {
         List<Film> res = jdbcTemplate.query(GET_MOST_POPULAR_FILM, new MapSqlParameterSource()
-                .addValue("year", year)
-                .addValue("genre_id", genreId)
-                .addValue("count", count),
+                        .addValue("year", year)
+                        .addValue("genre_id", genreId)
+                        .addValue("count", count),
                 new FilmRowMapper()
         );
 
         log.info("getMostPopularFilms() – request count={}, genreId={}, year={}", count, genreId, year);
         return res;
-    public int deleteById(long id) {
+    }
+
+
+    @Override
+    public int deleteById (long id){
         int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
         log.debug("deleteById({}) - affected rows: {}", id, rows);
 
