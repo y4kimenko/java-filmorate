@@ -23,4 +23,5 @@ public interface FilmService {
     FilmResponseDto getById(Long filmId);
 
     List<FilmResponseDto> getMostPopularFilms(long count, long genreId, long year);
+    void deleteById(long id);
 }

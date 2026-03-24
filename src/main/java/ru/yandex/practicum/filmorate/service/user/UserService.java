@@ -14,4 +14,8 @@ public interface UserService {
     UserResponseDto update(UserRequestUpdateDto dto);
 
     List<UserResponseDto> getAll();
+
+    void deleteById(long id);
+
+    UserResponseDto getUserById(long id);
 }

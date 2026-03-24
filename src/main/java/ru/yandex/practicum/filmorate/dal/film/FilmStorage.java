@@ -23,4 +23,5 @@ public interface FilmStorage {
     boolean existsById(long id);
 
     List<Film> getMostPopularFilms(long count, long genreId, long year);
+    int deleteById(long id);
 }
