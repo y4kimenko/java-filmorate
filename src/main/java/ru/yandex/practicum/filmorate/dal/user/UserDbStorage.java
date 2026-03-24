@@ -158,9 +158,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> getUserById(long id) {
-        List<User> users = jdbcTemplate.query(SELECT_USER_BY_ID, new MapSqlParameterSource("id", id),
-                new UserRowMapper());
-
-        return users.stream().findFirst();
+        return jdbcTemplate.query(
+                SELECT_USER_BY_ID,
+                new MapSqlParameterSource("id", id),
+                new UserRowMapper()
+        ).stream().findFirst();
     }
 }

@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDto getUserById(@PathVariable long id) {
+    public UserResponseDto getUserById(@PathVariable @PositiveOrZero(message = "id не может быть отрицательным") long id) {
         return service.getUserById(id);
     }
 
