@@ -228,7 +228,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public int deleteById (long id){
+    public int deleteById(long id){
         int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
         log.debug("deleteById({}) - affected rows: {}", id, rows);
 
