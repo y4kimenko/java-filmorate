@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.user;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 
