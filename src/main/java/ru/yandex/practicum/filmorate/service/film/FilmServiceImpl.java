@@ -22,6 +22,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -211,5 +212,13 @@ public class FilmServiceImpl implements FilmService {
                 .toList();
     }
 
+    public List<FilmResponseDto> getMostPopularFilms(long count, long genreId, long year) {
+        List<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
 
+        if (films.isEmpty()) {
+            throw new FilmNotFoundException("Фильмы не найдены");
+        }
+
+        return films.stream().map(filmMapper::toResponseDto).toList();
+    }
 }

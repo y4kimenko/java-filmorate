@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,6 +76,17 @@ public class FilmDbStorage implements FilmStorage {
             AND ul2.user_id = :friendId
             GROUP BY f.id
             ORDER BY COUNT(likes.user_id) DESC, f.id ASC;
+            """;
+
+    private static final String GET_MOST_POPULAR_FILM = """
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
+            FROM film f
+            JOIN user_film_likes ul ON f.id = ul.film_id
+            JOIN film_genres fg ON f.id = fg.film_id
+            WHERE EXTRACT(YEAR FROM f.release_date) = :year AND fg.genre_id = :genre_id
+            GROUP BY f.id
+            ORDER BY COUNT(DISTINCT ul.user_id) DESC
+            LIMIT :count;
             """;
 
 
@@ -196,5 +208,18 @@ public class FilmDbStorage implements FilmStorage {
                 Long.class
         );
         return count != null && count != 0;
+    }
+
+    @Override
+    public List<Film> getMostPopularFilms(long count, long genreId, long year) {
+        List<Film> res = jdbcTemplate.query(GET_MOST_POPULAR_FILM, new MapSqlParameterSource()
+                .addValue("year", year)
+                .addValue("genre_id", genreId)
+                .addValue("count", count),
+                new FilmRowMapper()
+        );
+
+        log.info("getMostPopularFilms() – request count={}, genreId={}, year={}", count, genreId, year);
+        return res;
     }
 }

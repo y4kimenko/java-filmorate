@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,4 +22,6 @@ public interface FilmStorage {
     Optional<Film> getById(long id);
 
     boolean existsById(long id);
+
+    List<Film> getMostPopularFilms(long count, long genreId, long year);
 }
