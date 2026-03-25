@@ -84,11 +84,11 @@ public class FilmDbStorage implements FilmStorage {
     private static final String GET_MOST_POPULAR_FILM = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
-            JOIN user_film_likes ul ON f.id = ul.film_id
+            LEFT JOIN user_film_likes ul ON f.id = ul.film_id
             JOIN film_genres fg ON f.id = fg.film_id
             WHERE EXTRACT(YEAR FROM f.release_date) = :year AND fg.genre_id = :genre_id
             GROUP BY f.id
-            ORDER BY COUNT(DISTINCT ul.user_id) DESC
+            ORDER BY COUNT(DISTINCT ul.user_id) DESC, f.id ASC
             LIMIT :count;
             """;
 

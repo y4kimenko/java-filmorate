@@ -219,12 +219,9 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public List<FilmResponseDto> getMostPopularFilms(long count, long genreId, long year) {
-        List<Film> films = filmStorage.getMostPopularFilms(count, genreId, year);
-
-        if (films.isEmpty()) {
-            throw new FilmNotFoundException("Фильмы не найдены");
-        }
-
-        return films.stream().map(filmMapper::toResponseDto).toList();
+        return filmStorage.getMostPopularFilms(count, genreId, year)
+                .stream()
+                .map(filmMapper::toResponseDto)
+                .toList();
     }
 }
