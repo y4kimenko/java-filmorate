@@ -224,7 +224,7 @@ public class FilmServiceImpl implements FilmService {
                 .filter(film -> {
                     if (year == null) return true;
                     if (film.getReleaseDate() == null) return false;
-                    return film.getReleaseDate().getYear() == year;
+                    return film.getReleaseDate().getYear() == year.intValue();
                 })
                 .filter(film -> {
                     if (genreId == null) return true;
