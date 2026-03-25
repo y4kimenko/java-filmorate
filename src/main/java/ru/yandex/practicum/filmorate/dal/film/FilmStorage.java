@@ -22,7 +22,7 @@ public interface FilmStorage {
 
     boolean existsById(long id);
 
-    List<Film> getMostPopularFilms(long count, long genreId, long year);
+    List<Film> getMostPopularFilms(long count, Long genreId, Long year);
 
     int deleteById(long id);
 }

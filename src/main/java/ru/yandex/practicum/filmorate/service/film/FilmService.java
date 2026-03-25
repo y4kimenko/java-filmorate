@@ -22,7 +22,7 @@ public interface FilmService {
 
     FilmResponseDto getById(Long filmId);
 
-    List<FilmResponseDto> getMostPopularFilms(long count, long genreId, long year);
+    List<FilmResponseDto> getMostPopularFilms(long count, Long genreId, Long year);
 
     void deleteById(long id);
 }

@@ -218,7 +218,7 @@ public class FilmServiceImpl implements FilmService {
                 .toList();
     }
 
-    public List<FilmResponseDto> getMostPopularFilms(long count, long genreId, long year) {
+    public List<FilmResponseDto> getMostPopularFilms(long count, Long genreId, Long year) {
         return filmStorage.getMostPopularFilms(count, genreId, year)
                 .stream()
                 .map(filmMapper::toResponseDto)
