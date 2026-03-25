@@ -241,7 +241,8 @@ public class FilmDbStorage implements FilmStorage {
 
                     Genre genre = new Genre(rs.getLong("id"), rs.getString("name"));
 
-                genresByFilmId.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);}
+                    genresByFilmId.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
+                }
         );
 
         for (Film film : films) {
