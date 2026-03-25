@@ -219,8 +219,19 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public List<FilmResponseDto> getMostPopularFilms(long count, Long genreId, Long year) {
-        return filmStorage.getMostPopularFilms(count, genreId, year)
+        return filmStorage.getMostPopularFilms(count)
                 .stream()
+                .filter(film -> {
+                    if (year == null) return true;
+                    if (film.getReleaseDate() == null) return false;
+                    return film.getReleaseDate().getYear() == year;
+                })
+                .filter(film -> {
+                    if (genreId == null) return true;
+                    return !film.getGenres().isEmpty() &&
+                            film.getGenres().values().stream()
+                                    .anyMatch(genre -> genre.id().equals(genreId));
+                })
                 .map(filmMapper::toResponseDto)
                 .toList();
     }
