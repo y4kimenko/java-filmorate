@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.web.controller.film;
 
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class FilmController {
     @ResponseStatus(HttpStatus.CREATED)
     public FilmResponseDto createFilm(@RequestBody
                                       @NotNull
+                                      @Valid
                                       FilmRequestCreateDto film
     ) {
         return filmService.createFilm(film);
@@ -44,6 +46,7 @@ public class FilmController {
     @PutMapping
     public FilmResponseDto updateFilm(@RequestBody
                                       @NotNull
+                                      @Valid
                                       FilmRequestUpdateDto film
     ) {
         return filmService.updateFilm(film);

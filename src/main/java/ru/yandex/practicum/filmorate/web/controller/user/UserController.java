@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.web.controller.user;
 
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.groups.Default;
@@ -30,12 +31,20 @@ public class UserController {
     private final UserService service;
 
     @PostMapping
-    public UserResponseDto createUser(@Validated({Default.class}) @NotNull @RequestBody UserRequestCreateDto user) {
+    public UserResponseDto createUser(@Valid
+                                      @NotNull
+                                      @RequestBody
+                                      UserRequestCreateDto user
+    ) {
         return service.create(user);
     }
 
     @PutMapping
-    public UserResponseDto updateUser(@Validated({Default.class}) @NotNull @RequestBody UserRequestUpdateDto user) {
+    public UserResponseDto updateUser(@Valid
+                                      @NotNull
+                                      @RequestBody
+                                      UserRequestUpdateDto user
+    ) {
         return service.update(user);
     }
 
@@ -45,12 +54,18 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserResponseDto getUserById(@PathVariable @PositiveOrZero(message = "id не может быть отрицательным") long id) {
+    public UserResponseDto getUserById(@PathVariable
+                                       @PositiveOrZero(message = "id не может быть отрицательным")
+                                       long id
+    ) {
         return service.getUserById(id);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable @PositiveOrZero(message = "id не может быть отрицательным") Long id) {
+    public void deleteById(@PathVariable
+                           @PositiveOrZero(message = "id не может быть отрицательным")
+                           Long id
+    ) {
         service.deleteById(id);
     }
 }

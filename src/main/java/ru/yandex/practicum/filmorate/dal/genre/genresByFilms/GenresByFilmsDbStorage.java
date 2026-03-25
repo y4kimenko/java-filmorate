@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.genresByFilms;
+package ru.yandex.practicum.filmorate.dal.genre.genresByFilms;
 
 
 import lombok.RequiredArgsConstructor;

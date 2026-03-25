@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.web.controller.film;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class DirectorController {
     @ResponseStatus(HttpStatus.CREATED)
     public DirectorResponseDto createDirector(@RequestBody
                                               @NotNull
+                                              @Valid
                                               DirectorRequestCreateDto dto
     ) {
         return directorService.createDirector(dto);
@@ -42,6 +44,7 @@ public class DirectorController {
     @PutMapping
     public DirectorResponseDto updateDirector(@RequestBody
                                               @NotNull
+                                              @Valid
                                               DirectorRequestUpdateDto dto
     ) {
         return directorService.updateDirector(dto);

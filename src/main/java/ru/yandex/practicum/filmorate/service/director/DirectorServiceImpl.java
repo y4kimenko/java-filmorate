@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service.director;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.directors.DirectorStorage;
+import ru.yandex.practicum.filmorate.dal.director.directors.DirectorStorage;
 import ru.yandex.practicum.filmorate.dto.director.request.DirectorRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.director.request.DirectorRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.director.response.DirectorResponseDto;

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.directors;
+package ru.yandex.practicum.filmorate.dal.director.directors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

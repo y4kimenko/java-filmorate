@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.genres;
+package ru.yandex.practicum.filmorate.dal.genre.genres;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.DataClassRowMapper;
