@@ -59,7 +59,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<FilmResponseDto> getPopularFilms(
-            @RequestParam(defaultValue = "10")
+            @RequestParam
             @PositiveOrZero(message = "count не может быть отрицательным")
             int count,
 
