@@ -88,7 +88,7 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN user_film_likes ul ON f.id = ul.film_id
             WHERE (:year IS NULL OR EXTRACT(YEAR FROM f.release_date) = :year)
             AND (:genreId IS NULL OR fg.genre_id = :genreId)
-            GROUP BY f.id, m.id, m.name
+            GROUP BY f.id
             ORDER BY COUNT(DISTINCT ul.user_id) DESC, f.id ASC
             LIMIT :count;
             """;
