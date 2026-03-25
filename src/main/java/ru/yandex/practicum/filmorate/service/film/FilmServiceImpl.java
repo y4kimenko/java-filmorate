@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
+import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
@@ -38,14 +39,13 @@ public class FilmServiceImpl implements FilmService {
     private final GenresStorage genresStorage;
     private final MpaStorage mpaStorage;
 
-    private final FilmMapper filmMapper;
     private final UserStorage userStorage;
 
     @Override
     @Transactional
     public FilmResponseDto createFilm(FilmRequestCreateDto dto) {
 
-        Film req = filmMapper.toEntity(dto);
+        Film req = FilmMapper.toEntity(dto);
 
         if (req.getMpa() != null) {
             req.setMpa(mpaStorage.getById(req.getMpa().id()).orElseThrow(
@@ -78,13 +78,13 @@ public class FilmServiceImpl implements FilmService {
                 r.getId(), r.getName(), r.getDescription(),
                 r.getReleaseDate(), r.getDuration());
 
-        return filmMapper.toResponseDto(r);
+        return FilmMapper.toResponseDto(r);
     }
 
     @Override
     @Transactional
     public FilmResponseDto updateFilm(FilmRequestUpdateDto dto) {
-        Film req = filmMapper.toEntity(dto);
+        Film req = FilmMapper.toEntity(dto);
 
         Long filmId = req.getId();
 
@@ -117,7 +117,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 existing.getId(), existing.getName(), existing.getDescription(), existing.getReleaseDate(), existing.getDuration());
 
-        return filmMapper.toResponseDto(existing);
+        return FilmMapper.toResponseDto(existing);
     }
 
     @Override
@@ -155,6 +155,11 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy) {
+        return List.of();
+    }
+
+    @Override
     public FilmResponseDto getById(Long filmId) {
         Film film = filmStorage.getById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
@@ -169,7 +174,7 @@ public class FilmServiceImpl implements FilmService {
 
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
-        return filmMapper.toResponseDto(film);
+        return FilmMapper.toResponseDto(film);
     }
 
     @Override
@@ -193,7 +198,7 @@ public class FilmServiceImpl implements FilmService {
 
         if (filmGenresMap == null || genres == null) {
             return films.stream()
-                    .map(filmMapper::toResponseDto)
+                    .map(FilmMapper::toResponseDto)
                     .toList();
         }
 
@@ -212,7 +217,7 @@ public class FilmServiceImpl implements FilmService {
                         f.setMpa(mpa.get(f.getMpa().id()));
                     }
 
-                    return filmMapper.toResponseDto(f);
+                    return FilmMapper.toResponseDto(f);
                 })
                 .filter(Objects::nonNull)
                 .toList();

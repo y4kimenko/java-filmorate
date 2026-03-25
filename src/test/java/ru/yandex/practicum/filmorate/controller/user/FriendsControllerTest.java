@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.service.friends.FriendsService;
+import ru.yandex.practicum.filmorate.web.controller.user.FriendsController;
 
 import java.time.LocalDate;
 import java.util.List;

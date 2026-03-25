@@ -114,11 +114,11 @@ class FilmServiceImplTests {
                 120
         );
 
-        when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
         when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaFromDb));
         when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(genresFromDb);
         when(filmStorage.save(any(Film.class))).thenReturn(saved);
-        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+        when(FilmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.createFilm(dto);
 
@@ -176,10 +176,10 @@ class FilmServiceImplTests {
                 120
         );
 
-        when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
         when(mpaStorage.getById(1L)).thenReturn(Optional.of(mpaFromDb));
         when(filmStorage.save(any(Film.class))).thenReturn(saved);
-        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+        when(FilmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.createFilm(dto);
 
@@ -204,7 +204,7 @@ class FilmServiceImplTests {
         req.setMpa(new Mpa(999L, null));
         req.setGenres(new HashMap<>());
 
-        when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
         when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
 
         assertThrows(MpaNotFoundException.class, () -> filmService.createFilm(dto));
@@ -232,7 +232,7 @@ class FilmServiceImplTests {
         )));
         req.setMpa(null);
 
-        when(filmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestCreateDto.class))).thenReturn(req);
 
         when(genresStorage.getByIds(Set.of(1L, 2L)))
                 .thenReturn(new HashMap<>(Map.of(1L, new Genre(1L, "Комедия")))); // меньше, чем dto.genres().size()
@@ -289,11 +289,11 @@ class FilmServiceImplTests {
                 90
         );
 
-        when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
         when(mpaStorage.getById(2L)).thenReturn(Optional.of(mpaFromDb));
         when(genresStorage.getByIds(Set.of(1L))).thenReturn(genresFromDb);
-        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+        when(FilmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.updateFilm(dto);
 
@@ -331,7 +331,7 @@ class FilmServiceImplTests {
         req.setId(10L);
         req.setGenres(new HashMap<>());
 
-        when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.empty());
 
         assertThrows(FilmNotFoundException.class, () -> filmService.updateFilm(dto));
@@ -357,7 +357,7 @@ class FilmServiceImplTests {
         existing.setId(10L);
         existing.setGenres(new HashMap<>());
 
-        when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
         when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
 
@@ -388,7 +388,7 @@ class FilmServiceImplTests {
         existing.setId(10L);
         existing.setGenres(new HashMap<>());
 
-        when(filmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
+        when(FilmMapper.toEntity(any(FilmRequestUpdateDto.class))).thenReturn(req);
         when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
 
         when(genresStorage.getByIds(Set.of(1L, 2L)))
@@ -452,9 +452,9 @@ class FilmServiceImplTests {
                 "DA", LocalDate.of(2000, 1, 1), 100
         );
 
-        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
+        when(FilmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
                 .thenReturn(r1);
-        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
+        when(FilmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
                 .thenReturn(null);
 
         List<FilmResponseDto> result = filmService.getAllFilms();
@@ -463,7 +463,8 @@ class FilmServiceImplTests {
         assertEquals(r1, result.get(0));
 
         ArgumentCaptor<Film> mappedFilms = ArgumentCaptor.forClass(Film.class);
-        verify(filmMapper, times(2)).toResponseDto(mappedFilms.capture());
+        verify(filmMapper, times(2));
+        FilmMapper.toResponseDto(mappedFilms.capture());
 
         Film mapped1 = mappedFilms.getAllValues().stream().filter(f -> Objects.equals(f.getId(), 1L)).findFirst().orElseThrow();
         assertEquals(2, mapped1.getGenres().size());
@@ -491,13 +492,14 @@ class FilmServiceImplTests {
                 null, null, null
         );
 
-        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+        when(FilmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         List<FilmResponseDto> result = filmService.getAllFilms();
 
         assertEquals(1, result.size());
         assertEquals(expected, result.get(0));
-        verify(filmMapper, times(1)).toResponseDto(any(Film.class));
+        verify(filmMapper, times(1));
+        FilmMapper.toResponseDto(any(Film.class));
     }
 
     @Test
@@ -538,9 +540,9 @@ class FilmServiceImplTests {
                 null, null, null
         );
 
-        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
+        when(FilmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 1L))))
                 .thenReturn(r1);
-        when(filmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
+        when(FilmMapper.toResponseDto(argThat(f -> f != null && Objects.equals(f.getId(), 2L))))
                 .thenReturn(null);
 
         List<FilmResponseDto> result = filmService.getPopularFilms(10);
@@ -577,7 +579,7 @@ class FilmServiceImplTests {
                 "DA", LocalDate.of(2000, 1, 1), 100
         );
 
-        when(filmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
+        when(FilmMapper.toResponseDto(any(Film.class))).thenReturn(expected);
 
         FilmResponseDto actual = filmService.getById(10L);
 

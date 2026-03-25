@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.web.controller.film.FilmController;
 
 import java.time.LocalDate;
 import java.util.List;

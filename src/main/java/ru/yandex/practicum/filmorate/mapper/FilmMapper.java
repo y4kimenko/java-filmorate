@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class FilmMapper {
-    public FilmResponseDto toResponseDto(Film film) {
+    public static FilmResponseDto toResponseDto(Film film) {
         return new FilmResponseDto(
                 film.getId(),
                 film.getName(),
@@ -33,7 +33,7 @@ public class FilmMapper {
         );
     }
 
-    public Film toEntity(FilmRequestUpdateDto dto) {
+    public static Film toEntity(FilmRequestUpdateDto dto) {
         if (dto == null) return null;
 
         Film film = new Film();
@@ -43,7 +43,7 @@ public class FilmMapper {
         return film;
     }
 
-    public Film toEntity(FilmRequestCreateDto dto) {
+    public static Film toEntity(FilmRequestCreateDto dto) {
         if (dto == null) return null;
 
         Film film = new Film();
@@ -53,7 +53,7 @@ public class FilmMapper {
     }
 
 
-    public void applyToEntity(FilmRequestData dto, Film film) {
+    public static void applyToEntity(FilmRequestData dto, Film film) {
         film.setName(dto.name());
         film.setDescription(dto.description());
         film.setReleaseDate(dto.releaseDate());
