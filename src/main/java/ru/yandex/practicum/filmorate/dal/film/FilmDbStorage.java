@@ -10,8 +10,12 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -89,6 +93,13 @@ public class FilmDbStorage implements FilmStorage {
             FROM film f
             ORDER BY likes_count DESC, f.id ASC
             LIMIT :count;
+            """;
+
+    private static final String GET_GENRES_IDS = """
+            SELECT fg.film_id, g.id, g.name
+            FROM film_genres fg
+            JOIN genres g ON fg.genre_id = g.id
+            WHERE fg.film_id IN (:filmIds)
             """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -213,9 +224,38 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getMostPopularFilms(long count) {
-        return jdbcTemplate.query(GET_MOST_POPULAR_FILM,
+        List<Film> films = jdbcTemplate.query(GET_MOST_POPULAR_FILM,
                 new MapSqlParameterSource("count", count),
                 new FilmRowMapper());
+
+        List<Long> filmIds = films.stream()
+                .map(Film::getId)
+                .toList();
+
+        Map<Long, List<Genre>> genresByFilmId = new HashMap<>();
+
+        jdbcTemplate.query(GET_GENRES_IDS,
+                new MapSqlParameterSource("filmIds", filmIds),
+                rs -> {
+                    long filmId = rs.getLong("film_id");
+
+                    Genre genre = new Genre(rs.getLong("id"), rs.getString("name"));
+
+                genresByFilmId.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);}
+        );
+
+        for (Film film : films) {
+            List<Genre> genres = genresByFilmId.getOrDefault(film.getId(), List.of());
+
+            Map<Long, Genre> map = new HashMap<>();
+            for (Genre g : genres) {
+                map.put(g.id(), g);
+            }
+
+            film.setGenres(map);
+        }
+
+        return films;
     }
 
     @Override
