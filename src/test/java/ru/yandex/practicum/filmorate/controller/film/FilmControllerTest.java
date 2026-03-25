@@ -79,7 +79,7 @@ class FilmControllerTest {
         mockMvc.perform(get("/films/popular").param("count", "-1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
-                .andExpect(jsonPath("$.errors.count").value("count  не может быть отрицательным"));
+                .andExpect(jsonPath("$.errors.count").value("count не может быть отрицательным"));
 
         verifyNoInteractions(filmService);
     }
