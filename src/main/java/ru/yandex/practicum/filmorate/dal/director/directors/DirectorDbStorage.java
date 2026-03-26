@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Slf4j
@@ -103,6 +104,11 @@ public class DirectorDbStorage implements DirectorStorage {
                 new MapSqlParameterSource("id", id),
                 new DataClassRowMapper<>(Director.class)
         ).stream().findFirst();
+    }
+
+    @Override //TODO
+    public Map<Long, Director> getByIDs(Set<Long> ids) {
+        return Map.of();
     }
 
     @Override

@@ -17,13 +17,19 @@ public interface FilmService {
 
     List<FilmResponseDto> getAllFilms();
 
+    FilmResponseDto getById(Long filmId);
+
+    void deleteById(long id);
+
+
+
+
     List<FilmResponseDto> getPopularFilms(int count);
 
     List<FilmResponseDto> getCommonFilms(long userId, long friendId);
 
     List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy);
 
-    FilmResponseDto getById(Long filmId);
 
-    void deleteById(long id);
+
 }

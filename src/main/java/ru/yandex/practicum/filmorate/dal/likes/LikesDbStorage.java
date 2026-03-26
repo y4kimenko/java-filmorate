@@ -7,6 +7,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
 @Slf4j
@@ -45,5 +49,10 @@ public class LikesDbStorage implements LikesStorage {
         );
         log.info("Delete filmId={} likes for userId={} from the table 'user_film_likes'", filmId, userId);
         return res > 0;
+    }
+
+    @Override //TODO
+    public List<Long> getFilmsSortedByLikes(Set<Long> filmsIds) {
+        return List.of();
     }
 }

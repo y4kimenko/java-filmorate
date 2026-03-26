@@ -10,8 +10,11 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -164,6 +167,15 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(SELECT_FILM_BY_IDS,
                 new MapSqlParameterSource("ids", id),
                 new FilmRowMapper()).stream().findFirst();
+    }
+
+    @Override
+    public Set<Film> getByIds(Set<Long> filmIds) {
+        log.info("getByIds() – request filmIds={}", filmIds);
+        return new HashSet<>(jdbcTemplate.query(SELECT_FILM_BY_IDS,
+                new MapSqlParameterSource("film_id", filmIds),
+                new FilmRowMapper()
+        ));
     }
 
     @Override

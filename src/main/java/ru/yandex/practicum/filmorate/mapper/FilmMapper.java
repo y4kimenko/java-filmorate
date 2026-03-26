@@ -27,6 +27,11 @@ public class FilmMapper {
                         .map(entry -> GenreMapper.toResponseDto(entry.getValue()))
                         .toList(),
                 MpaMapper.toResponseDto(film.getMpa()),
+
+                film.getDirectors().entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(entry -> DirectorMapper.toResponseDto(entry.getValue()))
+                        .toList(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration()
