@@ -85,11 +85,10 @@ public class FilmDbStorage implements FilmStorage {
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
             LEFT JOIN user_film_likes ul ON f.id = ul.film_id
-            LEFT JOIN film_genres fg ON f.id = fg.film_id
             WHERE (:year IS NULL OR EXTRACT(YEAR FROM f.release_date) = :year)
-            AND (:genre_id IS NULL OR fg.genre_id = :genre_id)
+            AND (:genre_id IS NULL OR f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id))
             GROUP BY f.id
-            ORDER BY COUNT(DISTINCT ul.user_id) DESC, f.id ASC
+            ORDER BY COUNT(ul.user_id) DESC, f.id ASC
             LIMIT :count;
             """;
 
