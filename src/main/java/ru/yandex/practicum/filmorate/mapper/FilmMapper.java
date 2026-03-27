@@ -6,9 +6,9 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestData;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,24 +64,32 @@ public class FilmMapper {
         film.setReleaseDate(dto.releaseDate());
         film.setDuration(dto.duration());
 
-        // mpa приходит как MpaRequestDto(long id)
-        if (dto.mpa() != null) {
-            film.setMpa(new Mpa(dto.mpa().id(), null));
-        } else {
-            film.setMpa(null);
-        }
+
+        film.setMpa(MpaMapper.toEntity(dto.mpa()));
 
         // genres чаще всего приходят как Set<Long> или Set<Integer> id
         if (dto.genres() != null) {
-            Map<Long, Genre> genres = dto.genres().stream()
-                    .map(req -> new Genre(req.id(), null))
+            film.setGenres(dto.genres().stream()
+                    .map(GenreMapper::toEntity)
                     .collect(Collectors.toMap(
                             Genre::id,
                             Function.identity())
-                    );
-            film.setGenres(genres);
+                    )
+            );
         } else {
             film.setGenres(new HashMap<>());
+        }
+
+        if (dto.directors() != null) {
+            film.setDirectors(dto.directors().stream()
+                    .map(DirectorMapper::toEntity)
+                    .collect(Collectors.toMap(
+                            Director::getId,
+                            Function.identity())
+                    )
+            );
+        } else {
+            film.setDirectors(new HashMap<>());
         }
     }
 }

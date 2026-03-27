@@ -10,10 +10,13 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -28,17 +31,17 @@ public class DirectorDbStorage implements DirectorStorage {
             DELETE FROM director
             WHERE id = :id;""";
 
-    private static final String SELECT_DIRECTOR_BY_ID = """
+    private static final String SELECT_DIRECTOR_BY_IDS = """
             SELECT id, name
             FROM director
-            WHERE id = :id;""";
+            WHERE id IN (:ids);""";
 
     private static final String INSERT_DIRECTOR = """
             INSERT INTO director (name)
             VALUES (:name);""";
 
     private static final String UPDATE_DIRECTOR = """
-            UPDATE film
+            UPDATE director
             SET name = :name
             WHERE id = :id;""";
 
@@ -83,6 +86,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Map<Long, Director> getAll() {
+        log.info("(getAll) Retrieving all directors in table 'director'");
         return jdbcTemplate.query(SELECT_ALL_DIRECTORS,
                 new MapSqlParameterSource(),
                 rs -> {
@@ -100,15 +104,27 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Optional<Director> getById(Long id) {
-        return jdbcTemplate.query(SELECT_DIRECTOR_BY_ID,
-                new MapSqlParameterSource("id", id),
+        log.info("(getById) Retrieving a director by ID={}", id);
+        return jdbcTemplate.query(SELECT_DIRECTOR_BY_IDS,
+                new MapSqlParameterSource("ids", id),
                 new DataClassRowMapper<>(Director.class)
         ).stream().findFirst();
     }
 
-    @Override //TODO
-    public Map<Long, Director> getByIDs(Set<Long> ids) {
-        return Map.of();
+    @Override
+    public Map<Long, Director> getByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        log.info("(getByIds) Retrieving a directors by IDs={}", ids);
+        return jdbcTemplate.query(SELECT_DIRECTOR_BY_IDS,
+                        new MapSqlParameterSource("ids", ids),
+                        new DataClassRowMapper<>(Director.class))
+                .stream()
+                .collect(Collectors.toMap(
+                        Director::getId,
+                        Function.identity()
+                ));
     }
 
     @Override

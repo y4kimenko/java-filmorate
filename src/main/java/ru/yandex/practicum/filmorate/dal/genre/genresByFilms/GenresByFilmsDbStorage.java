@@ -42,20 +42,20 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
                         .addValue("film_id", filmId))
                 .toArray(SqlParameterSource[]::new);
 
-        log.info("Adding film's genres for film ID={} in table 'genres_film'", filmId);
+        log.info("(save) Adding film's genres for film ID={} in table 'genres_film'", filmId);
         jdbcTemplate.batchUpdate(MERGE_GENRE_FILM, batch);
     }
 
     @Override
     public void update(long filmId, Set<Long> genres) {
-        log.info("Deleting film's genres for film ID={} in table 'genres_film'", filmId);
+        log.info("(update) Deleting film's genres for film ID={} in table 'genres_film'", filmId);
         jdbcTemplate.update(DELETE_GENRES_FILM,
                 new MapSqlParameterSource()
                         .addValue("film_id", filmId)
                         .addValue("genreIds", genres));
 
 
-        log.info("Adding missing film's genres for film ID={} in table 'genres_film'", filmId);
+        log.info("(update) Adding missing film's genres for film ID={} in table 'genres_film'", filmId);
         SqlParameterSource[] batch = genres.stream()
                 .map(genre -> new MapSqlParameterSource()
                         .addValue("genre_id", genre)
@@ -67,6 +67,7 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
 
     @Override
     public Map<Long, Set<Long>> getByFilmIds(Set<Long> filmIds) {
+        log.info("(getByFilmIds) Receiving film's genres for films IDs={} in table 'film_genres'", filmIds);
         return jdbcTemplate.query(
                 SELECT_FILMS_GENRES_BY_ID,
                 new MapSqlParameterSource("film_id", filmIds),
@@ -83,6 +84,7 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
 
     @Override
     public Set<Long> getByFilmId(Long filmId) {
+        log.info("(getByFilmId) Receiving film's genres for film ID={} in table 'film_genres'", filmId);
         return new HashSet<>(jdbcTemplate.query(
                 SELECT_FILMS_GENRES_BY_ID,
                 new MapSqlParameterSource("film_id", filmId),

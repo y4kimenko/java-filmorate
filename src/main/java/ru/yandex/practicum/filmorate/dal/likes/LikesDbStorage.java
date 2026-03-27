@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Repository
@@ -25,13 +24,22 @@ public class LikesDbStorage implements LikesStorage {
             WHERE user_id = :user_id
             AND film_id = :film_id;""";
 
+    private static final String FILMS_SORTED_BY_LIKES = """
+            SELECT f.id AS film_id,
+                    COUNT(ufl.user_id) AS likes_count
+            FROM film f
+            LEFT JOIN user_film_likes ufl ON ufl.film_id = f.id
+            WHERE f.id IN (:film_ids)
+            GROUP BY f.id
+            ORDER BY likes_count DESC, f.id;""";
+
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
     public boolean addLikeFilmByUser(long userId, long filmId) {
 
-        log.info("Adding favorite user's films with userID={} in table 'user_film_likes'", userId);
+        log.info("(addLikeFilmByUser) Adding favorite user's films with userID={} in table 'user_film_likes'", userId);
         int res = jdbcTemplate.update(MERGE_USER_LIKES_FILMS,
                 new MapSqlParameterSource()
                         .addValue("user_id", userId)
@@ -47,12 +55,16 @@ public class LikesDbStorage implements LikesStorage {
                         .addValue("user_id", userId)
                         .addValue("film_id", filmId)
         );
-        log.info("Delete filmId={} likes for userId={} from the table 'user_film_likes'", filmId, userId);
+        log.info("(removeLikeFilmByUser) Delete filmId={} likes for userId={} from the table 'user_film_likes'", filmId, userId);
         return res > 0;
     }
 
-    @Override //TODO
+    @Override
     public List<Long> getFilmsSortedByLikes(Set<Long> filmsIds) {
-        return List.of();
+        log.info("(getFilmsSortedByLikes) Retrieving sorted films by likes in table 'user_film_likes'");
+        return jdbcTemplate.query(FILMS_SORTED_BY_LIKES,
+                new MapSqlParameterSource("film_ids", filmsIds),
+                (rs, rowNum) -> rs.getLong("id")
+        );
     }
 }
