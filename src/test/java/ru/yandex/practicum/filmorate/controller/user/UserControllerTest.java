@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.web.controller.user.UserController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -86,7 +87,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.email").value("E-mail  is incorrect"));
 
         verifyNoInteractions(userService);

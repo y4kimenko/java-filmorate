@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.dal.film;
 
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface FilmStorage {
@@ -20,7 +23,11 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
+    Set<Film> getByIds(Set<Long> ids);
+
     boolean existsById(long id);
 
     int deleteById(long id);
+
+    Map<Long, Film> searchByTitle(String title, List<FilmsSearchBy> searchBy);
 }

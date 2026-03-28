@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.service.likes.LikesService;
+import ru.yandex.practicum.filmorate.web.controller.film.LikesController;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -38,7 +39,7 @@ class LikesControllerTest {
     void addUserLike_ReturnsBadRequestWhenPathVariablesNegative() throws Exception {
         mockMvc.perform(put("/films/{id}/like/{userId}", -1, -5))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.filmId").value("id фильма не может быть отрицательным"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
@@ -60,7 +61,7 @@ class LikesControllerTest {
     void removeUserLikeReturnsBadRequestWhenUserIdNegative() throws Exception {
         mockMvc.perform(delete("/films/{id}/like/{userId}", 10L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
         verifyNoInteractions(likesService);
@@ -71,7 +72,7 @@ class LikesControllerTest {
     void removeUserLikeReturnsBadRequestWhenFilmIdNegative() throws Exception {
         mockMvc.perform(delete("/films/{id}/like/{userId}", 10L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
         verifyNoInteractions(likesService);
