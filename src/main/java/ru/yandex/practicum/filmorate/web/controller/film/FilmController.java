@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.web.controller.film;
 
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import java.util.List;
@@ -101,5 +103,15 @@ public class FilmController {
                                                               @RequestParam
                                                               DirectorFilmsSortBy sortBy) {
         return filmService.getDirectorFilms(id, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<FilmResponseDto> searchFilms(@RequestParam("query")
+                                             @NotBlank(message = "Запрос не может быть пустым")
+                                             String query,
+                                             @RequestParam("by")
+                                             List<FilmsSearchBy> searchBy
+    ) {
+        return filmService.searchFilms(query, searchBy);
     }
 }
