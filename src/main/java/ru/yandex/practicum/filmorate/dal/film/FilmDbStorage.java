@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-@Primary
 @Slf4j
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {

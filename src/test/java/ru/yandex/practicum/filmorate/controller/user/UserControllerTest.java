@@ -11,7 +11,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
-import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.web.controller.user.UserController;
 
@@ -38,12 +37,6 @@ class UserControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private ObjectMapper objectMapper;
-
-    @MockBean
-    UserService userService;
-    @MockBean
-    FilmService filmService;
-
 
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 200 OK с созданным user")

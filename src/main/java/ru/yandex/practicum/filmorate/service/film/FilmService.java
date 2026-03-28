@@ -18,8 +18,6 @@ public interface FilmService {
 
     List<FilmResponseDto> getAllFilms();
 
-    List<FilmResponseDto> getPopularFilms(int count);
-
     FilmResponseDto getById(Long filmId);
 
     void deleteById(long id);
@@ -31,8 +29,6 @@ public interface FilmService {
     List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy);
 
     List<FilmResponseDto> searchFilms(String query, List<FilmsSearchBy> searchBy);
-
-    List<FilmResponseDto> getCommonFilms(long userId, long friendId);
 
     List<FilmResponseDto> getRecommendations(long userId);
 }

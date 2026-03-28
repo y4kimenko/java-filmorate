@@ -23,6 +23,8 @@ public interface FilmStorage {
 
     Optional<Film> getById(long id);
 
+    Set<Film> getByIds(Set<Long> ids);
+
     boolean existsById(long id);
 
     List<Film> getRecommendations(long userId);

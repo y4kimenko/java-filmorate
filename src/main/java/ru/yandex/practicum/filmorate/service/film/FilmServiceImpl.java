@@ -344,7 +344,7 @@ public class FilmServiceImpl implements FilmService {
                         f.setMpa(mpas.get(f.getMpa().id()));
                     }
 
-                    return filmMapper.toResponseDto(f);
+                    return FilmMapper.toResponseDto(f);
                 })
                 .filter(Objects::nonNull)
                 .toList();
