@@ -46,7 +46,7 @@ class FriendsControllerTest {
     void addFriend_ReturnsBadRequest_WhenIdsNegative() throws Exception {
         mockMvc.perform(put("/users/{id}/friends/{friendId}", -1L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
@@ -67,7 +67,7 @@ class FriendsControllerTest {
     void removeFriend_ReturnsBadRequest_WhenFriendIdNegative() throws Exception {
         mockMvc.perform(delete("/users/{id}/friends/{friendId}", 7L, -4L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
         verifyNoInteractions(friendsService);
@@ -104,7 +104,7 @@ class FriendsControllerTest {
     void getFriends_ReturnsBadRequest_WhenIdNegative() throws Exception {
         mockMvc.perform(get("/users/{id}/friends", -3L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"));
 
         verifyNoInteractions(friendsService);
@@ -141,7 +141,7 @@ class FriendsControllerTest {
     void getMutualFriends_ReturnsBadRequest_WhenFriendIdNegative() throws Exception {
         mockMvc.perform(get("/users/{id}/friends/common/{friendId}", 1L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
 
         verifyNoInteractions(friendsService);

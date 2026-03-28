@@ -8,6 +8,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.dto.director.request.DirectorRequestDto;
+import ru.yandex.practicum.filmorate.dto.director.response.DirectorResponseDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
@@ -54,6 +56,7 @@ class FilmControllerTest {
                 "Test Film",
                 List.of(new GenreResponseDto(1, "Комедия")),
                 new MpaResponseDto(1, "R"),
+                List.of(new DirectorResponseDto(1, "Danila Petrovich")),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -70,6 +73,8 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$[0].releaseDate").value("2000-01-01"))
                 .andExpect(jsonPath("$[0].mpa.id").value(1))
                 .andExpect(jsonPath("$[0].mpa.name").value("R"))
+                .andExpect(jsonPath("$[0].directors[0].id").value(1))
+                .andExpect(jsonPath("$[0].directors[0].name").value("Danila Petrovich"))
                 .andExpect(jsonPath("$[0].genres[0].id").value(1))
                 .andExpect(jsonPath("$[0].genres[0].name").value("Комедия"));
     }
@@ -79,7 +84,7 @@ class FilmControllerTest {
     void getPopularFilms_ReturnsBadRequestWhenCountNegative() throws Exception {
         mockMvc.perform(get("/films/popular").param("count", "-1"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.count").value("count  не может быть отрицательным"));
 
         verifyNoInteractions(filmService);
@@ -93,6 +98,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -103,6 +109,7 @@ class FilmControllerTest {
                 "Test Film",
                 List.of(new GenreResponseDto(1, "Комедия")),
                 new MpaResponseDto(1, "R"),
+                List.of(new DirectorResponseDto(1, "Danila Petrovich")),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -123,6 +130,8 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$.releaseDate").value("2000-01-01"))
                 .andExpect(jsonPath("$.mpa.id").value(1))
                 .andExpect(jsonPath("$.mpa.name").value("R"))
+                .andExpect(jsonPath("$.directors[0].id").value(1))
+                .andExpect(jsonPath("$.directors[0].name").value("Danila Petrovich"))
                 .andExpect(jsonPath("$.genres[0].id").value(1))
                 .andExpect(jsonPath("$.genres[0].name").value("Комедия"));
     }
@@ -136,6 +145,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(1800, 1, 1),
                 120
@@ -146,7 +156,7 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.releaseDateValid").value("releaseDate не может быть раньше чем 28.12.1895"));
 
         verifyNoInteractions(filmService);
@@ -160,6 +170,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "a".repeat(201),
                 LocalDate.of(2000, 1, 1),
                 120
@@ -169,7 +180,7 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.description").value("у description максимальная длина 200 символов"));
 
         verifyNoInteractions(filmService);
@@ -183,6 +194,7 @@ class FilmControllerTest {
                 "",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -192,7 +204,7 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.name").value("name не должно состоять из пробелов"));
 
         verifyNoInteractions(filmService);
@@ -206,6 +218,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 null
@@ -215,7 +228,7 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.duration").value("duration не может быть пустым"));
 
         verifyNoInteractions(filmService);
@@ -229,6 +242,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 -1
@@ -238,7 +252,7 @@ class FilmControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.duration").value("duration должна составлять не меньше 1 минуты"));
 
         verifyNoInteractions(filmService);
@@ -253,6 +267,7 @@ class FilmControllerTest {
                 "Test Film",
                 Set.of(new GenreRequestDto(1L)),
                 new MpaRequestDto(1L),
+                Set.of(new DirectorRequestDto(1L)),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -263,6 +278,7 @@ class FilmControllerTest {
                 "Test Film",
                 List.of(new GenreResponseDto(1, "Комедия")),
                 new MpaResponseDto(1, "R"),
+                List.of(new DirectorResponseDto(1L, "Danila Petrovich")),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -294,6 +310,7 @@ class FilmControllerTest {
                 "Test Film",
                 List.of(new GenreResponseDto(1, "Комедия")),
                 new MpaResponseDto(1, "R"),
+                List.of(new DirectorResponseDto(1L, "Danila Petrovich")),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -307,6 +324,8 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$[0].id").value(42))
                 .andExpect(jsonPath("$[0].name").value("Test Film"))
                 .andExpect(jsonPath("$[0].description").value("Description"))
+                .andExpect(jsonPath("$[0].directors[0].id").value(1))
+                .andExpect(jsonPath("$[0].directors[0].name").value("Danila Petrovich"))
                 .andExpect(jsonPath("$[0].duration").value(120))
                 .andExpect(jsonPath("$[0].releaseDate").value("2000-01-01"));
 
@@ -322,6 +341,7 @@ class FilmControllerTest {
                 "Test Film",
                 List.of(new GenreResponseDto(1, "Комедия")),
                 new MpaResponseDto(1, "R"),
+                List.of(new DirectorResponseDto(1L, "Danila Petrovich")),
                 "Description",
                 LocalDate.of(2000, 1, 1),
                 120
@@ -335,6 +355,8 @@ class FilmControllerTest {
                 .andExpect(jsonPath("$.id").value(42))
                 .andExpect(jsonPath("$.name").value("Test Film"))
                 .andExpect(jsonPath("$.description").value("Description"))
+                .andExpect(jsonPath("$.directors[0].id").value(1))
+                .andExpect(jsonPath("$.directors[0].name").value("Danila Petrovich"))
                 .andExpect(jsonPath("$.duration").value(120))
                 .andExpect(jsonPath("$.releaseDate").value("2000-01-01"));
 
@@ -348,7 +370,7 @@ class FilmControllerTest {
     void getFilmById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
         mockMvc.perform(get("/films/{id}", -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id не может быть отрицательным"));
 
         verifyNoInteractions(filmService);

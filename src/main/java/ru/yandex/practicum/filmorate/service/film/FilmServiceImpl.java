@@ -176,7 +176,7 @@ public class FilmServiceImpl implements FilmService {
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
         }
-
+        film.setDirectors(directorStorage.getByIds(directorByFilmStorage.getByFilmIds(Set.of(filmId)).keySet()));
         film.setGenres(genresStorage.getByIds(genresByFilmsDbStorage.getByFilmId(filmId)));
 
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",

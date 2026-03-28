@@ -71,7 +71,7 @@ class MpaControllerTest {
     void getMpaById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
         mockMvc.perform(get("/mpa/{id}", -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id mpa не может быть отрицательным"));
 
         verifyNoInteractions(mpaService);

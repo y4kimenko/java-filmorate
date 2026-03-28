@@ -71,7 +71,7 @@ class GenresFilmControllerTest {
     void getGenreById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
         mockMvc.perform(get("/genres/{id}", -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id genre не может быть отрицательным"));
 
         verifyNoInteractions(genresService);

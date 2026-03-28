@@ -39,7 +39,7 @@ class LikesControllerTest {
     void addUserLike_ReturnsBadRequestWhenPathVariablesNegative() throws Exception {
         mockMvc.perform(put("/films/{id}/like/{userId}", -1, -5))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.filmId").value("id фильма не может быть отрицательным"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
@@ -61,7 +61,7 @@ class LikesControllerTest {
     void removeUserLikeReturnsBadRequestWhenUserIdNegative() throws Exception {
         mockMvc.perform(delete("/films/{id}/like/{userId}", 10L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
         verifyNoInteractions(likesService);
@@ -72,7 +72,7 @@ class LikesControllerTest {
     void removeUserLikeReturnsBadRequestWhenFilmIdNegative() throws Exception {
         mockMvc.perform(delete("/films/{id}/like/{userId}", 10L, -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.userId").value("id пользователя не может быть отрицательным"));
 
         verifyNoInteractions(likesService);
