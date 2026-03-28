@@ -2,17 +2,22 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @Primary
@@ -65,6 +70,11 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY COUNT(l.user_id) DESC, f.id ASC
             LIMIT :max_size;""";
 
+    private static final String DELETE_BY_ID = """
+            DELETE FROM film
+            WHERE id = :id
+            """;
+
     private static final String GET_COMMON_FILMS = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
@@ -99,6 +109,10 @@ public class FilmDbStorage implements FilmStorage {
                     ORDER BY f.id;
             """;
 
+    private static final String SEARCH_FILMS_BY_TITLE = """
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
+            FROM film f
+            WHERE""";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -171,6 +185,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
+        log.info("(getAll) Retrieving all films in table 'film'");
         return jdbcTemplate.query(SELECT_FILMS,
                 new MapSqlParameterSource(),
                 new FilmRowMapper()
@@ -179,7 +194,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getById(long id) {
-        log.info("getById() – request FilmId={}", id);
+        log.info("(getById) Retrieving film by Id={}", id);
 
         return jdbcTemplate.query(SELECT_FILM_BY_IDS,
                 new MapSqlParameterSource("ids", id),
@@ -187,11 +202,44 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Set<Film> getByIds(Set<Long> filmIds) {
+        log.info("(getByIds) Retrieving films in table 'film' with Ids={}", filmIds);
+
+        if (filmIds == null || filmIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return new HashSet<>(jdbcTemplate.query(SELECT_FILM_BY_IDS,
+                new MapSqlParameterSource("ids", filmIds),
+                new FilmRowMapper()
+        ));
+    }
+
+    @Override
+    public boolean existsById(long id) {
+        Long count = jdbcTemplate.queryForObject(
+                EXISTS_BY_ID,
+                new MapSqlParameterSource("id", id),
+                Long.class
+        );
+        return count != null && count != 0;
+    }
+
+    @Override
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
+    }
+
+
+    @Override
     public List<Film> getPopularFilms(long limit) {
         List<Film> res = jdbcTemplate.query(GET_POPULAR_FILMS,
                 new MapSqlParameterSource("max_size", limit),
                 new FilmRowMapper());
-        log.info("getPopularFilms() – request limit={}", limit);
+        log.info("(getPopularFilms) Request limit={}", limit);
 
         return res;
     }
@@ -206,18 +254,55 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmRowMapper()
         );
 
-        log.info("getCommonFilms() – request userId={}, friendId={}", userId, friendId);
+        log.info("(getCommonFilms) Request userId={}, friendId={}", userId, friendId);
         return res;
     }
 
     @Override
-    public boolean existsById(long id) {
-        Long count = jdbcTemplate.queryForObject(
-                EXISTS_BY_ID,
-                new MapSqlParameterSource("id", id),
-                Long.class
-        );
-        return count != null && count != 0;
+    public Map<Long, Film> searchByTitle(String title, List<FilmsSearchBy> searchBy) {
+        log.info("(searchByTitle) Retrieving films in table 'film' with title={}", title);
+
+        if (title == null || title.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        StringBuilder request = new StringBuilder(SEARCH_FILMS_BY_TITLE);
+
+        if (searchBy.size() == 1) {
+            switch (searchBy.getFirst()) {
+                case FilmsSearchBy.FILM_NAME -> request.append(" LOWER(f.title) LIKE LOWER(:q)");
+                case FilmsSearchBy.DIRECTOR -> request.append("""
+                         f.id IN (
+                              SELECT DISTINCT df.film_id
+                              FROM film_directors df
+                              WHERE df.director_id IN (
+                                  SELECT d.id
+                                  FROM director d
+                                  WHERE LOWER(d.name) LIKE LOWER(:q)
+                              )
+                        )""");
+            }
+        } else {
+            request.append(" 1 = 0");
+            for (FilmsSearchBy s : searchBy) {
+                switch (s) {
+                    case FilmsSearchBy.FILM_NAME -> request.append(" OR LOWER(f.title) LIKE LOWER(:q)");
+                    case FilmsSearchBy.DIRECTOR -> request.append("""
+                             OR f.id IN (
+                                  SELECT DISTINCT df.film_id
+                                  FROM film_directors df
+                                  WHERE df.director_id IN (
+                                      SELECT d.id
+                                      FROM director d
+                                      WHERE LOWER(d.name) LIKE LOWER(:q)
+                                  )
+                            )""");
+                }
+            }
+        }
+        return jdbcTemplate.query(request.toString(),
+                new MapSqlParameterSource("q", '%' + title + '%'),
+                new FilmRowMapper()
+        ).stream().collect(Collectors.toMap(Film::getId, f -> f));
     }
 
     @Override
@@ -229,6 +314,8 @@ public class FilmDbStorage implements FilmStorage {
         );
 
         log.info("getRecommendations() - request userId={}", userId);
+
         return res;
     }
+
 }

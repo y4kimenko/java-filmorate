@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.web.controller;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +9,8 @@ import java.util.Map;
 @Getter
 public class ErrorResponse {
 
-    // Человекочитаемое сообщение для клиента
-    private String message;
+    // Человеко читаемое сообщение для клиента
+    private String error;
 
     // Техническое сообщение – тип исключения или подробности
     private String debugMessage;
@@ -22,7 +22,7 @@ public class ErrorResponse {
     }
 
     public ErrorResponse(String message, String debugMessage, Map<String, String> errors) {
-        this.message = message;
+        this.error = message;
         this.debugMessage = debugMessage;
         this.errors = errors;
     }

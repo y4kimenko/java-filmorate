@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import ru.yandex.practicum.filmorate.dto.director.request.DirectorRequestDto;
 import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 
@@ -18,6 +19,8 @@ public record FilmRequestCreateDto(
         Set<GenreRequestDto> genres,
 
         MpaRequestDto mpa,
+
+        Set<DirectorRequestDto> directors,
 
         @Size(max = 200, message = "у description максимальная длина 200 символов")
         String description,

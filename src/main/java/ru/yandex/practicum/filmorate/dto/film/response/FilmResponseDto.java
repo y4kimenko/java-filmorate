@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dto.film.response;
 
+import ru.yandex.practicum.filmorate.dto.director.response.DirectorResponseDto;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
 
@@ -11,6 +12,7 @@ public record FilmResponseDto(
         String name,
         List<GenreResponseDto> genres,
         MpaResponseDto mpa,
+        List<DirectorResponseDto> directors,
         String description,
         LocalDate releaseDate,
         Integer duration

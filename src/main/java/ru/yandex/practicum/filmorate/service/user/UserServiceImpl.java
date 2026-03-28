@@ -68,4 +68,19 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::toResponseDto)
                 .toList();
     }
+
+    @Override
+    public void deleteById(long id) {
+        if (userStorage.deleteById(id) == 0) {
+            throw new UserNotFoundException("Пользователь с id = " + id + " не найден");
+        }
+    }
+
+    @Override
+    public UserResponseDto getUserById(long id) {
+        User user = userStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException(
+                "Пользователь с id = " + id + " не найден"));
+
+        return UserMapper.toResponseDto(user);
+    }
 }
