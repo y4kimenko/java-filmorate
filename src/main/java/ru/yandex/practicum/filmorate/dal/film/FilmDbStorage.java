@@ -8,13 +8,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
@@ -81,7 +84,10 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(likes.user_id) DESC, f.id ASC;
             """;
-
+    private static final String SEARCH_FILMS_BY_TITLE = """
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
+            FROM film f
+            WHERE""";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -185,6 +191,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public boolean existsById(long id) {
+        Long count = jdbcTemplate.queryForObject(
+                EXISTS_BY_ID,
+                new MapSqlParameterSource("id", id),
+                Long.class
+        );
+        return count != null && count != 0;
+    }
+
+    @Override
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
+    }
+
+
+    @Override
     public List<Film> getPopularFilms(long limit) {
         List<Film> res = jdbcTemplate.query(GET_POPULAR_FILMS,
                 new MapSqlParameterSource("max_size", limit),
@@ -209,20 +234,51 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean existsById(long id) {
-        Long count = jdbcTemplate.queryForObject(
-                EXISTS_BY_ID,
-                new MapSqlParameterSource("id", id),
-                Long.class
-        );
-        return count != null && count != 0;
+    public Map<Long, Film> searchByTitle(String title, List<FilmsSearchBy> searchBy) {
+        log.info("(searchByTitle) Retrieving films in table 'film' with title={}", title);
+
+        if (title == null || title.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        StringBuilder request = new StringBuilder(SEARCH_FILMS_BY_TITLE);
+
+        if (searchBy.size() == 1) {
+            switch (searchBy.getFirst()) {
+                case FilmsSearchBy.FILM_NAME -> request.append(" LOWER(f.title) LIKE LOWER(:q)");
+                case FilmsSearchBy.DIRECTOR -> request.append("""
+                         f.id IN (
+                              SELECT DISTINCT df.film_id
+                              FROM film_directors df
+                              WHERE df.director_id IN (
+                                  SELECT d.id
+                                  FROM director d
+                                  WHERE LOWER(d.name) LIKE LOWER(:q)
+                              )
+                        )""");
+            }
+        } else {
+            request.append(" 1 = 0");
+            for (FilmsSearchBy s : searchBy) {
+                switch (s) {
+                    case FilmsSearchBy.FILM_NAME -> request.append(" OR LOWER(f.title) LIKE LOWER(:q)");
+                    case FilmsSearchBy.DIRECTOR -> request.append("""
+                             OR f.id IN (
+                                  SELECT DISTINCT df.film_id
+                                  FROM film_directors df
+                                  WHERE df.director_id IN (
+                                      SELECT d.id
+                                      FROM director d
+                                      WHERE LOWER(d.name) LIKE LOWER(:q)
+                                  )
+                            )""");
+                }
+            }
+        }
+        return jdbcTemplate.query(request.toString(),
+                new MapSqlParameterSource("q", '%' + title + '%'),
+                new FilmRowMapper()
+        ).stream().collect(Collectors.toMap(Film::getId, f -> f));
     }
 
-    @Override
-    public int deleteById(long id) {
-        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
-        log.debug("deleteById({}) - affected rows: {}", id, rows);
 
-        return rows;
-    }
 }

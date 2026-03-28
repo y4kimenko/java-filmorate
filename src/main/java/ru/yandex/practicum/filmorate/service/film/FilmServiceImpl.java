@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.exception.notFound.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
@@ -241,6 +242,17 @@ public class FilmServiceImpl implements FilmService {
         return prepareFilmsWithGenresAndMpa(result);
     }
 
+    @Override
+    public List<FilmResponseDto> searchFilms(String query, List<FilmsSearchBy> searchBy) {
+        if (searchBy.isEmpty())
+            return List.of();
+
+        Map<Long, Film> films = filmStorage.searchByTitle(query, searchBy);
+
+        return prepareFilmsWithGenresAndMpa(likesDbStorage.getFilmsSortedByLikes(films.keySet()).stream()
+                .map(films::get)
+                .toList());
+    }
 
     private List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
 
