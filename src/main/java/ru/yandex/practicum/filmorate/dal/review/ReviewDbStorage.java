@@ -65,6 +65,12 @@ public class ReviewDbStorage implements ReviewStorage {
             VALUES (:review_id, :user_id, 'DISLIKE')
             """;
 
+    private static final String SELECT_BY_ID = """
+            SELECT *
+            FROM reviews
+            WHERE id = :id;
+            """;
+
     private static final String INCREMENT_USEFUL = """
             UPDATE reviews
             SET useful = useful + 1
@@ -200,6 +206,16 @@ public class ReviewDbStorage implements ReviewStorage {
                 .addValue("user_id", userId);
 
         jdbcTemplate.update(DELETE_REACTION, params);
+    }
+
+    @Override
+    public Optional<Review> findById(long reviewId) {
+        List<Review> result = jdbcTemplate.query(
+                SELECT_BY_ID,
+                new MapSqlParameterSource("id", reviewId),
+                new ReviewRowMapper()
+        );
+        return result.stream().findFirst();
     }
 
     @Override

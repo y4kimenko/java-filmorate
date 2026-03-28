@@ -6,15 +6,12 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 public record ReviewRequestUpdateDto(
         @NotNull
-        @PositiveOrZero
         Long reviewId,
 
         @NotNull
-        @PositiveOrZero
         Long userId,
 
         @NotNull
-        @PositiveOrZero
         Long filmId,
 
         @NotNull

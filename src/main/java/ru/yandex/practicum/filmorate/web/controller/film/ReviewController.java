@@ -112,4 +112,12 @@ public class ReviewController {
     ) {
         reviewService.deleteReaction(id, userId);
     }
+
+    @GetMapping("/{id}")
+    public ReviewResponseDto getReviewById(
+            @PathVariable
+            @PositiveOrZero(message = "id не может быть отрицательным")
+            Long id) {
+        return reviewService.getReviewById(id);
+    }
 }

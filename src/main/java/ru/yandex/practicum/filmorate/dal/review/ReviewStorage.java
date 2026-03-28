@@ -30,4 +30,6 @@ public interface ReviewStorage {
     void incrementUseful(long reviewId);
 
     void addDislikeToReview(long reviewId, long userId);
+
+    Optional<Review> findById(long reviewId);
 }

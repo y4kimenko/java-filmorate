@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.review.request.ReviewRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.review.request.ReviewRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.review.response.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.exception.DuplicateReviewException;
+import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.ReactionNotFound;
 import ru.yandex.practicum.filmorate.exception.notFound.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
@@ -26,10 +28,17 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewStorage;
     private final ReviewMapper reviewMapper;
     private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     @Override
     @Transactional
     public ReviewResponseDto createReview(ReviewRequestCreateDto dto) {
+        if (!userStorage.existsById(dto.userId())) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        if (!filmStorage.existsById(dto.filmId())) {
+            throw new FilmNotFoundException("Фильм не найден");
+        }
         if (reviewStorage.existByIds(dto.userId(), dto.filmId())) {
             throw new DuplicateReviewException("Отзыв уже существует");
         }
@@ -93,9 +102,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         if ("DISLIKE".equals(reaction)) {
             reviewStorage.deleteReaction(reviewId, userId);
-            reviewStorage.incrementUseful(reviewId); // -1 → +1 = +2 переход
+            reviewStorage.incrementUseful(reviewId);
+            reviewStorage.incrementUseful(reviewId);
         } else {
-            reviewStorage.incrementUseful(reviewId); // NULL → LIKE
+            reviewStorage.incrementUseful(reviewId);
         }
 
         reviewStorage.addLikeToReview(reviewId, userId);
@@ -123,6 +133,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if ("LIKE".equals(reaction)) {
             reviewStorage.deleteReaction(reviewId, userId);
+            reviewStorage.decrementUseful(reviewId);
             reviewStorage.decrementUseful(reviewId);
         } else {
             reviewStorage.decrementUseful(reviewId);
@@ -158,5 +169,13 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         reviewStorage.deleteReaction(reviewId, userId);
+    }
+
+    @Override
+    @Transactional
+    public ReviewResponseDto getReviewById(Long id) {
+        Review review = reviewStorage.findById(id)
+                .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
+        return reviewMapper.toResponseDto(review);
     }
 }

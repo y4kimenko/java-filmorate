@@ -20,4 +20,6 @@ public interface ReviewService {
     void addDislikeToReview(long reviewId, long userId);
 
     void deleteReaction(long reviewId, long userId);
+
+    ReviewResponseDto getReviewById(Long id);
 }
