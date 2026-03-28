@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dal.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -11,11 +10,13 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
-@Primary
 @Slf4j
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -153,6 +154,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
+        log.info("(getAll) Retrieving all films in table 'film'");
         return jdbcTemplate.query(SELECT_FILMS,
                 new MapSqlParameterSource(),
                 new FilmRowMapper()
@@ -161,7 +163,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getById(long id) {
-        log.info("getById() – request FilmId={}", id);
+        log.info("(getById) Retrieving film by Id={}", id);
 
         return jdbcTemplate.query(SELECT_FILM_BY_IDS,
                 new MapSqlParameterSource("ids", id),
@@ -169,11 +171,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Set<Film> getByIds(Set<Long> filmIds) {
+        log.info("(getByIds) Retrieving films in table 'film' with Ids={}", filmIds);
+
+        if (filmIds == null || filmIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        return new HashSet<>(jdbcTemplate.query(SELECT_FILM_BY_IDS,
+                new MapSqlParameterSource("ids", filmIds),
+                new FilmRowMapper()
+        ));
+    }
+
+    @Override
     public List<Film> getPopularFilms(long limit) {
         List<Film> res = jdbcTemplate.query(GET_POPULAR_FILMS,
                 new MapSqlParameterSource("max_size", limit),
                 new FilmRowMapper());
-        log.info("getPopularFilms() – request limit={}", limit);
+        log.info("(getPopularFilms) Request limit={}", limit);
 
         return res;
     }
@@ -188,7 +204,7 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmRowMapper()
         );
 
-        log.info("getCommonFilms() – request userId={}, friendId={}", userId, friendId);
+        log.info("(getCommonFilms) Request userId={}, friendId={}", userId, friendId);
         return res;
     }
 

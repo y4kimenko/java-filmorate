@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 
 public interface FilmStorage {
@@ -19,6 +20,8 @@ public interface FilmStorage {
     List<Film> getCommonFilms(long userId, long friendId);
 
     Optional<Film> getById(long id);
+
+    Set<Film> getByIds(Set<Long> ids);
 
     boolean existsById(long id);
 

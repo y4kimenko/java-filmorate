@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.service.film;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
+import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
 
 import java.util.List;
 
@@ -16,11 +17,16 @@ public interface FilmService {
 
     List<FilmResponseDto> getAllFilms();
 
-    List<FilmResponseDto> getPopularFilms(int count);
-
-    List<FilmResponseDto> getCommonFilms(long userId, long friendId);
-
     FilmResponseDto getById(Long filmId);
 
     void deleteById(long id);
+
+
+    List<FilmResponseDto> getPopularFilms(long count);
+
+    List<FilmResponseDto> getCommonFilms(long userId, long friendId);
+
+    List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy);
+
+
 }

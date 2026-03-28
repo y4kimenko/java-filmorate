@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dal.genres.GenresDbStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genres.GenresDbStorage;
 import ru.yandex.practicum.filmorate.dal.mpa.MpaDbStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
