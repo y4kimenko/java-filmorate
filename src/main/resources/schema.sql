@@ -130,7 +130,6 @@ CREATE TABLE IF NOT EXISTS reviews
     CONSTRAINT fk_reviews_film FOREIGN KEY (film_id) REFERENCES film (id) ON DELETE CASCADE,
 
     CONSTRAINT chk_reviews_content_not_blank CHECK (TRIM(content) <> ''),
-    CONSTRAINT chk_reviews_rating_non_negative,
 
     CONSTRAINT uq_reviews_user_film UNIQUE (user_id, film_id)
     );
