@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.web.controller;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -6,8 +6,10 @@ import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.exception.DuplicateReviewException;
 import ru.yandex.practicum.filmorate.exception.DuplicateReviewReactionException;
 import ru.yandex.practicum.filmorate.exception.notFound.NotFoundException;
@@ -20,6 +22,7 @@ public class ErrorHandler {
 
     // 1. Ошибки валидации тела запроса (@Valid @RequestBody)
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
         Map<String, String> fieldErrors = new HashMap<>();
@@ -42,6 +45,7 @@ public class ErrorHandler {
 
     // 2. Ошибки валидации параметров методов (ConstraintViolationException)
     @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException ex) {
 
         Map<String, String> errors = new HashMap<>();
@@ -70,7 +74,18 @@ public class ErrorHandler {
         return path;
     }
 
-    // 3. Общий случай ValidationException – вдруг что–то ещё полетит отсюда
+    // 3. Ошибки валидации параметров строки запроса (MissingServletRequestParameterException)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleMissingRequestParam(
+            MissingServletRequestParameterException ex
+    ) {
+        return Map.of(
+                "error", "Параметр '" + ex.getParameterName() + "' обязателен"
+        );
+    }
+
+    // 4. Общий случай ValidationException – вдруг что–то ещё полетит отсюда
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(ValidationException ex) {
         ErrorResponse response = new ErrorResponse(
