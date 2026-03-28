@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import ru.yandex.practicum.filmorate.exception.DuplicateReviewException;
+import ru.yandex.practicum.filmorate.exception.DuplicateReviewReactionException;
 import ru.yandex.practicum.filmorate.exception.notFound.NotFoundException;
 
 import java.util.HashMap;
@@ -97,5 +99,24 @@ public class ErrorHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(DuplicateReviewException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateReview(DuplicateReviewException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                ex.getClass().getSimpleName()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DuplicateReviewReactionException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateReview(DuplicateReviewReactionException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                ex.getClass().getSimpleName()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }
 
