@@ -72,6 +72,7 @@ public class ReviewDbStorage implements ReviewStorage {
             FROM reviews
             WHДоERE id = :id
             ORDER BY useful DESC;
+            WHERE id = :id;
             """;
 
     private static final String INCREMENT_USEFUL = """
@@ -153,6 +154,11 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setUseful(useful);
 
         return review;
+
+        log.info("Updated review id={}", review.getReviewId());
+
+        return findById(review.getReviewId())
+                .orElseThrow(() -> new IllegalStateException("Не удалось получить обновлённый отзыв id=" + review.getReviewId()));
     }
 
     @Override

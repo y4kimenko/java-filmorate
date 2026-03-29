@@ -8,9 +8,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -61,18 +63,11 @@ public class FilmDbStorage implements FilmStorage {
             FROM film
             WHERE id = :id""";
 
-    private static final String GET_POPULAR_FILMS = """
-            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
-            FROM film f
-            LEFT OUTER JOIN user_film_likes l ON f.id = l.film_id
-            GROUP BY f.id
-            ORDER BY COUNT(l.user_id) DESC, f.id ASC
-            LIMIT :max_size;""";
-
     private static final String DELETE_BY_ID = """
             DELETE FROM film
             WHERE id = :id
             """;
+
     private static final String GET_COMMON_FILMS = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
@@ -84,10 +79,39 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(likes.user_id) DESC, f.id ASC;
             """;
+
+    private static final String GET_RECOMMENDATIONS = """
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
+                    FROM film f
+                    JOIN user_film_likes l ON f.id = l.film_id
+                    WHERE l.user_id = (
+                        SELECT l2.user_id
+                        FROM user_film_likes l1
+                        JOIN user_film_likes l2 ON l1.film_id = l2.film_id
+                        WHERE l1.user_id = :userId
+                          AND l2.user_id <> :userId
+                        GROUP BY l2.user_id
+                        ORDER BY COUNT(*) DESC, l2.user_id ASC
+                        LIMIT 1
+                    )
+                      AND f.id NOT IN (
+                        SELECT film_id
+                        FROM user_film_likes
+                        WHERE user_id = :userId
+                    )
+                    ORDER BY f.id;
+            """;
+
     private static final String SEARCH_FILMS_BY_TITLE = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
             WHERE""";
+
+    private static final String GET_MOST_POPULAR_FILMS = """
+                SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
+                (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
+                FROM film f
+                """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -208,17 +232,6 @@ public class FilmDbStorage implements FilmStorage {
         return rows;
     }
 
-
-    @Override
-    public List<Film> getPopularFilms(long limit) {
-        List<Film> res = jdbcTemplate.query(GET_POPULAR_FILMS,
-                new MapSqlParameterSource("max_size", limit),
-                new FilmRowMapper());
-        log.info("(getPopularFilms) Request limit={}", limit);
-
-        return res;
-    }
-
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
         List<Film> res = jdbcTemplate.query(
@@ -280,5 +293,50 @@ public class FilmDbStorage implements FilmStorage {
         ).stream().collect(Collectors.toMap(Film::getId, f -> f));
     }
 
+    @Override
+    public List<Film> getMostPopularFilms(Long count, Map<FilmsPopularSortBy, Long> filters) {
+        List<String> conditions = new ArrayList<>();
+
+        StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILMS);
+
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("count", count);
+
+        filters.forEach((filter, value) -> {
+            switch (filter) {
+                case YEAR -> {
+                    conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
+                    params.addValue("year", value);
+                }
+                case GENRE_ID -> {
+                    conditions.add("f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id)");
+                    params.addValue("genre_id", value);
+                }
+            }
+        });
+
+        if (!conditions.isEmpty()) {
+            request
+                    .append(" WHERE ")
+                    .append(String.join(" AND ", conditions));
+        }
+
+        request.append(" ORDER BY likes_count DESC, f.id ASC LIMIT :count");
+
+        return jdbcTemplate.query(request.toString(), params,
+                new FilmRowMapper());
+    }
+
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        List<Film> res = jdbcTemplate.query(
+                GET_RECOMMENDATIONS,
+                new MapSqlParameterSource("userId", userId),
+                new FilmRowMapper()
+        );
+
+        log.info("getRecommendations() - request userId={}", userId);
+
+        return res;
+    }
 
 }

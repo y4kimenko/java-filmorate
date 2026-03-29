@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.film;
 
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -17,8 +18,6 @@ public interface FilmStorage {
 
     List<Film> getAll();
 
-    List<Film> getPopularFilms(long limit);
-
     List<Film> getCommonFilms(long userId, long friendId);
 
     Optional<Film> getById(long id);
@@ -26,6 +25,10 @@ public interface FilmStorage {
     Set<Film> getByIds(Set<Long> ids);
 
     boolean existsById(long id);
+
+    List<Film> getRecommendations(long userId);
+
+    List<Film> getMostPopularFilms(Long count, Map<FilmsPopularSortBy, Long> filters);
 
     int deleteById(long id);
 

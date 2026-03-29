@@ -5,9 +5,11 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface FilmService {
@@ -20,10 +22,9 @@ public interface FilmService {
 
     FilmResponseDto getById(Long filmId);
 
+    List<FilmResponseDto> getMostPopularFilms(long count, Map<FilmsPopularSortBy, Long> filters);
+
     void deleteById(long id);
-
-
-    List<FilmResponseDto> getPopularFilms(long count);
 
     List<FilmResponseDto> getCommonFilms(long userId, long friendId);
 
@@ -31,5 +32,5 @@ public interface FilmService {
 
     List<FilmResponseDto> searchFilms(String query, List<FilmsSearchBy> searchBy);
 
-
+    List<FilmResponseDto> getRecommendations(long userId);
 }

@@ -22,10 +22,13 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -61,11 +64,25 @@ public class FilmController {
 
 
     @GetMapping("/popular")
-    public List<FilmResponseDto> getPopularFilms(@RequestParam(defaultValue = "10")
-                                                 @PositiveOrZero(message = "count  не может быть отрицательным")
-                                                 int count
+    public List<FilmResponseDto> getPopularFilms(
+            @RequestParam(defaultValue = "10")
+            @PositiveOrZero(message = "count не может быть отрицательным")
+            int count,
+
+            @RequestParam(required = false)
+            @PositiveOrZero(message = "genreId не может быть отрицательным")
+            Long genreId,
+
+            @RequestParam(required = false)
+            @PositiveOrZero(message = "year не может быть отрицательным")
+            Long year
     ) {
-        return filmService.getPopularFilms(count);
+        Map<FilmsPopularSortBy, Long> filters = new HashMap<>();
+        if (year != null) filters.put(FilmsPopularSortBy.YEAR, year);
+        if (genreId != null) filters.put(FilmsPopularSortBy.GENRE_ID, genreId);
+
+
+        return filmService.getMostPopularFilms(count, filters);
     }
 
     @GetMapping("/common")
@@ -88,6 +105,7 @@ public class FilmController {
     ) {
         return filmService.getById(id);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable

@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.exception.notFound.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
@@ -151,7 +152,6 @@ public class FilmServiceImpl implements FilmService {
         if (!existing.getGenres().isEmpty())
             genresByFilmsDbStorage.update(filmId, existing.getGenres().keySet());
 
-
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 existing.getId(), existing.getName(), existing.getDescription(), existing.getReleaseDate(), existing.getDuration());
 
@@ -191,16 +191,6 @@ public class FilmServiceImpl implements FilmService {
         if (filmStorage.deleteById(id) == 0) {
             throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
         }
-    }
-
-
-    @Override
-    public List<FilmResponseDto> getPopularFilms(long count) {
-
-        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getPopularFilms(count));
-
-        log.debug("getPopularFilms() – total={}", result.size());
-        return result;
     }
 
     @Override
@@ -252,6 +242,18 @@ public class FilmServiceImpl implements FilmService {
         return prepareFilmsWithGenresAndMpa(likesDbStorage.getFilmsSortedByLikes(films.keySet()).stream()
                 .map(films::get)
                 .toList());
+    }
+
+    @Override
+    public List<FilmResponseDto> getRecommendations(long userId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден.");
+        }
+
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getRecommendations(userId));
+
+        log.debug("getRecommendations() – total={}", result.size());
+        return result;
     }
 
     private List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
@@ -313,5 +315,7 @@ public class FilmServiceImpl implements FilmService {
                 .toList();
     }
 
-
+    public List<FilmResponseDto> getMostPopularFilms(long count, Map<FilmsPopularSortBy, Long> filters) {
+        return prepareFilmsWithGenresAndMpa(filmStorage.getMostPopularFilms(count, filters));
+    }
 }

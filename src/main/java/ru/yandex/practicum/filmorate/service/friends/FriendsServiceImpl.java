@@ -3,12 +3,14 @@ package ru.yandex.practicum.filmorate.service.friends;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.events.EventStorage;
 import ru.yandex.practicum.filmorate.dal.friends.FriendsStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.friend.FriendShipsDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class FriendsServiceImpl implements FriendsService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final EventStorage eventStorage;
 
     @Override
     public void addFriend(long requester, long addressee) {
@@ -32,6 +35,14 @@ public class FriendsServiceImpl implements FriendsService {
         }
 
         friendsStorage.addFriend(requester, addressee);
+        eventStorage.addEvent(
+                Event.of(
+                        requester,
+                        Event.EventType.FRIEND,
+                        Event.Operation.ADD,
+                        addressee
+                )
+        );
     }
 
     @Override
@@ -48,10 +59,21 @@ public class FriendsServiceImpl implements FriendsService {
 
         if (dto == null) return;
 
-        if (userId == dto.requesterId())
+        if (userId == dto.requesterId()) {
             friendsStorage.deleteFriendships(userId, friendId);
-        else
+        } else {
             friendsStorage.updateFriendships(new FriendShipsDto(friendId, userId, true, true));
+        }
+
+        eventStorage.addEvent(
+                Event.of(
+                        userId,
+                        Event.EventType.FRIEND,
+                        Event.Operation.REMOVE,
+                        friendId
+                )
+        );
+
     }
 
     @Override

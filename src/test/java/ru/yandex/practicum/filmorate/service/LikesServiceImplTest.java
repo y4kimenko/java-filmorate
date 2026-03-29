@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.yandex.practicum.filmorate.dal.events.EventStorage;
 import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.likes.LikesStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
@@ -27,9 +28,10 @@ class LikesServiceImplTest {
     private final LikesStorage likesStorage = mock(LikesStorage.class);
     private final UserStorage userStorage = mock(UserStorage.class);
     private final FilmStorage filmStorage = mock(FilmStorage.class);
+    private final EventStorage eventStorage = mock(EventStorage.class);
 
     private final LikesServiceImpl likesService =
-            new LikesServiceImpl(likesStorage, userStorage, filmStorage);
+            new LikesServiceImpl(likesStorage, userStorage, filmStorage, eventStorage);
 
     @Test
     @DisplayName("addUserLike – кидает UserNotFoundException если user не найден")
