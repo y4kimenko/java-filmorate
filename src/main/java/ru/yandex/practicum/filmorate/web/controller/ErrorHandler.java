@@ -10,6 +10,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import ru.yandex.practicum.filmorate.exception.DuplicateReviewException;
+import ru.yandex.practicum.filmorate.exception.DuplicateReviewReactionException;
 import ru.yandex.practicum.filmorate.exception.notFound.NotFoundException;
 
 import java.util.HashMap;
@@ -25,10 +27,9 @@ public class ErrorHandler {
 
         Map<String, String> fieldErrors = new HashMap<>();
 
-        // Проходимся по всем FieldError и собираем поле → сообщение
         ex.getBindingResult().getFieldErrors().forEach(error -> {
-            String field = error.getField();                 // имя поля, например "email"
-            String message = error.getDefaultMessage();      // текст сообщения
+            String field = error.getField();
+            String message = error.getDefaultMessage();
             fieldErrors.put(field, message);
         });
 
@@ -50,7 +51,6 @@ public class ErrorHandler {
 
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             String path = violation.getPropertyPath().toString();
-            // Обычно path вида "createUser.userDto.email" или "addFriend.id"
             String field = extractLastPathPart(path);
             errors.put(field, violation.getMessage());
         }
@@ -72,7 +72,7 @@ public class ErrorHandler {
         return path;
     }
 
-    // 3. Ошибки валидации параметров строки запроса (MissingServletRequestParameterException)
+    // 3. Ошибки валидации параметров строки запроса
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleMissingRequestParam(
@@ -83,7 +83,7 @@ public class ErrorHandler {
         );
     }
 
-    // 4. Общий случай ValidationException – вдруг что–то ещё полетит отсюда
+    // 4. Общий ValidationException
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(ValidationException ex) {
         ErrorResponse response = new ErrorResponse(
@@ -93,24 +93,46 @@ public class ErrorHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // 4. Обработка своих бизнес–исключений – NotFoundException на 404
+    // 5. NotFoundException -> 404
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFound(NotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
-                ex.getMessage(),                    // "Пользователь/фильм не найден"
+                ex.getMessage(),
                 ex.getClass().getSimpleName()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // 6. IllegalStateException
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalException(IllegalStateException ex) {
         ErrorResponse response = new ErrorResponse(
-                ex.getMessage(),                    // "Пользователь/фильм не найден"
+                ex.getMessage(),
                 ex.getClass().getSimpleName()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    // 7. DuplicateReviewException
+    @ExceptionHandler(DuplicateReviewException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateReview(DuplicateReviewException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                ex.getClass().getSimpleName()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    // 8. DuplicateReviewReactionException
+    @ExceptionHandler(DuplicateReviewReactionException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateReview(DuplicateReviewReactionException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                ex.getClass().getSimpleName()
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }
 
