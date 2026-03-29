@@ -193,16 +193,6 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-
-    @Override
-    public List<FilmResponseDto> getPopularFilms(long count) {
-
-        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getPopularFilms(count));
-
-        log.debug("getPopularFilms() – total={}", result.size());
-        return result;
-    }
-
     @Override
     public List<FilmResponseDto> getCommonFilms(long userId, long friendId) {
         if (!userStorage.existsById(userId)) {
@@ -326,9 +316,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public List<FilmResponseDto> getMostPopularFilms(long count, Map<FilmsPopularSortBy, Long> filters) {
-        return filmStorage.getMostPopularFilms(count, filters)
-                .stream()
-                .map(FilmMapper::toResponseDto)
-                .toList();
+        return prepareFilmsWithGenresAndMpa(filmStorage.getMostPopularFilms(count, filters));
     }
 }

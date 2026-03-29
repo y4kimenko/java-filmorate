@@ -26,8 +26,6 @@ public interface FilmService {
 
     void deleteById(long id);
 
-    List<FilmResponseDto> getPopularFilms(long count);
-
     List<FilmResponseDto> getCommonFilms(long userId, long friendId);
 
     List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy);

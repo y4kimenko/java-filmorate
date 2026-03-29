@@ -533,7 +533,7 @@ class FilmServiceImplTests {
         f2.setMpa(new Mpa(1L, null));
         f2.setGenres(new HashMap<>());
 
-        when(filmStorage.getPopularFilms(10)).thenReturn(List.of(f1, f2));
+        when(filmStorage.getMostPopularFilms(10L, Map.of())).thenReturn(List.of(f1, f2));
 
         when(genresStorage.getAll()).thenReturn(new HashMap<>(Map.of(
                 1L, new Genre(1L, "Комедия")
@@ -558,7 +558,7 @@ class FilmServiceImplTests {
         );
 
 
-        List<FilmResponseDto> result = filmService.getPopularFilms(10);
+        List<FilmResponseDto> result = filmService.getMostPopularFilms(10L, Map.of());
 
         assertEquals(2, result.size());
         assertEquals(r1, result.get(0));
