@@ -63,14 +63,6 @@ public class FilmDbStorage implements FilmStorage {
             FROM film
             WHERE id = :id""";
 
-    private static final String GET_POPULAR_FILMS = """
-            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
-            FROM film f
-            LEFT OUTER JOIN user_film_likes l ON f.id = l.film_id
-            GROUP BY f.id
-            ORDER BY COUNT(l.user_id) DESC, f.id ASC
-            LIMIT :max_size;""";
-
     private static final String DELETE_BY_ID = """
             DELETE FROM film
             WHERE id = :id
