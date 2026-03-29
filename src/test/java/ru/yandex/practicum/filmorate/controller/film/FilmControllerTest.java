@@ -69,7 +69,7 @@ class FilmControllerTest {
         filters.put(FilmsPopularSortBy.GENRE_ID, film.genres().getFirst().id());
 
         when(filmService.getMostPopularFilms(5,
-                        filters))
+                filters))
                 .thenReturn(List.of(film));
 
         mockMvc.perform(get("/films/popular")
