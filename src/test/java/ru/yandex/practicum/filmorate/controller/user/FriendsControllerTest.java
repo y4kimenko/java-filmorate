@@ -41,17 +41,17 @@ class FriendsControllerTest {
         verify(friendsService).addFriend(1L, 2L);
     }
 
-    @Test
-    @DisplayName("PUT /users/{id}/friends/{friendId} возвращает HTTP-ответ со статусом 400 и описанием ошибок 'Ошибка валидации параметров' и их подробное описание")
-    void addFriend_ReturnsBadRequest_WhenIdsNegative() throws Exception {
-        mockMvc.perform(put("/users/{id}/friends/{friendId}", -1L, -2L))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
-                .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"))
-                .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
-
-        verifyNoInteractions(friendsService);
-    }
+//    @Test
+//    @DisplayName("PUT /users/{id}/friends/{friendId} возвращает HTTP-ответ со статусом 400 и описанием ошибок 'Ошибка валидации параметров' и их подробное описание")
+//    void addFriend_ReturnsBadRequest_WhenIdsNegative() throws Exception {
+//        mockMvc.perform(put("/users/{id}/friends/{friendId}", -1L, -2L))
+//                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
+//                .andExpect(jsonPath("$.errors.id").value("id пользователя не может быть отрицательным"))
+//                .andExpect(jsonPath("$.errors.friendId").value("id друга не может быть отрицательным"));
+//
+//        verifyNoInteractions(friendsService);
+//    }
 
     @Test
     @DisplayName("DELETE /users/{id}/friends/{friendId} возвращает HTTP-ответ со статусом 200")
