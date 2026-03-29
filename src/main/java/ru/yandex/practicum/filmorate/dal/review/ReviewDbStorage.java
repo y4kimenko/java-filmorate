@@ -219,19 +219,14 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Optional<String> getReactionType(long reviewId, long userId) {
+    public String getReactionType(long reviewId, long userId) {
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
-        List<String> result = jdbcTemplate.query(
-                SELECT_REACTION_TYPE,
-                params,
-                (rs, rowNum) -> rs.getString("reaction_type")
-        );
-
-        return result.stream().findFirst();
+        return jdbcTemplate.query(SELECT_REACTION_TYPE, params,
+                rs -> rs.next() ? rs.getString("reaction_type") : null);
     }
 
     @Override

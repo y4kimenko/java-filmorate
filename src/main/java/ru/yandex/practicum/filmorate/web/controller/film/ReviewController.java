@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.web.controller.film;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -32,16 +31,14 @@ public class ReviewController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ReviewResponseDto createReview(@Validated({Default.class})
-                                          @NotNull
+    public ReviewResponseDto createReview(@Valid
                                           @RequestBody ReviewRequestCreateDto review
     ) {
         return reviewService.createReview(review);
     }
 
     @PutMapping
-    public ReviewResponseDto updateReview(@Validated({Default.class})
-                                          @NotNull
+    public ReviewResponseDto updateReview(@Valid
                                           @RequestBody
                                           ReviewRequestUpdateDto review) {
         return reviewService.updateReview(review);

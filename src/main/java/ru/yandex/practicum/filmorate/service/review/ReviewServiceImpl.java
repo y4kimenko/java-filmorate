@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dto.review.request.ReviewRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.review.request.ReviewRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.review.response.ReviewResponseDto;
 import ru.yandex.practicum.filmorate.exception.DuplicateReviewException;
+import ru.yandex.practicum.filmorate.exception.DuplicateReviewReactionException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.ReactionNotFound;
 import ru.yandex.practicum.filmorate.exception.notFound.ReviewNotFoundException;
@@ -19,14 +20,12 @@ import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewStorage;
-    private final ReviewMapper reviewMapper;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
 
@@ -43,13 +42,13 @@ public class ReviewServiceImpl implements ReviewService {
             throw new DuplicateReviewException("Отзыв уже существует");
         }
 
-        Review res = reviewStorage.save(reviewMapper.toEntity(dto));
+        Review res = reviewStorage.save(ReviewMapper.toEntity(dto));
 
         log.info("save() – reviewId={}, userId={}, filmId={}, content={}, isPositive={}, useful={}",
                 res.getReviewId(), res.getUserId(), res.getFilmId(),
                 res.getContent(), res.getIsPositive(), res.getUseful());
 
-        return reviewMapper.toResponseDto(res);
+        return ReviewMapper.toResponseDto(res);
     }
 
     @Override
@@ -58,9 +57,9 @@ public class ReviewServiceImpl implements ReviewService {
         if (!reviewStorage.existById(dto.reviewId())) {
             throw new ReviewNotFoundException("Отзыв не найден");
         }
-        Review res = reviewStorage.update(reviewMapper.toEntity(dto));
+        Review res = reviewStorage.update(ReviewMapper.toEntity(dto));
 
-        return reviewMapper.toResponseDto(res);
+        return ReviewMapper.toResponseDto(res);
     }
 
     @Override
@@ -76,7 +75,7 @@ public class ReviewServiceImpl implements ReviewService {
     public List<ReviewResponseDto> selectReviews(long count, Long filmId) {
 
         return reviewStorage.selectReviews(count, filmId).stream()
-                .map(reviewMapper::toResponseDto)
+                .map(ReviewMapper::toResponseDto)
                 .toList();
     }
 
@@ -92,12 +91,11 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Optional<String> reactionOpt = reviewStorage.getReactionType(reviewId, userId);
-        String reaction = reactionOpt.orElse(null);
+        String reaction = reviewStorage.getReactionType(reviewId, userId);
 
         if ("LIKE".equals(reaction)) {
-            throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
-                    " от пользователя с id = " + userId + " не найдена");
+            throw new DuplicateReviewReactionException("Лайк отзыва reviewId = " + reviewId +
+                    " от пользователя с id = " + userId + " уже стоит");
         }
 
         if ("DISLIKE".equals(reaction)) {
@@ -123,12 +121,11 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Optional<String> reactionOpt = reviewStorage.getReactionType(reviewId, userId);
-        String reaction = reactionOpt.orElse(null);
+        String reaction = reviewStorage.getReactionType(reviewId, userId);
 
         if ("DISLIKE".equals(reaction)) {
-            throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
-                    " от пользователя с id = " + userId + " не найдена");
+            throw new DuplicateReviewReactionException("Дизлайк отзыва reviewId = " + reviewId +
+                    " от пользователя с id = " + userId + " уже стоит");
         }
 
         if ("LIKE".equals(reaction)) {
@@ -154,8 +151,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Optional<String> reactionOpt = reviewStorage.getReactionType(reviewId, userId);
-        String reaction = reactionOpt.orElse(null);
+        String reaction = reviewStorage.getReactionType(reviewId, userId);
 
         if (reaction == null) {
             throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
@@ -176,6 +172,6 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponseDto getReviewById(Long id) {
         Review review = reviewStorage.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));
-        return reviewMapper.toResponseDto(review);
+        return ReviewMapper.toResponseDto(review);
     }
 }
