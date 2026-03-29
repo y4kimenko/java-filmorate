@@ -138,18 +138,11 @@ public class ReviewDbStorage implements ReviewStorage {
                 .addValue("id", review.getReviewId());
 
         jdbcTemplate.update(UPDATE_REVIEW, params);
-        log.info("Updated a value in a table 'reviews' ID={} with fields: user_id, film_id, content, is_positive," +
-                        " useful",
-                review.getReviewId());
 
-        Long useful = jdbcTemplate.queryForObject(
-                SELECT_USEFUL,
-                new MapSqlParameterSource("id", review.getReviewId()),
-                Long.class
-        );
-        review.setUseful(useful);
+        log.info("Updated review id={}", review.getReviewId());
 
-        return review;
+        return findById(review.getReviewId())
+                .orElseThrow(() -> new IllegalStateException("Не удалось получить обновлённый отзыв id=" + review.getReviewId()));
     }
 
     @Override
