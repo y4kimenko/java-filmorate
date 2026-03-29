@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.exception.notFound.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
@@ -192,16 +193,6 @@ public class FilmServiceImpl implements FilmService {
         }
     }
 
-
-    @Override
-    public List<FilmResponseDto> getPopularFilms(long count) {
-
-        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getPopularFilms(count));
-
-        log.debug("getPopularFilms() – total={}", result.size());
-        return result;
-    }
-
     @Override
     public List<FilmResponseDto> getCommonFilms(long userId, long friendId) {
         if (!userStorage.existsById(userId)) {
@@ -324,4 +315,7 @@ public class FilmServiceImpl implements FilmService {
                 .toList();
     }
 
+    public List<FilmResponseDto> getMostPopularFilms(long count, Map<FilmsPopularSortBy, Long> filters) {
+        return prepareFilmsWithGenresAndMpa(filmStorage.getMostPopularFilms(count, filters));
+    }
 }

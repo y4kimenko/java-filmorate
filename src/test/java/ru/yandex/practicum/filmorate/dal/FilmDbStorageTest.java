@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -218,7 +219,7 @@ class FilmDbStorageTest {
         like(13L, f3.getId());
         like(14L, f3.getId());
 
-        List<Film> popular2 = filmStorage.getPopularFilms(2);
+        List<Film> popular2 = filmStorage.getMostPopularFilms(2L, Map.of());
 
         assertEquals(2, popular2.size());
         assertEquals(f1.getId(), popular2.get(0).getId());

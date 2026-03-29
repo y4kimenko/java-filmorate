@@ -17,11 +17,14 @@ import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.web.controller.film.FilmController;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -61,9 +64,18 @@ class FilmControllerTest {
                 LocalDate.of(2000, 1, 1),
                 120
         );
-        when(filmService.getPopularFilms(5)).thenReturn(List.of(film));
+        Map<FilmsPopularSortBy, Long> filters = new HashMap<>();
+        filters.put(FilmsPopularSortBy.YEAR, (long) film.releaseDate().getYear());
+        filters.put(FilmsPopularSortBy.GENRE_ID, film.genres().getFirst().id());
 
-        mockMvc.perform(get("/films/popular").param("count", "5"))
+        when(filmService.getMostPopularFilms(5,
+                filters))
+                .thenReturn(List.of(film));
+
+        mockMvc.perform(get("/films/popular")
+                        .param("count", "5")
+                        .param("genreId", "1")
+                        .param("year", "2000"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(42))
@@ -80,12 +92,12 @@ class FilmControllerTest {
     }
 
     @Test
-    @DisplayName("GET /films/popular возвращает HTTP-ответ со статусом 400 и описанием ошибки 'count  не может быть отрицательным'")
+    @DisplayName("GET /films/popular возвращает HTTP-ответ со статусом 400 и описанием ошибки 'count не может быть отрицательным'")
     void getPopularFilms_ReturnsBadRequestWhenCountNegative() throws Exception {
         mockMvc.perform(get("/films/popular").param("count", "-1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
-                .andExpect(jsonPath("$.errors.count").value("count  не может быть отрицательным"));
+                .andExpect(jsonPath("$.errors.count").value("count не может быть отрицательным"));
 
         verifyNoInteractions(filmService);
     }
