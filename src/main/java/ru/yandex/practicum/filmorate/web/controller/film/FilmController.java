@@ -74,11 +74,7 @@ public class FilmController {
             @PositiveOrZero(message = "year не может быть отрицательным")
             Long year
     ) {
-        if (genreId != null || year != null) {
-            return filmService.getMostPopularFilms(count, genreId, year);
-        }
-
-        return filmService.getPopularFilms(count);
+        return filmService.getMostPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/common")

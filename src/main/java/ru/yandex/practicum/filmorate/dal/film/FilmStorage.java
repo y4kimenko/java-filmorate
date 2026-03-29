@@ -29,7 +29,7 @@ public interface FilmStorage {
 
     List<Film> getRecommendations(long userId);
 
-    List<Film> getMostPopularFilms(long count, Long genreId, Long year);
+    List<Film> getMostPopularFilms(Long count, Long genreId, Long year);
 
     int deleteById(long id);
 

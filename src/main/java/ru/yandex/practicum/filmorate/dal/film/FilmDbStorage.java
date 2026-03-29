@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -315,17 +316,37 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getMostPopularFilms(long count, Long genreId, Long year) {
-        List<Film> res = jdbcTemplate.query(GET_MOST_POPULAR_FILM,
-                new MapSqlParameterSource()
-                        .addValue("year", year)
-                        .addValue("genre_id", genreId)
-                        .addValue("count", count),
-                new FilmRowMapper()
-        );
-        log.info("getMostPopularFilms() – count={}, genreId={}, year={}", count, genreId, year);
-        return res;
+    public List<Film> getMostPopularFilms(Long count, Long genreId, Long year) {
+        String GET_MOST_POPULAR_FILM = """
+                SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
+                (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
+                FROM film f
+                """;
+        List<String> conditions = new ArrayList<>();
+
+        StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILM);
+
+        if (year != null) {
+            conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
+        }
+
+        if (genreId != null) {
+            conditions.add("f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id)");
+        }
+
+        if (!conditions.isEmpty()) {
+            request
+                    .append(" WHERE ")
+                    .append(String.join(" AND ", conditions));
+        }
+
+        request.append(" ORDER BY likes_count DESC, f.id ASC LIMIT :count");
+
+        return jdbcTemplate.query(request.toString(), new MapSqlParameterSource("count", count),
+                new FilmRowMapper());
     }
+
+
 
     @Override
     public List<Film> getRecommendations(long userId) {
