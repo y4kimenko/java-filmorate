@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.web.controller.film;
 
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +20,12 @@ public class LikesController {
     @PutMapping
     public void addUserLike(@PathVariable
                             @NotNull(message = "id фильма обязателен")
-                            @PositiveOrZero(message = "id фильма не может быть отрицательным")
+                            // @PositiveOrZero(message = "id фильма не может быть отрицательным") удаление обусловлено тестами
                             Long filmId,
 
                             @PathVariable
                             @NotNull(message = "id пользователя обязателен")
-                            @PositiveOrZero(message = "id пользователя не может быть отрицательным")
+                            // @PositiveOrZero(message = "id пользователя не может быть отрицательным") удаление обусловлено тестами
                             Long userId
     ) {
         likeService.addUserLike(filmId, userId);
@@ -35,12 +34,12 @@ public class LikesController {
     @DeleteMapping
     public void removeUserLike(@PathVariable
                                @NotNull(message = "id фильма обязателен")
-                               @PositiveOrZero(message = "id фильма не может быть отрицательным")
+                               // @PositiveOrZero(message = "id фильма не может быть отрицательным") удаление обусловлено тестами
                                Long filmId,
 
                                @PathVariable
                                @NotNull(message = "id пользователя обязателен")
-                               @PositiveOrZero(message = "id пользователя не может быть отрицательным")
+                               // @PositiveOrZero(message = "id пользователя не может быть отрицательным") удаление обусловлено тестами
                                Long userId
     ) {
         likeService.removeUserLike(filmId, userId);

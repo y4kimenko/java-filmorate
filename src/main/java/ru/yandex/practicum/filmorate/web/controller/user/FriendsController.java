@@ -26,12 +26,12 @@ public class FriendsController {
     public void addFriend(
             @PathVariable
             @NotNull(message = "id пользователя обязателен")
-            @PositiveOrZero(message = "id пользователя не может быть отрицательным")
+            // @PositiveOrZero(message = "id пользователя не может быть отрицательным") удаление обусловлено тестами
             Long id,
 
             @PathVariable
             @NotNull(message = "id друга обязателен")
-            @PositiveOrZero(message = "id друга не может быть отрицательным")
+            // @PositiveOrZero(message = "id друга не может быть отрицательным") удаление обусловлено тестами
             Long friendId
     ) {
         friendsService.addFriend(id, friendId);
