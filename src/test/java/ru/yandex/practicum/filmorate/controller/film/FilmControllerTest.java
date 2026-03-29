@@ -80,12 +80,12 @@ class FilmControllerTest {
     }
 
     @Test
-    @DisplayName("GET /films/popular возвращает HTTP-ответ со статусом 400 и описанием ошибки 'count  не может быть отрицательным'")
+    @DisplayName("GET /films/popular возвращает HTTP-ответ со статусом 400 и описанием ошибки 'count не может быть отрицательным'")
     void getPopularFilms_ReturnsBadRequestWhenCountNegative() throws Exception {
         mockMvc.perform(get("/films/popular").param("count", "-1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
-                .andExpect(jsonPath("$.errors.count").value("count  не может быть отрицательным"));
+                .andExpect(jsonPath("$.errors.count").value("count не может быть отрицательным"));
 
         verifyNoInteractions(filmService);
     }
