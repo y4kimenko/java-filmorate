@@ -114,15 +114,11 @@ public class FilmDbStorage implements FilmStorage {
             FROM film f
             WHERE""";
 
-    private static final String GET_MOST_POPULAR_FILM = """
-            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
-            (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
-            FROM film f
-            WHERE (:year IS NULL OR EXTRACT(YEAR FROM f.release_date) = :year)
-            AND (:genre_id IS NULL OR f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id))
-            ORDER BY likes_count DESC, f.id ASC
-            LIMIT :count;
-            """;
+    private static final String GET_MOST_POPULAR_FILMS = """
+                SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
+                (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
+                FROM film f
+                """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -317,14 +313,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getMostPopularFilms(Long count, Long genreId, Long year) {
-        String GET_MOST_POPULAR_FILM = """
-                SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
-                (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
-                FROM film f
-                """;
         List<String> conditions = new ArrayList<>();
 
-        StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILM);
+        StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILMS);
 
         if (year != null) {
             conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
@@ -345,8 +336,6 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(request.toString(), new MapSqlParameterSource("count", count),
                 new FilmRowMapper());
     }
-
-
 
     @Override
     public List<Film> getRecommendations(long userId) {
