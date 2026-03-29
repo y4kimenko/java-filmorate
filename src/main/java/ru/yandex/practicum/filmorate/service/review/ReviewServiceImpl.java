@@ -91,14 +91,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
+        Boolean isLike = reviewStorage.getReactionType(reviewId, userId);
 
-        if (Boolean.TRUE.equals(is_like)) {
+        if (Boolean.TRUE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Лайк отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " уже стоит");
         }
 
-        if (Boolean.FALSE.equals(is_like)) {
+        if (Boolean.FALSE.equals(isLike)) {
             reviewStorage.incrementUseful(reviewId);
             reviewStorage.deleteReaction(reviewId, userId);
         }
@@ -119,14 +119,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
+        Boolean isLike = reviewStorage.getReactionType(reviewId, userId);
 
-        if (Boolean.FALSE.equals(is_like)) {
+        if (Boolean.FALSE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Дизлайк отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " уже стоит");
         }
 
-        if (Boolean.TRUE.equals(is_like)) {
+        if (Boolean.TRUE.equals(isLike)) {
             reviewStorage.decrementUseful(reviewId);
             reviewStorage.deleteReaction(reviewId, userId);
         }
@@ -147,12 +147,12 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
+        Boolean isLike = reviewStorage.getReactionType(reviewId, userId);
 
-        if (is_like == null) {
+        if (isLike == null) {
             throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " не найдена");
-        } else if (is_like) {
+        } else if (isLike) {
             reviewStorage.decrementUseful(reviewId);
         } else {
             reviewStorage.incrementUseful(reviewId);
