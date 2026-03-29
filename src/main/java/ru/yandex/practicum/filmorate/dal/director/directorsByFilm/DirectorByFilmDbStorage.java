@@ -33,8 +33,7 @@ public class DirectorByFilmDbStorage implements DirectorByFilmStorage {
             VALUES (:film_id, :director_id);""";
     private static final String DELETE_DIRECTORS_FILM = """
             DELETE FROM film_directors
-            WHERE film_id = :film_id
-            AND director_id NOT IN (:directorIds);""";
+            WHERE film_id = :film_id;""";
     private static final String DIRECTORS_BY_FILMS = """
             SELECT DISTINCT director_id
             FROM film_directors
@@ -60,8 +59,7 @@ public class DirectorByFilmDbStorage implements DirectorByFilmStorage {
         log.info("(update) Deleting film's directors for film ID={} in table 'film_directors'", filmId);
         jdbcTemplate.update(DELETE_DIRECTORS_FILM,
                 new MapSqlParameterSource()
-                        .addValue("film_id", filmId)
-                        .addValue("directorIds", directorIds));
+                        .addValue("film_id", filmId));
 
 
         log.info("(update) Adding missing film's directors for film ID={} in table 'film_directors'", filmId);

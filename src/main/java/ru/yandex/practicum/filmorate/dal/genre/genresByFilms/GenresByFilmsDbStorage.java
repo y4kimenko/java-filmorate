@@ -29,8 +29,7 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
             VALUES (:film_id, :genre_id);""";
     private static final String DELETE_GENRES_FILM = """
             DELETE FROM film_genres
-            WHERE film_id = :film_id
-            AND genre_id NOT IN (:genreIds);""";
+            WHERE film_id = :film_id;""";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -51,8 +50,7 @@ public class GenresByFilmsDbStorage implements GenresByFilmsStorage {
         log.info("(update) Deleting film's genres for film ID={} in table 'genres_film'", filmId);
         jdbcTemplate.update(DELETE_GENRES_FILM,
                 new MapSqlParameterSource()
-                        .addValue("film_id", filmId)
-                        .addValue("genreIds", genres));
+                        .addValue("film_id", filmId));
 
 
         log.info("(update) Adding missing film's genres for film ID={} in table 'genres_film'", filmId);

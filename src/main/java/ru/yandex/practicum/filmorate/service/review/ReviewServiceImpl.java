@@ -122,7 +122,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.TRUE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Лайк отзыва reviewId = " + reviewId +
-                    " от пользователя с id = " + userId + " уже стоит");
+                                                       " от пользователя с id = " + userId + " уже стоит");
         }
 
         if (Boolean.FALSE.equals(isLike)) {
@@ -150,7 +150,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.FALSE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Дизлайк отзыва reviewId = " + reviewId +
-                    " от пользователя с id = " + userId + " уже стоит");
+                                                       " от пользователя с id = " + userId + " уже стоит");
         }
 
         if (Boolean.TRUE.equals(isLike)) {
@@ -178,7 +178,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (isLike == null) {
             throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
-                    " от пользователя с id = " + userId + " не найдена");
+                                       " от пользователя с id = " + userId + " не найдена");
         } else if (isLike) {
             reviewStorage.decrementUseful(reviewId);
         } else {

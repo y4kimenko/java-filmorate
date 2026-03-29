@@ -108,10 +108,10 @@ public class FilmDbStorage implements FilmStorage {
             WHERE""";
 
     private static final String GET_MOST_POPULAR_FILMS = """
-                SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
-                (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
-                FROM film f
-                """;
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration,
+            (SELECT COUNT(*) FROM user_film_likes ul WHERE ul.film_id = f.id) AS likes_count
+            FROM film f
+            """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 

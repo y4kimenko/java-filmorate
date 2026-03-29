@@ -127,20 +127,17 @@ public class FilmServiceImpl implements FilmService {
             );
 
 
-        if (!req.getGenres().isEmpty()) {
-            existing.setGenres(genresStorage.getByIds(req.getGenres().keySet()));
+        Set<Long> genreIds = req.getGenres() == null ? Set.of() : req.getGenres().keySet();
+        Set<Long> directorIds = req.getDirectors() == null ? Set.of() : req.getDirectors().keySet();
 
-            if (existing.getGenres().size() != req.getGenres().size()) {
-                throw new GenreNotFoundException("Не все заданные жанры были найдены");
-            }
+        existing.setGenres(genresStorage.getByIds(genreIds));
+        if (existing.getGenres().size() != genreIds.size()) {
+            throw new GenreNotFoundException("Не все заданные жанры были найдены");
         }
 
-        if (!req.getDirectors().isEmpty()) {
-            existing.setDirectors(directorStorage.getByIds(req.getDirectors().keySet()));
-
-            if (existing.getDirectors().size() != req.getDirectors().size()) {
-                throw new DirectorNotFoundException("Не все заданные режиссеры были найдены");
-            }
+        existing.setDirectors(directorStorage.getByIds(directorIds));
+        if (existing.getDirectors().size() != directorIds.size()) {
+            throw new DirectorNotFoundException("Не все заданные режиссеры были найдены");
         }
 
 
@@ -211,6 +208,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy) {
+        if (directorStorage.getById(directorId).isEmpty())
+            throw new DirectorNotFoundException("Director c id=" + directorId + " не найден.");
+
         Set<Long> filmsDirector = directorByFilmStorage.getByDirectorId(directorId);
 
         List<Film> result = switch (sortBy) {
@@ -294,7 +294,7 @@ public class FilmServiceImpl implements FilmService {
                     })
                     .toList();
         }
-        if (!directors.isEmpty() && !filmGenresMap.isEmpty()) {
+        if (!directors.isEmpty() && !filmdirectorsMap.isEmpty()) {
             films = films.stream()
                     .peek(f -> {
                         Long filmId = f.getId();
