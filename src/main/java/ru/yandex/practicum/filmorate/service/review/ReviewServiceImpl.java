@@ -91,22 +91,20 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        String reaction = reviewStorage.getReactionType(reviewId, userId);
+        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
 
-        if ("LIKE".equals(reaction)) {
+        if (Boolean.TRUE.equals(is_like)) {
             throw new DuplicateReviewReactionException("Лайк отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " уже стоит");
         }
 
-        if ("DISLIKE".equals(reaction)) {
+        if (Boolean.FALSE.equals(is_like)) {
+            reviewStorage.incrementUseful(reviewId);
             reviewStorage.deleteReaction(reviewId, userId);
-            reviewStorage.incrementUseful(reviewId);
-            reviewStorage.incrementUseful(reviewId);
-        } else {
-            reviewStorage.incrementUseful(reviewId);
         }
 
         reviewStorage.addLikeToReview(reviewId, userId);
+        reviewStorage.incrementUseful(reviewId);
     }
 
     @Override
@@ -121,22 +119,20 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        String reaction = reviewStorage.getReactionType(reviewId, userId);
+        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
 
-        if ("DISLIKE".equals(reaction)) {
+        if (Boolean.FALSE.equals(is_like)) {
             throw new DuplicateReviewReactionException("Дизлайк отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " уже стоит");
         }
 
-        if ("LIKE".equals(reaction)) {
+        if (Boolean.TRUE.equals(is_like)) {
+            reviewStorage.decrementUseful(reviewId);
             reviewStorage.deleteReaction(reviewId, userId);
-            reviewStorage.decrementUseful(reviewId);
-            reviewStorage.decrementUseful(reviewId);
-        } else {
-            reviewStorage.decrementUseful(reviewId);
         }
 
         reviewStorage.addDislikeToReview(reviewId, userId);
+        reviewStorage.decrementUseful(reviewId);
     }
 
     @Override
@@ -151,16 +147,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new UserNotFoundException("Пользователь не найден");
         }
 
-        String reaction = reviewStorage.getReactionType(reviewId, userId);
+        Boolean is_like = reviewStorage.getReactionType(reviewId, userId);
 
-        if (reaction == null) {
+        if (is_like == null) {
             throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
                     " от пользователя с id = " + userId + " не найдена");
-        }
-
-        if ("LIKE".equals(reaction)) {
+        } else if (is_like) {
             reviewStorage.decrementUseful(reviewId);
-        } else if ("DISLIKE".equals(reaction)) {
+        } else {
             reviewStorage.incrementUseful(reviewId);
         }
 

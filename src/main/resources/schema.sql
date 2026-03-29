@@ -141,14 +141,12 @@ CREATE TABLE IF NOT EXISTS review_reactions
 (
     review_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
-    reaction_type VARCHAR(10) NOT NULL,
+    is_like BOOLEAN NOT NULL,
 
     CONSTRAINT pk_review_reactions PRIMARY KEY (review_id, user_id),
 
     CONSTRAINT fk_rr_review FOREIGN KEY (review_id) REFERENCES reviews (id) ON DELETE CASCADE,
-    CONSTRAINT fk_rr_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-
-    CONSTRAINT chk_rr_type CHECK (reaction_type IN ('LIKE', 'DISLIKE'))
+    CONSTRAINT fk_rr_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );
 
 CREATE INDEX IF NOT EXISTS idx_review_reactions_review_id ON review_reactions (review_id);

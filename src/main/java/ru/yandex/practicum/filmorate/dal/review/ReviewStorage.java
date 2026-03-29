@@ -23,7 +23,7 @@ public interface ReviewStorage {
 
     void deleteReaction(long reviewId, long userId);
 
-    String getReactionType(long reviewId, long userId);
+    Boolean getReactionType(long reviewId, long userId);
 
     void decrementUseful(long reviewId);
 

@@ -56,13 +56,13 @@ public class ReviewDbStorage implements ReviewStorage {
             """;
 
     private static final String ADD_LIKE_TO_REVIEW = """
-            INSERT INTO review_reactions (review_id, user_id, reaction_type)
-            VALUES (:review_id, :user_id, 'LIKE')
+            INSERT INTO review_reactions (review_id, user_id, is_like)
+            VALUES (:review_id, :user_id, true)
             """;
 
     private static final String ADD_DISLIKE_TO_REVIEW = """
-            INSERT INTO review_reactions (review_id, user_id, reaction_type)
-            VALUES (:review_id, :user_id, 'DISLIKE')
+            INSERT INTO review_reactions (review_id, user_id, is_like)
+            VALUES (:review_id, :user_id, false)
             """;
 
     private static final String SELECT_BY_ID = """
@@ -89,7 +89,7 @@ public class ReviewDbStorage implements ReviewStorage {
             """;
 
     private static final String SELECT_REACTION_TYPE = """
-            SELECT reaction_type
+            SELECT is_like
             FROM review_reactions
             WHERE review_id = :review_id AND  user_id = :user_id;
             """;
@@ -104,12 +104,6 @@ public class ReviewDbStorage implements ReviewStorage {
             SELECT COUNT(*)
             FROM reviews
             WHERE user_id=:user_id AND film_id=:film_id;
-            """;
-
-    private static final String EXIST_REACTION_BY_IDS = """
-            SELECT COUNT(*)
-            FROM review_reactions
-            WHERE review_id =:review_id AND user_id=:user_id;
             """;
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -219,14 +213,17 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public String getReactionType(long reviewId, long userId) {
+    public Boolean getReactionType(long reviewId, long userId) {
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("review_id", reviewId)
                 .addValue("user_id", userId);
 
         return jdbcTemplate.query(SELECT_REACTION_TYPE, params,
-                rs -> rs.next() ? rs.getString("reaction_type") : null);
+                rs -> {
+                    if (!rs.next()) return null;
+                    return rs.getObject("is_like", Boolean.class);
+                });
     }
 
     @Override
