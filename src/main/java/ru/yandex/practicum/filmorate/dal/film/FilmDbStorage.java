@@ -317,12 +317,16 @@ public class FilmDbStorage implements FilmStorage {
 
         StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILMS);
 
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("count", count);
+
         if (year != null) {
             conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
+            params.addValue("year", year);
         }
 
         if (genreId != null) {
             conditions.add("f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id)");
+            params.addValue("genre_id", genreId);
         }
 
         if (!conditions.isEmpty()) {
@@ -333,7 +337,7 @@ public class FilmDbStorage implements FilmStorage {
 
         request.append(" ORDER BY likes_count DESC, f.id ASC LIMIT :count");
 
-        return jdbcTemplate.query(request.toString(), new MapSqlParameterSource("count", count),
+        return jdbcTemplate.query(request.toString(), params,
                 new FilmRowMapper());
     }
 
