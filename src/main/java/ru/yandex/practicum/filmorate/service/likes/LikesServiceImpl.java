@@ -28,13 +28,13 @@ public class LikesServiceImpl implements LikesService {
 
         likesStorage.addLikeFilmByUser(userId, filmId);
 
-        eventStorage.addEvent(Event.builder()
-                .userId(userId)
-                .eventType(Event.EventType.LIKE)
-                .operation(Event.Operation.ADD)
-                .entityId(filmId)
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(
+                        userId,
+                        Event.EventType.LIKE,
+                        Event.Operation.ADD,
+                        filmId
+                )
         );
     }
 
@@ -48,13 +48,13 @@ public class LikesServiceImpl implements LikesService {
         if (!likesStorage.removeLikeFilmByUser(userId, filmId))
             throw new LikeNotFoundException("User c id=" + userId + " не ставил лайк фильму с id=" + filmId);
 
-        eventStorage.addEvent(Event.builder()
-                .userId(userId)
-                .eventType(Event.EventType.LIKE)
-                .operation(Event.Operation.REMOVE)
-                .entityId(filmId)
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(
+                        userId,
+                        Event.EventType.LIKE,
+                        Event.Operation.ADD,
+                        filmId
+                )
         );
     }
 

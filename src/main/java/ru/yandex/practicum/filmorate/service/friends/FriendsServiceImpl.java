@@ -35,13 +35,13 @@ public class FriendsServiceImpl implements FriendsService {
         }
 
         friendsStorage.addFriend(requester, addressee);
-        eventStorage.addEvent(Event.builder()
-                .userId(requester)
-                .eventType(Event.EventType.FRIEND)
-                .operation(Event.Operation.ADD)
-                .entityId(addressee)
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(
+                        requester,
+                        Event.EventType.FRIEND,
+                        Event.Operation.ADD,
+                        addressee
+                )
         );
     }
 
@@ -65,13 +65,13 @@ public class FriendsServiceImpl implements FriendsService {
             friendsStorage.updateFriendships(new FriendShipsDto(friendId, userId, true, true));
         }
 
-        eventStorage.addEvent(Event.builder()
-                .userId(userId)
-                .eventType(Event.EventType.FRIEND)
-                .operation(Event.Operation.REMOVE)
-                .entityId(friendId)
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(
+                        userId,
+                        Event.EventType.FRIEND,
+                        Event.Operation.ADD,
+                        friendId
+                )
         );
 
     }

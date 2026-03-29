@@ -10,22 +10,13 @@ public class EventRowMapper implements RowMapper<Event> {
 
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
-
-        long eventId = rs.getLong("event_id");
-        Event.Operation operation = Event.Operation.valueOf(rs.getString("operation"));
-        Event.EventType eventType = Event.EventType.valueOf(rs.getString("event_type"));
-        long timestamp = rs.getLong("timestamp");
-        long userId = rs.getLong("user_id");
-        long entityId = rs.getLong("entity_id");
-
-        Event event = Event.builder()
-                .eventId(eventId)
-                .operation(operation)
-                .eventType(eventType)
-                .timestamp(timestamp)
-                .userId(userId)
-                .entityId(entityId).build();
-
-        return event;
+        return new Event(
+                rs.getLong("event_id"),
+                rs.getLong("user_id"),
+                Event.EventType.valueOf(rs.getString("event_type")),
+                Event.Operation.valueOf(rs.getString("operation")),
+                rs.getLong("entity_id"),
+                rs.getLong("timestamp")
+        );
     }
 }

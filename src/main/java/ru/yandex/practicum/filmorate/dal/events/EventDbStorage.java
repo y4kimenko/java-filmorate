@@ -30,11 +30,11 @@ public class EventDbStorage implements EventStorage {
     @Override
     public void addEvent(Event event) {
         jdbcTemplate.update(INSERT_EVENT, new MapSqlParameterSource()
-                .addValue("userId", event.getUserId())
-                .addValue("eventType", event.getEventType().name())
-                .addValue("operation", event.getOperation().name())
-                .addValue("entityId", event.getEntityId())
-                .addValue("timestamp", event.getTimestamp()));
+                .addValue("userId", event.userId())
+                .addValue("eventType", event.eventType().name())   // важно!
+                .addValue("operation", event.operation().name())   // важно!
+                .addValue("entityId", event.entityId())
+                .addValue("timestamp", event.timestamp()));
     }
 
     @Override

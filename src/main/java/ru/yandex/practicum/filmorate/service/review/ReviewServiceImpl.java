@@ -47,13 +47,9 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review res = reviewStorage.save(ReviewMapper.toEntity(dto));
 
-        eventStorage.addEvent(Event.builder()
-                .userId(res.getUserId())
-                .eventType(Event.EventType.REVIEW)
-                .operation(Event.Operation.ADD)
-                .entityId(res.getReviewId())
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(res.getUserId(), Event.EventType.REVIEW, Event.Operation.ADD, res.getReviewId()
+                )
         );
 
         log.info("save() – reviewId={}, userId={}, filmId={}, content={}, isPositive={}, useful={}",
@@ -71,13 +67,13 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Review res = reviewStorage.update(ReviewMapper.toEntity(dto));
 
-        eventStorage.addEvent(Event.builder()
-                .userId(res.getUserId())
-                .eventType(Event.EventType.REVIEW)
-                .operation(Event.Operation.UPDATE)
-                .entityId(res.getReviewId())
-                .timestamp(System.currentTimeMillis())
-                .build()
+        eventStorage.addEvent(
+                Event.of(
+                        res.getUserId(),
+                        Event.EventType.REVIEW,
+                        Event.Operation.UPDATE,
+                        res.getReviewId()
+                )
         );
 
         return ReviewMapper.toResponseDto(res);
@@ -91,13 +87,14 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewStorage.deleteReview(reviewId);
 
-        eventStorage.addEvent(Event.builder()
-                .userId(review.getUserId())
-                .eventType(Event.EventType.REVIEW)
-                .operation(Event.Operation.REMOVE)
-                .entityId(reviewId)
-                .timestamp(System.currentTimeMillis())
-                .build());
+        eventStorage.addEvent(
+                Event.of(
+                        review.getUserId(),
+                        Event.EventType.REVIEW,
+                        Event.Operation.REMOVE,
+                        reviewId
+                )
+        );
     }
 
     @Override
