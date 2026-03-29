@@ -46,12 +46,14 @@ public class ReviewDbStorage implements ReviewStorage {
             SELECT *
             FROM reviews
             WHERE film_id=:film_id
+            ORDER BY useful DESC, id ASC
             LIMIT :count;
             """;
 
     private static final String SELECT_REVIEWS = """
             SELECT *
             FROM reviews
+            ORDER BY useful DESC, id ASC
             LIMIT :count;
             """;
 
@@ -68,7 +70,8 @@ public class ReviewDbStorage implements ReviewStorage {
     private static final String SELECT_BY_ID = """
             SELECT *
             FROM reviews
-            WHERE id = :id;
+            WHДоERE id = :id
+            ORDER BY useful DESC;
             """;
 
     private static final String INCREMENT_USEFUL = """
