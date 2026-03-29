@@ -31,8 +31,8 @@ public class EventDbStorage implements EventStorage {
     public void addEvent(Event event) {
         jdbcTemplate.update(INSERT_EVENT, new MapSqlParameterSource()
                 .addValue("userId", event.getUserId())
-                .addValue("eventType", event.getEventType())
-                .addValue("operation", event.getOperation())
+                .addValue("eventType", event.getEventType().name())
+                .addValue("operation", event.getOperation().name())
                 .addValue("entityId", event.getEntityId())
                 .addValue("timestamp", event.getTimestamp()));
     }

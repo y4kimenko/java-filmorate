@@ -26,8 +26,6 @@ public class EventRowMapper implements RowMapper<Event> {
                 .userId(userId)
                 .entityId(entityId).build();
 
-
         return event;
     }
-
 }

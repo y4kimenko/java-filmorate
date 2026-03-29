@@ -59,10 +59,11 @@ public class FriendsServiceImpl implements FriendsService {
 
         if (dto == null) return;
 
-        if (userId == dto.requesterId())
+        if (userId == dto.requesterId()) {
             friendsStorage.deleteFriendships(userId, friendId);
-        else
+        } else {
             friendsStorage.updateFriendships(new FriendShipsDto(friendId, userId, true, true));
+        }
 
         eventStorage.addEvent(Event.builder()
                 .userId(userId)

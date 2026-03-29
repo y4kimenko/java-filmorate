@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.service.event.EventService;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.web.controller.user.UserController;
@@ -36,6 +37,8 @@ class UserControllerTest {
     UserService userService;
     @MockBean
     FilmService filmService;
+    @MockBean
+    EventService eventService;
     @Autowired
     private MockMvc mockMvc;
     @Autowired

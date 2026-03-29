@@ -48,10 +48,10 @@ public class ReviewServiceImpl implements ReviewService {
         Review res = reviewStorage.save(ReviewMapper.toEntity(dto));
 
         eventStorage.addEvent(Event.builder()
-                .userId(dto.userId())
+                .userId(res.getUserId())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.ADD)
-                .entityId(dto.filmId())
+                .entityId(res.getReviewId())
                 .timestamp(System.currentTimeMillis())
                 .build()
         );
@@ -72,10 +72,10 @@ public class ReviewServiceImpl implements ReviewService {
         Review res = reviewStorage.update(ReviewMapper.toEntity(dto));
 
         eventStorage.addEvent(Event.builder()
-                .userId(dto.userId())
+                .userId(res.getUserId())
                 .eventType(Event.EventType.REVIEW)
                 .operation(Event.Operation.UPDATE)
-                .entityId(dto.filmId())
+                .entityId(res.getReviewId())
                 .timestamp(System.currentTimeMillis())
                 .build()
         );
