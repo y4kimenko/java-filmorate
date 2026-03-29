@@ -19,6 +19,8 @@ public class Film {
 
     private Mpa mpa = null;
 
+    private Map<Long, Director> directors = new HashMap<>();
+
     private String description;
 
     private LocalDate releaseDate;

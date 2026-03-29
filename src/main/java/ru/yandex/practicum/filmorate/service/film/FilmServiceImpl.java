@@ -4,24 +4,31 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.dal.director.directors.DirectorStorage;
+import ru.yandex.practicum.filmorate.dal.director.directorsByFilm.DirectorByFilmStorage;
 import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
-import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
-import ru.yandex.practicum.filmorate.dal.genresByFilms.GenresByFilmsDbStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genres.GenresStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genresByFilms.GenresByFilmsDbStorage;
+import ru.yandex.practicum.filmorate.dal.likes.LikesDbStorage;
 import ru.yandex.practicum.filmorate.dal.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
+import ru.yandex.practicum.filmorate.exception.notFound.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,22 +42,34 @@ import java.util.stream.Collectors;
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final GenresByFilmsDbStorage genresByFilmsDbStorage;
+
     private final GenresStorage genresStorage;
     private final MpaStorage mpaStorage;
+    private final DirectorStorage directorStorage;
 
-    private final FilmMapper filmMapper;
+    private final DirectorByFilmStorage directorByFilmStorage;
+
     private final UserStorage userStorage;
+    private final LikesDbStorage likesDbStorage;
 
     @Override
     @Transactional
     public FilmResponseDto createFilm(FilmRequestCreateDto dto) {
 
-        Film req = filmMapper.toEntity(dto);
+        Film req = FilmMapper.toEntity(dto);
 
         if (req.getMpa() != null) {
             req.setMpa(mpaStorage.getById(req.getMpa().id()).orElseThrow(
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
+        }
+
+        if (!req.getDirectors().isEmpty()) {
+            req.setDirectors(directorStorage.getByIds(req.getDirectors().keySet()));
+
+            if (req.getDirectors().size() != dto.directors().size()) {
+                throw new DirectorNotFoundException("Не все заданные режиссеры были найдены");
+            }
         }
 
         if (!req.getGenres().isEmpty()) {
@@ -63,28 +82,31 @@ public class FilmServiceImpl implements FilmService {
         }
 
         Film r = filmStorage.save(req);
-        if (req.getMpa() != null) {
-            r.setMpa(req.getMpa());
-        }
-        if (!req.getGenres().isEmpty()) {
-            r.setGenres(req.getGenres());
-        }
 
-        if (!req.getGenres().isEmpty()) {
-            genresByFilmsDbStorage.save(r.getId(), r.getGenres().keySet()
-            );
-        }
+        if (req.getMpa() != null)
+            r.setMpa(req.getMpa());
+
+        if (!req.getGenres().isEmpty())
+            r.setGenres(req.getGenres());
+
+
+        if (!req.getGenres().isEmpty())
+            genresByFilmsDbStorage.save(r.getId(), r.getGenres().keySet());
+
+        if (!req.getDirectors().isEmpty())
+            directorByFilmStorage.save(r.getId(), r.getDirectors().keySet());
+
         log.info("save() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 r.getId(), r.getName(), r.getDescription(),
                 r.getReleaseDate(), r.getDuration());
 
-        return filmMapper.toResponseDto(r);
+        return FilmMapper.toResponseDto(r);
     }
 
     @Override
     @Transactional
     public FilmResponseDto updateFilm(FilmRequestUpdateDto dto) {
-        Film req = filmMapper.toEntity(dto);
+        Film req = FilmMapper.toEntity(dto);
 
         Long filmId = req.getId();
 
@@ -98,26 +120,41 @@ public class FilmServiceImpl implements FilmService {
         existing.setDuration(req.getDuration());
 
 
-        if (req.getMpa() != null) {
+        if (req.getMpa() != null)
             existing.setMpa(mpaStorage.getById(req.getMpa().id()).orElseThrow(
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
-        }
+
+
         if (!req.getGenres().isEmpty()) {
             existing.setGenres(genresStorage.getByIds(req.getGenres().keySet()));
 
             if (existing.getGenres().size() != req.getGenres().size()) {
-                throw new ValidationException("Не все заданные жанры были найдены");
+                throw new GenreNotFoundException("Не все заданные жанры были найдены");
             }
         }
 
+        if (!req.getDirectors().isEmpty()) {
+            existing.setDirectors(directorStorage.getByIds(req.getDirectors().keySet()));
+
+            if (existing.getDirectors().size() != req.getDirectors().size()) {
+                throw new DirectorNotFoundException("Не все заданные режиссеры были найдены");
+            }
+        }
+
+
         filmStorage.update(existing);
-        genresByFilmsDbStorage.update(filmId, existing.getGenres().keySet());
+
+        if (!existing.getDirectors().isEmpty())
+            directorByFilmStorage.update(filmId, existing.getDirectors().keySet());
+
+        if (!existing.getGenres().isEmpty())
+            genresByFilmsDbStorage.update(filmId, existing.getGenres().keySet());
 
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 existing.getId(), existing.getName(), existing.getDescription(), existing.getReleaseDate(), existing.getDuration());
 
-        return filmMapper.toResponseDto(existing);
+        return FilmMapper.toResponseDto(existing);
     }
 
     @Override
@@ -130,7 +167,34 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<FilmResponseDto> getPopularFilms(int count) {
+    public FilmResponseDto getById(Long filmId) {
+        Film film = filmStorage.getById(filmId).orElseThrow(
+                () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
+
+        if (film.getMpa() != null) {
+            film.setMpa(mpaStorage.getById(film.getMpa().id()).orElseThrow(
+                    () -> new MpaNotFoundException("Не корректно заданный rating"))
+            );
+        }
+        film.setDirectors(directorStorage.getByIds(directorByFilmStorage.getByFilmIds(Set.of(filmId)).keySet()));
+        film.setGenres(genresStorage.getByIds(genresByFilmsDbStorage.getByFilmId(filmId)));
+
+        log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
+                film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
+        return FilmMapper.toResponseDto(film);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(long id) {
+        if (filmStorage.deleteById(id) == 0) {
+            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
+        }
+    }
+
+
+    @Override
+    public List<FilmResponseDto> getPopularFilms(long count) {
 
         List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getPopularFilms(count));
 
@@ -155,66 +219,108 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public FilmResponseDto getById(Long filmId) {
-        Film film = filmStorage.getById(filmId).orElseThrow(
-                () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
+    public List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy) {
+        Set<Long> filmsDirector = directorByFilmStorage.getByDirectorId(directorId);
 
-        if (film.getMpa() != null) {
-            film.setMpa(mpaStorage.getById(film.getMpa().id()).orElseThrow(
-                    () -> new MpaNotFoundException("Не корректно заданный rating"))
-            );
-        }
-
-        film.setGenres(genresStorage.getByIds(genresByFilmsDbStorage.getByFilmId(filmId)));
-
-        log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
-                film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration());
-        return filmMapper.toResponseDto(film);
+        List<Film> result = switch (sortBy) {
+            case DirectorFilmsSortBy.YEAR -> filmStorage.getByIds(filmsDirector).stream()
+                    .sorted(Comparator.comparing(Film::getReleaseDate))
+                    .toList();
+            case DirectorFilmsSortBy.LIKES -> {
+                Map<Long, Film> films = filmStorage.getByIds(filmsDirector).stream()
+                        .collect(Collectors.toMap(Film::getId,
+                                Function.identity()
+                        ));
+                yield likesDbStorage.getFilmsSortedByLikes(filmsDirector)
+                        .stream()
+                        .map(films::get)
+                        .filter(Objects::nonNull)
+                        .toList();
+            }
+        };
+        return prepareFilmsWithGenresAndMpa(result);
     }
 
     @Override
-    public void deleteById(long id) {
-        if (filmStorage.deleteById(id) == 0) {
-            throw new FilmNotFoundException("Фильм с id = " + id + " не найден");
-        }
+    public List<FilmResponseDto> searchFilms(String query, List<FilmsSearchBy> searchBy) {
+        if (searchBy.isEmpty())
+            return List.of();
+
+        Map<Long, Film> films = filmStorage.searchByTitle(query, searchBy);
+
+        return prepareFilmsWithGenresAndMpa(likesDbStorage.getFilmsSortedByLikes(films.keySet()).stream()
+                .map(films::get)
+                .toList());
     }
 
+    @Override
+    public List<FilmResponseDto> getRecommendations(long userId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден.");
+        }
 
-    public List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getRecommendations(userId));
+
+        log.debug("getRecommendations() – total={}", result.size());
+        return result;
+    }
+
+    private List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
+
+        Set<Long> filmsIds = films.stream().map(Film::getId).collect(Collectors.toSet());
 
         Map<Long, Genre> genres = genresStorage.getAll();
         Map<Long, Mpa> mpa = mpaStorage.getAll();
-
-        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByFilmIds(
-                films.stream()
-                        .map(Film::getId)
-                        .collect(Collectors.toSet())
+        Map<Long, Director> directors = directorStorage.getByIds(
+                directorByFilmStorage.getUniqueDirectorIdsByFilmsIds(filmsIds)
         );
 
-        if (filmGenresMap == null || genres == null) {
-            return films.stream()
-                    .map(filmMapper::toResponseDto)
+        Map<Long, Set<Long>> filmdirectorsMap = directorByFilmStorage.getByFilmIds(filmsIds);
+
+        Map<Long, Set<Long>> filmGenresMap = genresByFilmsDbStorage.getByFilmIds(filmsIds);
+
+
+        if (!mpa.isEmpty()) {
+            films = films.stream()
+                    .peek(f -> {
+                        if (f.getMpa() != null) {
+                            f.setMpa(mpa.get(f.getMpa().id()));
+                        }
+                    })
+                    .toList();
+        }
+        if (!filmGenresMap.isEmpty() && !genres.isEmpty()) {
+            films = films.stream()
+                    .peek(f -> {
+                        Long filmId = f.getId();
+
+                        f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
+                                .map(genres::get)
+                                .collect(Collectors.toMap(
+                                        Genre::id,
+                                        Function.identity()))
+                        );
+                    })
+                    .toList();
+        }
+        if (!directors.isEmpty() && !filmGenresMap.isEmpty()) {
+            films = films.stream()
+                    .peek(f -> {
+                        Long filmId = f.getId();
+
+                        f.setDirectors(filmdirectorsMap.getOrDefault(filmId, Set.of()).stream()
+                                .map(directors::get)
+                                .collect(Collectors.toMap(
+                                        Director::getId,
+                                        Function.identity()
+                                ))
+                        );
+                    })
                     .toList();
         }
 
         return films.stream()
-                .map(f -> {
-                    Long filmId = f.getId();
-
-                    f.setGenres(filmGenresMap.getOrDefault(filmId, Set.of()).stream()
-                            .map(genres::get)
-                            .collect(Collectors.toMap(
-                                    Genre::id,
-                                    Function.identity()))
-                    );
-
-                    if (f.getMpa() != null) {
-                        f.setMpa(mpa.get(f.getMpa().id()));
-                    }
-
-                    return filmMapper.toResponseDto(f);
-                })
-                .filter(Objects::nonNull)
+                .map(FilmMapper::toResponseDto)
                 .toList();
     }
 

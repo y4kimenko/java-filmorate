@@ -1,58 +1,71 @@
 Diagram DB:
 ```mermaid
 erDiagram
-  USERS {
-    BIGINT id PK
-    VARCHAR email "UNIQUE, NOT NULL"
-    VARCHAR login "UNIQUE, NOT NULL"
-    VARCHAR name "NOT NULL"
-    DATE birthday
-  }
+    USERS {
+        BIGINT id PK
+        VARCHAR email
+        VARCHAR login
+        VARCHAR name
+        DATE birthday
+    }
 
-  FRIENDSHIP {
-    BIGINT requester_id PK, FK
-    BIGINT addressee_id PK, FK
-    BOOLEAN addressee_deleted "NOT NULL, DEFAULT false"
-    BOOLEAN status "NOT NULL, DEFAULT false"
-  }
+    FRIENDSHIP {
+        BIGINT requester_id PK, FK
+        BIGINT addressee_id PK, FK
+        BOOLEAN addressee_deleted
+        BOOLEAN status
+    }
 
-  GENRES {
-    BIGINT id PK
-    VARCHAR name "UNIQUE, NOT NULL"
-  }
+    GENRES {
+        BIGINT id PK
+        VARCHAR name
+    }
 
-  MPA {
-    INT id PK
-    VARCHAR name "UNIQUE, NOT NULL"
-  }
+    MPA {
+        INT id PK
+        VARCHAR name
+    }
 
-  FILM {
-    BIGINT id PK
-    VARCHAR title "NOT NULL"
-    INT mpa_id FK
-    CLOB description
-    DATE release_date
-    INT duration
-  }
+    DIRECTOR {
+        INT id PK
+        VARCHAR name
+    }
 
-  USER_FILM_LIKES {
-    BIGINT user_id PK, FK
-    BIGINT film_id PK, FK
-  }
+    FILM {
+        BIGINT id PK
+        VARCHAR title
+        INT mpa_id FK
+        CLOB description
+        DATE release_date
+        INT duration
+    }
 
-  FILM_GENRES {
-    BIGINT film_id PK, FK
-    BIGINT genre_id PK, FK
-  }
+    USER_FILM_LIKES {
+        BIGINT user_id PK, FK
+        BIGINT film_id PK, FK
+    }
 
-  USERS ||--o{ FRIENDSHIP : "requester_id"
-  USERS ||--o{ FRIENDSHIP : "addressee_id"
+    FILM_GENRES {
+        BIGINT film_id PK, FK
+        BIGINT genre_id PK, FK
+    }
 
-  MPA ||--o{ FILM : "mpa_id"
+    FILM_DIRECTORS {
+        BIGINT film_id PK, FK
+        BIGINT director_id PK, FK
+    }
 
-  USERS ||--o{ USER_FILM_LIKES : "user_id"
-  FILM  ||--o{ USER_FILM_LIKES : "film_id"
+    USERS ||--o{ FRIENDSHIP : requester
+    USERS ||--o{ FRIENDSHIP : addressee
 
-  FILM   ||--o{ FILM_GENRES : "film_id"
-  GENRES ||--o{ FILM_GENRES : "genre_id"
+    MPA ||--o{ FILM : rates
+
+    USERS ||--o{ USER_FILM_LIKES : likes
+    FILM ||--o{ USER_FILM_LIKES : liked_by
+
+    FILM ||--o{ FILM_GENRES : has
+    GENRES ||--o{ FILM_GENRES : assigned_to
+
+    FILM ||--o{ FILM_DIRECTORS : has
+    DIRECTOR ||--o{ FILM_DIRECTORS : directs
 ```
