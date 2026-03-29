@@ -154,11 +154,6 @@ public class ReviewDbStorage implements ReviewStorage {
         review.setUseful(useful);
 
         return review;
-
-        log.info("Updated review id={}", review.getReviewId());
-
-        return findById(review.getReviewId())
-                .orElseThrow(() -> new IllegalStateException("Не удалось получить обновлённый отзыв id=" + review.getReviewId()));
     }
 
     @Override
