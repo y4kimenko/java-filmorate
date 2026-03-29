@@ -151,7 +151,6 @@ public class FilmServiceImpl implements FilmService {
         if (!existing.getGenres().isEmpty())
             genresByFilmsDbStorage.update(filmId, existing.getGenres().keySet());
 
-
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
                 existing.getId(), existing.getName(), existing.getDescription(), existing.getReleaseDate(), existing.getDuration());
 
@@ -254,6 +253,18 @@ public class FilmServiceImpl implements FilmService {
                 .toList());
     }
 
+    @Override
+    public List<FilmResponseDto> getRecommendations(long userId) {
+        if (!userStorage.existsById(userId)) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден.");
+        }
+
+        List<FilmResponseDto> result = prepareFilmsWithGenresAndMpa(filmStorage.getRecommendations(userId));
+
+        log.debug("getRecommendations() – total={}", result.size());
+        return result;
+    }
+
     private List<FilmResponseDto> prepareFilmsWithGenresAndMpa(List<Film> films) {
 
         Set<Long> filmsIds = films.stream().map(Film::getId).collect(Collectors.toSet());
@@ -312,6 +323,5 @@ public class FilmServiceImpl implements FilmService {
                 .map(FilmMapper::toResponseDto)
                 .toList();
     }
-
 
 }

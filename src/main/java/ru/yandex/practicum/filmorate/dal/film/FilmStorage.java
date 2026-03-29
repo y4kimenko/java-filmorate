@@ -27,6 +27,8 @@ public interface FilmStorage {
 
     boolean existsById(long id);
 
+    List<Film> getRecommendations(long userId);
+
     int deleteById(long id);
 
     Map<Long, Film> searchByTitle(String title, List<FilmsSearchBy> searchBy);

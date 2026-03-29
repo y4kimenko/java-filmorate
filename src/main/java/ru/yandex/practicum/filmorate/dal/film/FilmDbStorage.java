@@ -73,6 +73,7 @@ public class FilmDbStorage implements FilmStorage {
             DELETE FROM film
             WHERE id = :id
             """;
+
     private static final String GET_COMMON_FILMS = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
@@ -84,6 +85,29 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(likes.user_id) DESC, f.id ASC;
             """;
+
+    private static final String GET_RECOMMENDATIONS = """
+            SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
+                    FROM film f
+                    JOIN user_film_likes l ON f.id = l.film_id
+                    WHERE l.user_id = (
+                        SELECT l2.user_id
+                        FROM user_film_likes l1
+                        JOIN user_film_likes l2 ON l1.film_id = l2.film_id
+                        WHERE l1.user_id = :userId
+                          AND l2.user_id <> :userId
+                        GROUP BY l2.user_id
+                        ORDER BY COUNT(*) DESC, l2.user_id ASC
+                        LIMIT 1
+                    )
+                      AND f.id NOT IN (
+                        SELECT film_id
+                        FROM user_film_likes
+                        WHERE user_id = :userId
+                    )
+                    ORDER BY f.id;
+            """;
+
     private static final String SEARCH_FILMS_BY_TITLE = """
             SELECT f.id, f.title, f.mpa_id, f.description, f.release_date, f.duration
             FROM film f
@@ -280,5 +304,17 @@ public class FilmDbStorage implements FilmStorage {
         ).stream().collect(Collectors.toMap(Film::getId, f -> f));
     }
 
+    @Override
+    public List<Film> getRecommendations(long userId) {
+        List<Film> res = jdbcTemplate.query(
+                GET_RECOMMENDATIONS,
+                new MapSqlParameterSource("userId", userId),
+                new FilmRowMapper()
+        );
+
+        log.info("getRecommendations() - request userId={}", userId);
+
+        return res;
+    }
 
 }

@@ -22,7 +22,6 @@ public interface FilmService {
 
     void deleteById(long id);
 
-
     List<FilmResponseDto> getPopularFilms(long count);
 
     List<FilmResponseDto> getCommonFilms(long userId, long friendId);
@@ -31,5 +30,5 @@ public interface FilmService {
 
     List<FilmResponseDto> searchFilms(String query, List<FilmsSearchBy> searchBy);
 
-
+    List<FilmResponseDto> getRecommendations(long userId);
 }
