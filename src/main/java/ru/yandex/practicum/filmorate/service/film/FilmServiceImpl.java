@@ -90,6 +90,9 @@ public class FilmServiceImpl implements FilmService {
         if (!req.getGenres().isEmpty())
             r.setGenres(req.getGenres());
 
+        if (!req.getDirectors().isEmpty())
+            r.setDirectors(req.getDirectors());
+
 
         if (!req.getGenres().isEmpty())
             genresByFilmsDbStorage.save(r.getId(), r.getGenres().keySet());
@@ -143,10 +146,10 @@ public class FilmServiceImpl implements FilmService {
 
         filmStorage.update(existing);
 
-        if (!existing.getDirectors().isEmpty())
+        if (existing.getDirectors() != null)
             directorByFilmStorage.update(filmId, existing.getDirectors().keySet());
 
-        if (!existing.getGenres().isEmpty())
+        if (existing.getGenres() != null)
             genresByFilmsDbStorage.update(filmId, existing.getGenres().keySet());
 
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
@@ -174,7 +177,7 @@ public class FilmServiceImpl implements FilmService {
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
         }
-        film.setDirectors(directorStorage.getByIds(directorByFilmStorage.getByFilmIds(Set.of(filmId)).keySet()));
+        film.setDirectors(directorStorage.getByIds(directorByFilmStorage.getByFilmIds(Set.of(filmId)).get(filmId)));
         film.setGenres(genresStorage.getByIds(genresByFilmsDbStorage.getByFilmId(filmId)));
 
         log.info("update() – id={}, name={}, description={}, releaseDate={}, duration={}",
