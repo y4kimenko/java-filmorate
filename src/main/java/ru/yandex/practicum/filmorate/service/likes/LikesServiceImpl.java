@@ -52,7 +52,7 @@ public class LikesServiceImpl implements LikesService {
                 Event.of(
                         userId,
                         Event.EventType.LIKE,
-                        Event.Operation.ADD,
+                        Event.Operation.REMOVE,
                         filmId
                 )
         );

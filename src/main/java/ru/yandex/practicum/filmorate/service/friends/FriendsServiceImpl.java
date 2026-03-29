@@ -69,7 +69,7 @@ public class FriendsServiceImpl implements FriendsService {
                 Event.of(
                         userId,
                         Event.EventType.FRIEND,
-                        Event.Operation.ADD,
+                        Event.Operation.REMOVE,
                         friendId
                 )
         );
