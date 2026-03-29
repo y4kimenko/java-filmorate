@@ -17,11 +17,14 @@ import ru.yandex.practicum.filmorate.dto.genre.request.GenreRequestDto;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.dto.mpa.request.MpaRequestDto;
 import ru.yandex.practicum.filmorate.dto.mpa.response.MpaResponseDto;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.web.controller.film.FilmController;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -61,9 +64,12 @@ class FilmControllerTest {
                 LocalDate.of(2000, 1, 1),
                 120
         );
+        Map<FilmsPopularSortBy, Long> filters = new HashMap<>();
+        filters.put(FilmsPopularSortBy.YEAR, (long) film.releaseDate().getYear());
+        filters.put(FilmsPopularSortBy.GENRE_ID, film.genres().getFirst().id());
+
         when(filmService.getMostPopularFilms(5,
-                film.genres().getFirst().id(),
-                (long) film.releaseDate().getYear()))
+                        filters))
                 .thenReturn(List.of(film));
 
         mockMvc.perform(get("/films/popular")

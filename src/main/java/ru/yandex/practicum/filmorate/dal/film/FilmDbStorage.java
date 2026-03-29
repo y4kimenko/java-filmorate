@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.film.mappers.FilmRowMapper;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -312,22 +313,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getMostPopularFilms(Long count, Long genreId, Long year) {
+    public List<Film> getMostPopularFilms(Long count, Map<FilmsPopularSortBy, Long> filters) {
         List<String> conditions = new ArrayList<>();
 
         StringBuilder request = new StringBuilder(GET_MOST_POPULAR_FILMS);
 
         MapSqlParameterSource params = new MapSqlParameterSource().addValue("count", count);
 
-        if (year != null) {
-            conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
-            params.addValue("year", year);
-        }
-
-        if (genreId != null) {
-            conditions.add("f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id)");
-            params.addValue("genre_id", genreId);
-        }
+        filters.forEach((filter, value) -> {
+            switch (filter) {
+                case YEAR -> {
+                    conditions.add("EXTRACT(YEAR FROM f.release_date) = :year");
+                    params.addValue("year", value);
+                }
+                case GENRE_ID -> {
+                    conditions.add("f.id IN (SELECT film_id FROM film_genres WHERE genre_id = :genre_id)");
+                    params.addValue("genre_id", value);
+                }
+            }
+        });
 
         if (!conditions.isEmpty()) {
             request

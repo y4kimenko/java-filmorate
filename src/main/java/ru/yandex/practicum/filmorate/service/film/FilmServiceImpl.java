@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.film.request.FilmRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.film.response.FilmResponseDto;
 import ru.yandex.practicum.filmorate.enums.DirectorFilmsSortBy;
+import ru.yandex.practicum.filmorate.enums.FilmsPopularSortBy;
 import ru.yandex.practicum.filmorate.enums.FilmsSearchBy;
 import ru.yandex.practicum.filmorate.exception.notFound.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.FilmNotFoundException;
@@ -324,8 +325,8 @@ public class FilmServiceImpl implements FilmService {
                 .toList();
     }
 
-    public List<FilmResponseDto> getMostPopularFilms(long count, Long genreId, Long year) {
-        return filmStorage.getMostPopularFilms(count, genreId, year)
+    public List<FilmResponseDto> getMostPopularFilms(long count, Map<FilmsPopularSortBy, Long> filters) {
+        return filmStorage.getMostPopularFilms(count, filters)
                 .stream()
                 .map(FilmMapper::toResponseDto)
                 .toList();
