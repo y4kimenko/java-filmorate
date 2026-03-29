@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.dal.events.EventStorage;
 import ru.yandex.practicum.filmorate.dal.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
@@ -17,6 +18,7 @@ import ru.yandex.practicum.filmorate.exception.notFound.ReactionNotFound;
 import ru.yandex.practicum.filmorate.exception.notFound.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exception.notFound.UserNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final EventStorage eventStorage;
 
     @Override
     @Transactional
@@ -44,6 +47,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         Review res = reviewStorage.save(ReviewMapper.toEntity(dto));
 
+        eventStorage.addEvent(Event.builder()
+                .userId(dto.userId())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.ADD)
+                .entityId(dto.filmId())
+                .timestamp(System.currentTimeMillis())
+                .build()
+        );
+
         log.info("save() – reviewId={}, userId={}, filmId={}, content={}, isPositive={}, useful={}",
                 res.getReviewId(), res.getUserId(), res.getFilmId(),
                 res.getContent(), res.getIsPositive(), res.getUseful());
@@ -59,15 +71,33 @@ public class ReviewServiceImpl implements ReviewService {
         }
         Review res = reviewStorage.update(ReviewMapper.toEntity(dto));
 
+        eventStorage.addEvent(Event.builder()
+                .userId(dto.userId())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.UPDATE)
+                .entityId(dto.filmId())
+                .timestamp(System.currentTimeMillis())
+                .build()
+        );
+
         return ReviewMapper.toResponseDto(res);
     }
 
     @Override
     @Transactional
     public void deleteReview(Long reviewId) {
-        if (reviewStorage.deleteReview(reviewId) == 0) {
-            throw new ReviewNotFoundException("Отзыв не найден");
-        }
+        Review review = reviewStorage.findById(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("Review c id=" + reviewId + " не найден."));
+
+        reviewStorage.deleteReview(reviewId);
+
+        eventStorage.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType(Event.EventType.REVIEW)
+                .operation(Event.Operation.REMOVE)
+                .entityId(reviewId)
+                .timestamp(System.currentTimeMillis())
+                .build());
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.yandex.practicum.filmorate.dal.events.EventStorage;
 import ru.yandex.practicum.filmorate.dal.friends.FriendsStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.friend.FriendShipsDto;
@@ -35,12 +36,13 @@ class FriendsServiceImplTest {
 
     private final UserStorage userStorage = mock(UserStorage.class);
     private final FriendsStorage friendsStorage = mock(FriendsStorage.class);
+    private final EventStorage eventStorage = mock(EventStorage.class);
 
     private FriendsServiceImpl friendsService;
 
     @BeforeEach
     void setUp() {
-        friendsService = new FriendsServiceImpl(userStorage, friendsStorage);
+        friendsService = new FriendsServiceImpl(userStorage, friendsStorage, eventStorage);
     }
 
     @Test
