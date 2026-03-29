@@ -240,17 +240,6 @@ public class FilmDbStorage implements FilmStorage {
         return rows;
     }
 
-
-    @Override
-    public List<Film> getPopularFilms(long limit) {
-        List<Film> res = jdbcTemplate.query(GET_POPULAR_FILMS,
-                new MapSqlParameterSource("max_size", limit),
-                new FilmRowMapper());
-        log.info("(getPopularFilms) Request limit={}", limit);
-
-        return res;
-    }
-
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
         List<Film> res = jdbcTemplate.query(

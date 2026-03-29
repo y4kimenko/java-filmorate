@@ -18,8 +18,6 @@ public interface FilmStorage {
 
     List<Film> getAll();
 
-    List<Film> getPopularFilms(long limit);
-
     List<Film> getCommonFilms(long userId, long friendId);
 
     Optional<Film> getById(long id);
