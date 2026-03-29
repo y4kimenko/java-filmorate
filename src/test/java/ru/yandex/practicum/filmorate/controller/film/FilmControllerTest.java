@@ -61,9 +61,15 @@ class FilmControllerTest {
                 LocalDate.of(2000, 1, 1),
                 120
         );
-        when(filmService.getPopularFilms(5)).thenReturn(List.of(film));
+        when(filmService.getMostPopularFilms(5,
+                film.genres().getFirst().id(),
+                (long) film.releaseDate().getYear()))
+                .thenReturn(List.of(film));
 
-        mockMvc.perform(get("/films/popular").param("count", "5"))
+        mockMvc.perform(get("/films/popular")
+                        .param("count", "5")
+                        .param("genreId", "1")
+                        .param("year", "2000"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].id").value(42))
