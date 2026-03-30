@@ -9,7 +9,7 @@ import java.util.Set;
 public interface GenresStorage {
     Map<Long, Genre> getAll();
 
-    Optional<Genre> getById(long id);
+    Optional<Genre> findById(long id);
 
     Map<Long, Genre> getByIds(Set<Long> ids);
 }

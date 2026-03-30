@@ -103,7 +103,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Optional<Director> getById(Long id) {
+    public Optional<Director> findById(Long id) {
         log.info("(getById) Retrieving a director by ID={}", id);
         return jdbcTemplate.query(SELECT_DIRECTOR_BY_IDS,
                 new MapSqlParameterSource("ids", id),

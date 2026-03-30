@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
         Long userId = req.getId();
 
-        User existing = userStorage.getById(userId).orElseThrow(
+        User existing = userStorage.findById(userId).orElseThrow(
                 () -> new UserNotFoundException("User с id=" + userId + " не найден.")
         );
 
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(long id) {
-        User user = userStorage.getUserById(id).orElseThrow(() -> new UserNotFoundException(
+        User user = userStorage.findById(id).orElseThrow(() -> new UserNotFoundException(
                 "Пользователь с id = " + id + " не найден"));
 
         return UserMapper.toResponseDto(user);

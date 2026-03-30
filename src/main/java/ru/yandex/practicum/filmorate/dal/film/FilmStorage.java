@@ -20,9 +20,9 @@ public interface FilmStorage {
 
     List<Film> getCommonFilms(long userId, long friendId);
 
-    Optional<Film> getById(long id);
+    Optional<Film> findById(long id);
 
-    Set<Film> getByIds(Set<Long> ids);
+    Set<Film> findByIds(Set<Long> ids);
 
     boolean existsById(long id);
 

@@ -81,7 +81,7 @@ class FilmDbStorageTest {
         assertNotNull(saved.getId());
         assertTrue(saved.getId() > 0);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
 
         assertEquals(saved.getId(), fromDb.getId());
         assertEquals("A", fromDb.getName());
@@ -103,7 +103,7 @@ class FilmDbStorageTest {
 
         Film saved = filmStorage.save(film);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals(new Mpa(1L, null), fromDb.getMpa());
     }
 
@@ -127,7 +127,7 @@ class FilmDbStorageTest {
 
         filmStorage.update(saved);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals("New", fromDb.getName());
         assertEquals("NewD", fromDb.getDescription());
         assertEquals(LocalDate.of(2002, 3, 3), fromDb.getReleaseDate());
@@ -155,7 +155,7 @@ class FilmDbStorageTest {
 
         filmStorage.update(saved);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals("New", fromDb.getName());
         assertEquals(new Mpa(2L, null), fromDb.getMpa());
     }

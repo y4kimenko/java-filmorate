@@ -24,7 +24,7 @@ public class MpaServiceImpl implements MpaService {
     }
 
     public MpaResponseDto getById(long id) {
-        return MpaMapper.toResponseDto(mpaStorage.getById(id).orElseThrow(
+        return MpaMapper.toResponseDto(mpaStorage.findById(id).orElseThrow(
                 () -> new MpaNotFoundException("Mpa c id=" + id + " не найден.")
         ));
     }

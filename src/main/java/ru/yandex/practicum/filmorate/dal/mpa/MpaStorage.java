@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface MpaStorage {
     Map<Long, Mpa> getAll();
 
-    Optional<Mpa> getById(Long id);
+    Optional<Mpa> findById(Long id);
 }

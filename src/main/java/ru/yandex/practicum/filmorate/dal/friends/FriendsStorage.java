@@ -9,7 +9,7 @@ import java.util.Set;
 public interface FriendsStorage {
     void addFriend(long requester, long addressee);
 
-    Optional<FriendShipsDto> getFriendship(long userId, long friendId);
+    Optional<FriendShipsDto> findFriendship(long userId, long friendId);
 
     void updateFriendships(FriendShipsDto dto);
 

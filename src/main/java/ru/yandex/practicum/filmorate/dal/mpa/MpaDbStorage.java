@@ -44,7 +44,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Optional<Mpa> getById(Long id) {
+    public Optional<Mpa> findById(Long id) {
         return jdbcTemplate.query(SELECT_MPA_BY_ID,
                 new MapSqlParameterSource("id", id),
                 new DataClassRowMapper<>(Mpa.class)

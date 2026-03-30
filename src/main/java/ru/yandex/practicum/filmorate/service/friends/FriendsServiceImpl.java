@@ -55,7 +55,7 @@ public class FriendsServiceImpl implements FriendsService {
             throw new UserNotFoundException("User с id=" + friendId + " не найден.");
         }
 
-        FriendShipsDto dto = friendsStorage.getFriendship(userId, friendId).orElse(null);
+        FriendShipsDto dto = friendsStorage.findFriendship(userId, friendId).orElse(null);
 
         if (dto == null) return;
 

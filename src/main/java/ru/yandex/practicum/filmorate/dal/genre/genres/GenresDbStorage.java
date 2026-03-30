@@ -52,7 +52,7 @@ public class GenresDbStorage implements GenresStorage {
     }
 
     @Override
-    public Optional<Genre> getById(long id) {
+    public Optional<Genre> findById(long id) {
         log.info("(getById) Retrieving a genre by ID={}", id);
         return jdbcTemplate.query(SELECT_GENRE_BY_IDS,
                 new MapSqlParameterSource("ids", id),

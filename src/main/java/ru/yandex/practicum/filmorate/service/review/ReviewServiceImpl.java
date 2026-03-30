@@ -98,7 +98,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @Transactional
     public List<ReviewResponseDto> selectReviews(long count, Long filmId) {
 
         return reviewStorage.selectReviews(count, filmId).stream()
@@ -122,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.TRUE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Лайк отзыва reviewId = " + reviewId +
-                                                       " от пользователя с id = " + userId + " уже стоит");
+                    " от пользователя с id = " + userId + " уже стоит");
         }
 
         if (Boolean.FALSE.equals(isLike)) {
@@ -150,7 +149,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (Boolean.FALSE.equals(isLike)) {
             throw new DuplicateReviewReactionException("Дизлайк отзыва reviewId = " + reviewId +
-                                                       " от пользователя с id = " + userId + " уже стоит");
+                    " от пользователя с id = " + userId + " уже стоит");
         }
 
         if (Boolean.TRUE.equals(isLike)) {
@@ -178,7 +177,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         if (isLike == null) {
             throw new ReactionNotFound("Оценка отзыва reviewId = " + reviewId +
-                                       " от пользователя с id = " + userId + " не найдена");
+                    " от пользователя с id = " + userId + " не найдена");
         } else if (isLike) {
             reviewStorage.decrementUseful(reviewId);
         } else {
@@ -189,7 +188,6 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    @Transactional
     public ReviewResponseDto getReviewById(Long id) {
         Review review = reviewStorage.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundException("Отзыв не найден"));

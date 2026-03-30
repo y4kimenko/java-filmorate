@@ -192,7 +192,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> getById(long id) {
+    public Optional<Film> findById(long id) {
         log.info("(getById) Retrieving film by Id={}", id);
 
         return jdbcTemplate.query(SELECT_FILM_BY_IDS,
@@ -201,7 +201,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Film> getByIds(Set<Long> filmIds) {
+    public Set<Film> findByIds(Set<Long> filmIds) {
         log.info("(getByIds) Retrieving films in table 'film' with Ids={}", filmIds);
 
         if (filmIds == null || filmIds.isEmpty()) {

@@ -35,7 +35,7 @@ public class DirectorServiceImpl implements DirectorService {
         Director req = DirectorMapper.toEntity(dto);
         Long dirId = req.getId();
         log.info("updateDirector() - dto={}", dto);
-        Director existing = directorStorage.getById(dirId).orElseThrow(
+        Director existing = directorStorage.findById(dirId).orElseThrow(
                 () -> new DirectorNotFoundException("Director c id=" + dirId + " не найден.")
         );
 
@@ -52,7 +52,7 @@ public class DirectorServiceImpl implements DirectorService {
     @Override
     public DirectorResponseDto getById(Long id) {
         log.info("getById() id={}", id);
-        return DirectorMapper.toResponseDto(directorStorage.getById(id).orElseThrow(
+        return DirectorMapper.toResponseDto(directorStorage.findById(id).orElseThrow(
                 () -> new DirectorNotFoundException("Director c id=" + id + " не найден.")
         ));
     }

@@ -59,7 +59,7 @@ class UserDbStorageTest {
         assertNotNull(saved.getId());
         assertTrue(saved.getId() > 0);
 
-        User fromDb = userStorage.getById(saved.getId()).orElseThrow();
+        User fromDb = userStorage.findById(saved.getId()).orElseThrow();
         assertEquals(saved.getId(), fromDb.getId());
         assertEquals("a@a.ru", fromDb.getEmail());
         assertEquals("loginA", fromDb.getLogin());
@@ -70,7 +70,7 @@ class UserDbStorageTest {
     @Test
     @DisplayName("getById –– возвращает empty если пользователя нет")
     void getById_returnsEmpty_whenMissing() {
-        Optional<User> res = userStorage.getById(999_999L);
+        Optional<User> res = userStorage.findById(999_999L);
         assertTrue(res.isEmpty());
     }
 
@@ -86,7 +86,7 @@ class UserDbStorageTest {
 
         userStorage.update(saved);
 
-        User fromDb = userStorage.getById(saved.getId()).orElseThrow();
+        User fromDb = userStorage.findById(saved.getId()).orElseThrow();
         assertEquals("new@a.ru", fromDb.getEmail());
         assertEquals("newLogin", fromDb.getLogin());
         assertEquals("New Name", fromDb.getName());

@@ -24,7 +24,7 @@ public class GenresServiceImpl implements GenresService {
     }
 
     public GenreResponseDto getById(long id) {
-        return GenreMapper.toResponseDto(genresStorage.getById(id).orElseThrow(
+        return GenreMapper.toResponseDto(genresStorage.findById(id).orElseThrow(
                 () -> new GenreNotFoundException("Genre c id=" + id + " не найден.")
         ));
     }

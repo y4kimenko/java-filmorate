@@ -63,18 +63,18 @@ class GenresServiceImplTest {
     @DisplayName("getById – возвращает жанр если найден")
     void getById_returnsGenre_whenFound() {
         Genre dto = new Genre(1L, "Комедия");
-        when(genresStorage.getById(1L)).thenReturn(Optional.of(dto));
+        when(genresStorage.findById(1L)).thenReturn(Optional.of(dto));
 
         GenreResponseDto result = genresService.getById(1L);
 
         assertEquals(new GenreResponseDto(1L, "Комедия"), result);
-        verify(genresStorage).getById(1L);
+        verify(genresStorage).findById(1L);
     }
 
     @Test
     @DisplayName("getById – кидает GenreNotFoundException если жанр не найден")
     void getById_throws_whenNotFound() {
-        when(genresStorage.getById(999L)).thenReturn(Optional.empty());
+        when(genresStorage.findById(999L)).thenReturn(Optional.empty());
 
         GenreNotFoundException ex = assertThrows(
                 GenreNotFoundException.class,
@@ -82,6 +82,6 @@ class GenresServiceImplTest {
         );
 
         assertEquals("Genre c id=999 не найден.", ex.getMessage());
-        verify(genresStorage).getById(999L);
+        verify(genresStorage).findById(999L);
     }
 }

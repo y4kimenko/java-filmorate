@@ -13,7 +13,7 @@ public interface DirectorStorage {
 
     Map<Long, Director> getAll();
 
-    Optional<Director> getById(Long id);
+    Optional<Director> findById(Long id);
 
     Map<Long, Director> getByIds(Set<Long> ids);
 

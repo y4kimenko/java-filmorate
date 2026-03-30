@@ -115,17 +115,6 @@ public class UserDbStorage implements UserStorage {
         return users;
     }
 
-    @Override
-    public Optional<User> getById(long id) {
-        Optional<User> user = jdbcTemplate.query(
-                SELECT_USER_BY_ID,
-                new MapSqlParameterSource("id", id),
-                new UserRowMapper()
-        ).stream().findFirst();
-        log.info("getById() – request UserId={}", id);
-        return user;
-    }
-
 
     @Override
     public boolean existsById(long id) {
@@ -157,11 +146,13 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(long id) {
-        return jdbcTemplate.query(
+    public Optional<User> findById(long id) {
+        Optional<User> user = jdbcTemplate.query(
                 SELECT_USER_BY_ID,
                 new MapSqlParameterSource("id", id),
                 new UserRowMapper()
         ).stream().findFirst();
+        log.info("findById() – request UserId={}", id);
+        return user;
     }
 }

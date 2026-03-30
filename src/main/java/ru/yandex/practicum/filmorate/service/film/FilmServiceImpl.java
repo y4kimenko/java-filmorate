@@ -60,7 +60,7 @@ public class FilmServiceImpl implements FilmService {
         Film req = FilmMapper.toEntity(dto);
 
         if (req.getMpa() != null) {
-            req.setMpa(mpaStorage.getById(req.getMpa().id()).orElseThrow(
+            req.setMpa(mpaStorage.findById(req.getMpa().id()).orElseThrow(
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
         }
@@ -114,7 +114,7 @@ public class FilmServiceImpl implements FilmService {
 
         Long filmId = req.getId();
 
-        Film existing = filmStorage.getById(filmId).orElseThrow(
+        Film existing = filmStorage.findById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден.")
         );
 
@@ -125,7 +125,7 @@ public class FilmServiceImpl implements FilmService {
 
 
         if (req.getMpa() != null)
-            existing.setMpa(mpaStorage.getById(req.getMpa().id()).orElseThrow(
+            existing.setMpa(mpaStorage.findById(req.getMpa().id()).orElseThrow(
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
 
@@ -169,11 +169,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public FilmResponseDto getById(Long filmId) {
-        Film film = filmStorage.getById(filmId).orElseThrow(
+        Film film = filmStorage.findById(filmId).orElseThrow(
                 () -> new FilmNotFoundException("Film c id=" + filmId + " не найден."));
 
         if (film.getMpa() != null) {
-            film.setMpa(mpaStorage.getById(film.getMpa().id()).orElseThrow(
+            film.setMpa(mpaStorage.findById(film.getMpa().id()).orElseThrow(
                     () -> new MpaNotFoundException("Не корректно заданный rating"))
             );
         }
@@ -211,17 +211,17 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<FilmResponseDto> getDirectorFilms(long directorId, DirectorFilmsSortBy sortBy) {
-        if (directorStorage.getById(directorId).isEmpty())
+        if (directorStorage.findById(directorId).isEmpty())
             throw new DirectorNotFoundException("Director c id=" + directorId + " не найден.");
 
         Set<Long> filmsDirector = directorByFilmStorage.getByDirectorId(directorId);
 
         List<Film> result = switch (sortBy) {
-            case DirectorFilmsSortBy.YEAR -> filmStorage.getByIds(filmsDirector).stream()
+            case DirectorFilmsSortBy.YEAR -> filmStorage.findByIds(filmsDirector).stream()
                     .sorted(Comparator.comparing(Film::getReleaseDate))
                     .toList();
             case DirectorFilmsSortBy.LIKES -> {
-                Map<Long, Film> films = filmStorage.getByIds(filmsDirector).stream()
+                Map<Long, Film> films = filmStorage.findByIds(filmsDirector).stream()
                         .collect(Collectors.toMap(Film::getId,
                                 Function.identity()
                         ));

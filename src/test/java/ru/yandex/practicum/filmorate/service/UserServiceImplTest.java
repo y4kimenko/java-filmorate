@@ -130,7 +130,7 @@ class UserServiceImplTest {
                 10L, "new@mail.ru", "newLogin", "New Name", LocalDate.of(1999, 12, 31)
         );
 
-        when(userStorage.getById(10L)).thenReturn(Optional.of(existing));
+        when(userStorage.findById(10L)).thenReturn(Optional.of(existing));
         when(userStorage.update(existing)).thenReturn(updated);
 
         try (MockedStatic<UserMapper> mocked = mockStatic(UserMapper.class)) {
@@ -146,7 +146,7 @@ class UserServiceImplTest {
             assertEquals("New Name", existing.getName());
             assertEquals(LocalDate.of(1999, 12, 31), existing.getBirthday());
 
-            verify(userStorage).getById(10L);
+            verify(userStorage).findById(10L);
             verify(userStorage).update(existing);
         }
     }
@@ -161,7 +161,7 @@ class UserServiceImplTest {
         User req = new User();
         req.setId(10L);
 
-        when(userStorage.getById(10L)).thenReturn(Optional.empty());
+        when(userStorage.findById(10L)).thenReturn(Optional.empty());
 
         try (MockedStatic<UserMapper> mocked = mockStatic(UserMapper.class)) {
             mocked.when(() -> UserMapper.toEntity(dto)).thenReturn(req);
@@ -172,7 +172,7 @@ class UserServiceImplTest {
             );
 
             assertEquals("User с id=10 не найден.", ex.getMessage());
-            verify(userStorage).getById(10L);
+            verify(userStorage).findById(10L);
             verify(userStorage, never()).update(any());
             mocked.verify(() -> UserMapper.toResponseDto(any(User.class)), never());
         }

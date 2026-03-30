@@ -94,7 +94,7 @@ class FilmServiceImplTests {
         Genre g1 = new Genre(1L, "Комедия");
         Genre g2 = new Genre(2L, "Драма");
 
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
+        when(mpaStorage.findById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
         when(directorStorage.getByIds(Set.of(1L, 2L))).thenReturn(Map.of(1L, dir1,
                 2L, dir2));
         when(genresStorage.getByIds(Set.of(1L, 2L))).thenReturn(Map.of(1L, g1,
@@ -188,7 +188,7 @@ class FilmServiceImplTests {
         );
 
 
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
+        when(mpaStorage.findById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
         when(filmStorage.save(any(Film.class))).thenReturn(saved);
 
         FilmResponseDto actual = filmService.createFilm(dto);
@@ -211,7 +211,7 @@ class FilmServiceImplTests {
                 120
         );
 
-        when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
+        when(mpaStorage.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(MpaNotFoundException.class, () -> filmService.createFilm(dto));
 
@@ -307,8 +307,8 @@ class FilmServiceImplTests {
                 90
         );
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
-        when(mpaStorage.getById(2L)).thenReturn(Optional.of(mpaFromDb));
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(existing));
+        when(mpaStorage.findById(2L)).thenReturn(Optional.of(mpaFromDb));
         when(genresStorage.getByIds(Set.of(1L))).thenReturn(genresFromDb);
 
         FilmResponseDto actual = filmService.updateFilm(dto);
@@ -343,7 +343,7 @@ class FilmServiceImplTests {
                 "New Desc", LocalDate.of(2001, 2, 3), 90
         );
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.empty());
+        when(filmStorage.findById(10L)).thenReturn(Optional.empty());
 
         assertThrows(FilmNotFoundException.class, () -> filmService.updateFilm(dto));
 
@@ -364,8 +364,8 @@ class FilmServiceImplTests {
         existing.setGenres(new HashMap<>());
 
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
-        when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(existing));
+        when(mpaStorage.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(MpaNotFoundException.class, () -> filmService.updateFilm(dto));
 
@@ -388,7 +388,7 @@ class FilmServiceImplTests {
         existing.setId(10L);
         existing.setGenres(new HashMap<>());
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(existing));
 
         when(genresStorage.getByIds(Set.of(1L, 2L)))
                 .thenReturn(new HashMap<>(Map.of(1L, new Genre(1L, "Комедия")))); // меньше, чем req.getGenres().size()
@@ -419,7 +419,7 @@ class FilmServiceImplTests {
         dir1.setId(1L);
         dir1.setName("Director 1");
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(existing));
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(existing));
 
         when(directorStorage.getByIds(Set.of(1L, 1098L)))
                 .thenReturn(new HashMap<>(Map.of(1L, dir1))); // меньше, чем req.getGenres().size()
@@ -561,7 +561,7 @@ class FilmServiceImplTests {
         List<FilmResponseDto> result = filmService.getMostPopularFilms(10L, Map.of());
 
         assertEquals(2, result.size());
-        assertEquals(r1, result.get(0));
+        assertEquals(r1, result.getFirst());
         verify(genresByFilmsDbStorage).getByFilmIds(Set.of(1L, 2L));
     }
 
@@ -577,8 +577,8 @@ class FilmServiceImplTests {
         film.setMpa(new Mpa(1L, null));
         film.setGenres(new HashMap<>());
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(film));
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(film));
+        when(mpaStorage.findById(1L)).thenReturn(Optional.of(new Mpa(1L, "G")));
 
         when(genresByFilmsDbStorage.getByFilmId(10L)).thenReturn(Set.of(1L));
         when(genresStorage.getByIds(Set.of(1L))).thenReturn(new HashMap<>(Map.of(
@@ -604,7 +604,7 @@ class FilmServiceImplTests {
     @Test
     @DisplayName("getById – ошибка: фильм не найден")
     void getById_throws_whenFilmNotFound() {
-        when(filmStorage.getById(10L)).thenReturn(Optional.empty());
+        when(filmStorage.findById(10L)).thenReturn(Optional.empty());
 
         assertThrows(FilmNotFoundException.class, () -> filmService.getById(10L));
 
@@ -619,8 +619,8 @@ class FilmServiceImplTests {
         film.setMpa(new Mpa(999L, null));
         film.setGenres(new HashMap<>());
 
-        when(filmStorage.getById(10L)).thenReturn(Optional.of(film));
-        when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
+        when(filmStorage.findById(10L)).thenReturn(Optional.of(film));
+        when(mpaStorage.findById(999L)).thenReturn(Optional.empty());
 
         assertThrows(MpaNotFoundException.class, () -> filmService.getById(10L));
 

@@ -53,19 +53,19 @@ class MpaServiceImplTest {
     @DisplayName("getById – возвращает рейтинг если найден")
     void getById_returns_whenFound() {
         Mpa dto = new Mpa(1L, "G");
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(dto));
+        when(mpaStorage.findById(1L)).thenReturn(Optional.of(dto));
 
         MpaResponseDto result = mpaService.getById(1L);
 
         assertEquals(new MpaResponseDto(1L, "G"), result);
-        verify(mpaStorage).getById(1L);
+        verify(mpaStorage).findById(1L);
         verifyNoMoreInteractions(mpaStorage);
     }
 
     @Test
     @DisplayName("getById – кидает MpaNotFoundException если не найден")
     void getById_throws_whenNotFound() {
-        when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
+        when(mpaStorage.findById(999L)).thenReturn(Optional.empty());
 
         MpaNotFoundException ex = assertThrows(
                 MpaNotFoundException.class,
@@ -73,7 +73,7 @@ class MpaServiceImplTest {
         );
 
         assertEquals("Mpa c id=999 не найден.", ex.getMessage());
-        verify(mpaStorage).getById(999L);
+        verify(mpaStorage).findById(999L);
         verifyNoMoreInteractions(mpaStorage);
     }
 }

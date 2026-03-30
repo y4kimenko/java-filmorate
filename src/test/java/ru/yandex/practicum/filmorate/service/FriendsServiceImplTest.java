@@ -117,11 +117,11 @@ class FriendsServiceImplTest {
 
         when(userStorage.existsById(userId)).thenReturn(true);
         when(userStorage.existsById(friendId)).thenReturn(true);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.empty());
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.empty());
 
         friendsService.removeFriend(userId, friendId);
 
-        verify(friendsStorage).getFriendship(userId, friendId);
+        verify(friendsStorage).findFriendship(userId, friendId);
         verify(friendsStorage, never()).deleteFriendships(anyLong(), anyLong());
         verify(friendsStorage, never()).updateFriendships(any());
     }
@@ -137,7 +137,7 @@ class FriendsServiceImplTest {
 
         // requesterId = userId
         FriendShipsDto friendship = new FriendShipsDto(userId, friendId, false, false);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
 
         friendsService.removeFriend(userId, friendId);
 
@@ -156,7 +156,7 @@ class FriendsServiceImplTest {
 
         // requesterId = friendId (то есть userId не requester)
         FriendShipsDto friendship = new FriendShipsDto(friendId, userId, false, false);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
 
         friendsService.removeFriend(userId, friendId);
 

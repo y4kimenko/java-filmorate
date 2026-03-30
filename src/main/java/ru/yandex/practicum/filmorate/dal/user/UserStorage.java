@@ -13,13 +13,11 @@ public interface UserStorage {
 
     List<User> getAll();
 
-    Optional<User> getById(long id);
-
     boolean existsById(long id);
 
     List<User> getByIds(Set<Long> ids);
 
     int deleteById(long id);
 
-    Optional<User> getUserById(long id);
+    Optional<User> findById(long id);
 }
