@@ -1,4 +1,4 @@
-merge into MPA (id, name)
+merge into mpa (id, name)
     values (1, 'G'),
            (2, 'PG'),
            (3, 'PG-13'),

@@ -11,7 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestCreateDto;
 import ru.yandex.practicum.filmorate.dto.user.request.UserRequestUpdateDto;
 import ru.yandex.practicum.filmorate.dto.user.response.UserResponseDto;
+import ru.yandex.practicum.filmorate.service.event.EventService;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.web.controller.user.UserController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,15 +33,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     UserService userService;
-
+    @MockBean
+    FilmService filmService;
+    @MockBean
+    EventService eventService;
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     @DisplayName("POST /users  возвращает HTTP-ответ со статусом 200 OK с созданным user")
@@ -89,7 +93,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации входных данных"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации входных данных"))
                 .andExpect(jsonPath("$.errors.email").value("E-mail  is incorrect"));
 
         verifyNoInteractions(userService);

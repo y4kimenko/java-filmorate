@@ -56,7 +56,7 @@ class MpaDbStorageTest {
     @Test
     @DisplayName("getById –– возвращает рейтинг если найден")
     void getById_returnsWhenFound() {
-        Optional<Mpa> res = mpaStorage.getById(2L);
+        Optional<Mpa> res = mpaStorage.findById(2L);
 
         assertTrue(res.isPresent());
         assertEquals(new Mpa(2L, "PG"), res.get());
@@ -65,7 +65,7 @@ class MpaDbStorageTest {
     @Test
     @DisplayName("getById –– возвращает empty если не найден")
     void getById_returnsEmptyWhenMissing() {
-        Optional<Mpa> res = mpaStorage.getById(999L);
+        Optional<Mpa> res = mpaStorage.findById(999L);
 
         assertTrue(res.isEmpty());
     }

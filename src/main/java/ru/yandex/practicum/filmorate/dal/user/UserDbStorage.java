@@ -54,9 +54,13 @@ public class UserDbStorage implements UserStorage {
             FROM users
             WHERE id = :id""";
 
+    private static final String DELETE_BY_ID = """
+                    DELETE FROM users
+                    WHERE id = :id
+            """;
+
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-
 
     @Override
     public User save(User user) {
@@ -111,17 +115,6 @@ public class UserDbStorage implements UserStorage {
         return users;
     }
 
-    @Override
-    public Optional<User> getById(long id) {
-        Optional<User> user = jdbcTemplate.query(
-                SELECT_USER_BY_ID,
-                new MapSqlParameterSource("id", id),
-                new UserRowMapper()
-        ).stream().findFirst();
-        log.info("getById() – request UserId={}", id);
-        return user;
-    }
-
 
     @Override
     public boolean existsById(long id) {
@@ -141,6 +134,25 @@ public class UserDbStorage implements UserStorage {
                 new UserRowMapper()
         );
         log.info("getByIds() – request UserIds={}", ids);
+        return user;
+    }
+
+    @Override
+    public int deleteById(long id) {
+        int rows = jdbcTemplate.update(DELETE_BY_ID, new MapSqlParameterSource("id", id));
+        log.debug("deleteById({}) - affected rows: {}", id, rows);
+
+        return rows;
+    }
+
+    @Override
+    public Optional<User> findById(long id) {
+        Optional<User> user = jdbcTemplate.query(
+                SELECT_USER_BY_ID,
+                new MapSqlParameterSource("id", id),
+                new UserRowMapper()
+        ).stream().findFirst();
+        log.info("findById() – request UserId={}", id);
         return user;
     }
 }

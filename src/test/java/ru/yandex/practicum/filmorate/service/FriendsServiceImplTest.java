@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.yandex.practicum.filmorate.dal.events.EventStorage;
 import ru.yandex.practicum.filmorate.dal.friends.FriendsStorage;
 import ru.yandex.practicum.filmorate.dal.user.UserStorage;
 import ru.yandex.practicum.filmorate.dto.friend.FriendShipsDto;
@@ -35,12 +36,13 @@ class FriendsServiceImplTest {
 
     private final UserStorage userStorage = mock(UserStorage.class);
     private final FriendsStorage friendsStorage = mock(FriendsStorage.class);
+    private final EventStorage eventStorage = mock(EventStorage.class);
 
     private FriendsServiceImpl friendsService;
 
     @BeforeEach
     void setUp() {
-        friendsService = new FriendsServiceImpl(userStorage, friendsStorage);
+        friendsService = new FriendsServiceImpl(userStorage, friendsStorage, eventStorage);
     }
 
     @Test
@@ -115,11 +117,11 @@ class FriendsServiceImplTest {
 
         when(userStorage.existsById(userId)).thenReturn(true);
         when(userStorage.existsById(friendId)).thenReturn(true);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.empty());
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.empty());
 
         friendsService.removeFriend(userId, friendId);
 
-        verify(friendsStorage).getFriendship(userId, friendId);
+        verify(friendsStorage).findFriendship(userId, friendId);
         verify(friendsStorage, never()).deleteFriendships(anyLong(), anyLong());
         verify(friendsStorage, never()).updateFriendships(any());
     }
@@ -135,7 +137,7 @@ class FriendsServiceImplTest {
 
         // requesterId = userId
         FriendShipsDto friendship = new FriendShipsDto(userId, friendId, false, false);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
 
         friendsService.removeFriend(userId, friendId);
 
@@ -154,7 +156,7 @@ class FriendsServiceImplTest {
 
         // requesterId = friendId (то есть userId не requester)
         FriendShipsDto friendship = new FriendShipsDto(friendId, userId, false, false);
-        when(friendsStorage.getFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
+        when(friendsStorage.findFriendship(userId, friendId)).thenReturn(Optional.of(friendship));
 
         friendsService.removeFriend(userId, friendId);
 

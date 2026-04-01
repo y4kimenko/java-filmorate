@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.exception.notFound.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.mpa.MpaServiceImpl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,7 +39,7 @@ class MpaServiceImplTest {
 
         when(mpaStorage.getAll()).thenReturn(stored);
 
-        Set<MpaResponseDto> result = mpaService.getAll();
+        List<MpaResponseDto> result = mpaService.getAll();
 
 
         assertTrue(result.contains(new MpaResponseDto(1L, "G")));
@@ -53,19 +53,19 @@ class MpaServiceImplTest {
     @DisplayName("getById – возвращает рейтинг если найден")
     void getById_returns_whenFound() {
         Mpa dto = new Mpa(1L, "G");
-        when(mpaStorage.getById(1L)).thenReturn(Optional.of(dto));
+        when(mpaStorage.findById(1L)).thenReturn(Optional.of(dto));
 
         MpaResponseDto result = mpaService.getById(1L);
 
         assertEquals(new MpaResponseDto(1L, "G"), result);
-        verify(mpaStorage).getById(1L);
+        verify(mpaStorage).findById(1L);
         verifyNoMoreInteractions(mpaStorage);
     }
 
     @Test
     @DisplayName("getById – кидает MpaNotFoundException если не найден")
     void getById_throws_whenNotFound() {
-        when(mpaStorage.getById(999L)).thenReturn(Optional.empty());
+        when(mpaStorage.findById(999L)).thenReturn(Optional.empty());
 
         MpaNotFoundException ex = assertThrows(
                 MpaNotFoundException.class,
@@ -73,7 +73,7 @@ class MpaServiceImplTest {
         );
 
         assertEquals("Mpa c id=999 не найден.", ex.getMessage());
-        verify(mpaStorage).getById(999L);
+        verify(mpaStorage).findById(999L);
         verifyNoMoreInteractions(mpaStorage);
     }
 }

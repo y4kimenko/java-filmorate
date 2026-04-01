@@ -50,7 +50,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     @Override
-    public Optional<FriendShipsDto> getFriendship(long userId, long friendId) {
+    public Optional<FriendShipsDto> findFriendship(long userId, long friendId) {
         return jdbcTemplate.query(GET_FRIENDSHIP,
                 new MapSqlParameterSource()
                         .addValue("user_id", userId)

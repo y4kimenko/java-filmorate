@@ -9,8 +9,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.service.genres.GenresService;
+import ru.yandex.practicum.filmorate.web.controller.film.GenresFilmController;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -35,7 +36,7 @@ class GenresFilmControllerTest {
     void getAllGenres_ReturnsOk() throws Exception {
         GenreResponseDto dto = new GenreResponseDto(1, "Комедия");
 
-        when(genresService.getAll()).thenReturn(Set.of(dto));
+        when(genresService.getAll()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/genres"))
                 .andExpect(status().isOk())
@@ -70,7 +71,7 @@ class GenresFilmControllerTest {
     void getGenreById_ReturnsBadRequestWhenIdIsNegative() throws Exception {
         mockMvc.perform(get("/genres/{id}", -2L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Ошибка валидации параметров"))
+                .andExpect(jsonPath("$.error").value("Ошибка валидации параметров"))
                 .andExpect(jsonPath("$.errors.id").value("id genre не может быть отрицательным"));
 
         verifyNoInteractions(genresService);

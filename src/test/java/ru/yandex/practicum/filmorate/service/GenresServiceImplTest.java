@@ -4,16 +4,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.genres.GenresServiceImpl;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,7 +39,7 @@ class GenresServiceImplTest {
 
         when(genresStorage.getAll()).thenReturn(stored);
 
-        Set<GenreResponseDto> result = genresService.getAll();
+        List<GenreResponseDto> result = genresService.getAll();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(new GenreResponseDto(1, "Комедия")));
@@ -52,7 +52,7 @@ class GenresServiceImplTest {
     void getAll_returnsEmptySet_whenStorageEmpty() {
         when(genresStorage.getAll()).thenReturn(Map.of());
 
-        Set<GenreResponseDto> result = genresService.getAll();
+        List<GenreResponseDto> result = genresService.getAll();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -63,18 +63,18 @@ class GenresServiceImplTest {
     @DisplayName("getById – возвращает жанр если найден")
     void getById_returnsGenre_whenFound() {
         Genre dto = new Genre(1L, "Комедия");
-        when(genresStorage.getById(1L)).thenReturn(Optional.of(dto));
+        when(genresStorage.findById(1L)).thenReturn(Optional.of(dto));
 
         GenreResponseDto result = genresService.getById(1L);
 
         assertEquals(new GenreResponseDto(1L, "Комедия"), result);
-        verify(genresStorage).getById(1L);
+        verify(genresStorage).findById(1L);
     }
 
     @Test
     @DisplayName("getById – кидает GenreNotFoundException если жанр не найден")
     void getById_throws_whenNotFound() {
-        when(genresStorage.getById(999L)).thenReturn(Optional.empty());
+        when(genresStorage.findById(999L)).thenReturn(Optional.empty());
 
         GenreNotFoundException ex = assertThrows(
                 GenreNotFoundException.class,
@@ -82,6 +82,6 @@ class GenresServiceImplTest {
         );
 
         assertEquals("Genre c id=999 не найден.", ex.getMessage());
-        verify(genresStorage).getById(999L);
+        verify(genresStorage).findById(999L);
     }
 }

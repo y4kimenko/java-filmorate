@@ -8,13 +8,16 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.yandex.practicum.filmorate.dal.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genres.GenresDbStorage;
+import ru.yandex.practicum.filmorate.dal.mpa.MpaDbStorage;
+import ru.yandex.practicum.filmorate.dal.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JdbcTest
-@Import(FilmDbStorage.class)
+@Import({FilmDbStorage.class, UserDbStorage.class, MpaDbStorage.class, GenresDbStorage.class})
 class FilmDbStorageTest {
 
     @Autowired
@@ -78,7 +81,7 @@ class FilmDbStorageTest {
         assertNotNull(saved.getId());
         assertTrue(saved.getId() > 0);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
 
         assertEquals(saved.getId(), fromDb.getId());
         assertEquals("A", fromDb.getName());
@@ -100,7 +103,7 @@ class FilmDbStorageTest {
 
         Film saved = filmStorage.save(film);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals(new Mpa(1L, null), fromDb.getMpa());
     }
 
@@ -124,7 +127,7 @@ class FilmDbStorageTest {
 
         filmStorage.update(saved);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals("New", fromDb.getName());
         assertEquals("NewD", fromDb.getDescription());
         assertEquals(LocalDate.of(2002, 3, 3), fromDb.getReleaseDate());
@@ -152,7 +155,7 @@ class FilmDbStorageTest {
 
         filmStorage.update(saved);
 
-        Film fromDb = filmStorage.getById(saved.getId()).orElseThrow();
+        Film fromDb = filmStorage.findById(saved.getId()).orElseThrow();
         assertEquals("New", fromDb.getName());
         assertEquals(new Mpa(2L, null), fromDb.getMpa());
     }
@@ -190,11 +193,11 @@ class FilmDbStorageTest {
         Film s1 = filmStorage.save(f1);
         Film s2 = filmStorage.save(f2);
 
-        LinkedHashMap<Long, Film> all = filmStorage.getAll();
+        List<Film> all = filmStorage.getAll();
 
         assertEquals(2, all.size());
 
-        List<Long> ids = new ArrayList<>(all.keySet());
+        List<Long> ids = new ArrayList<>(all.stream().map(Film::getId).toList());
         assertEquals(List.of(s1.getId(), s2.getId()), ids);
     }
 
@@ -216,7 +219,7 @@ class FilmDbStorageTest {
         like(13L, f3.getId());
         like(14L, f3.getId());
 
-        List<Film> popular2 = filmStorage.getPopularFilms(2);
+        List<Film> popular2 = filmStorage.getMostPopularFilms(2L, Map.of());
 
         assertEquals(2, popular2.size());
         assertEquals(f1.getId(), popular2.get(0).getId());

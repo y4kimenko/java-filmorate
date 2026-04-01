@@ -2,27 +2,29 @@ package ru.yandex.practicum.filmorate.service.genres;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dal.genres.GenresStorage;
+import ru.yandex.practicum.filmorate.dal.genre.genres.GenresStorage;
 import ru.yandex.practicum.filmorate.dto.genre.response.GenreResponseDto;
 import ru.yandex.practicum.filmorate.exception.notFound.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GenresServiceImpl implements GenresService {
     private final GenresStorage genresStorage;
 
-    public Set<GenreResponseDto> getAll() {
+    public List<GenreResponseDto> getAll() {
         return genresStorage.getAll().values().stream()
+                .sorted(Comparator.comparingLong(Genre::id))
                 .map(GenreMapper::toResponseDto)
-                .collect(Collectors.toSet());
+                .toList();
     }
 
     public GenreResponseDto getById(long id) {
-        return GenreMapper.toResponseDto(genresStorage.getById(id).orElseThrow(
+        return GenreMapper.toResponseDto(genresStorage.findById(id).orElseThrow(
                 () -> new GenreNotFoundException("Genre c id=" + id + " не найден.")
         ));
     }
